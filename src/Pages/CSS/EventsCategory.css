@@ -21,19 +21,19 @@
     justify-content: space-between;
     align-items: center;
     margin: 0px 170px;
-    color: orangered;
+    color: #a6b5de;
 }
 
 .shopcategory-sort {
     padding: 10px 20px;
-    border: 1px solid orangered;
+    border: 1px solid #a6b5de;
     border-radius: 40px;
     
     
 }
 .buttonSort{
-    color: orangered;
-    border: orangered;
+    color: #a6b5de;
+    border: #a6b5de;
 }
 
 .shopcategory-indexSort p span {

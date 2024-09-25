@@ -2,6 +2,10 @@ import React, { useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import "./CSS/EventsCategory.css";
 import Item from "../Components/Items/Item";
+import Carousel from "../Components/Carousel/carousel";
+import pub1 from "../Components/Assets/FotosCarousel/pub1.webp";
+import pub2 from "../Components/Assets/FotosCarousel/pub2.jpg";
+import pub3 from "../Components/Assets/FotosCarousel/pub3.jpg";
 import { selectAllParties, selectSearch, setSearch } from "../ReduxToolkit/partySlice";
 
 const EventsCategory = (props) => {
@@ -31,23 +35,30 @@ const EventsCategory = (props) => {
 
     return values;
   }, [allParties, search, sortBy]);
+  
+  const carouselImages = [
+    pub1,
+    pub2,
+    pub3
+  ];
 
   return (
     <div className="shop-category">
+      <Carousel images={carouselImages} /> 
       <img className="shopcategory-banner" src={props.banner} alt="" />
       <div className="shopcategory-indexSort">
         <p>{/* <span>Mostrando 1-12</span> de 20 resultados */}</p>
         {/* Botón desplegable para ordenar */}
         <div className="shopCategory-sort">
-          Sort by{" "}
+          Filtrar por{" "}
           <select
             className="buttonSort"
             value={sortBy}
             onChange={(e) => handleChangeSortBy(e.target.value)}
           >
-            <option value="">Select</option>
-            <option value="price">Price</option>
-            <option value="date">Date</option>
+            <option value="">Seleccionar</option>
+            <option value="price">Precio</option>
+            <option value="date">Ubicación</option>
           </select>
         </div>
       </div>

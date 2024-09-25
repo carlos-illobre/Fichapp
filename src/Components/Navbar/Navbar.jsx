@@ -1,7 +1,7 @@
 import React, { useState} from "react";
 import "./Navbar.css";
-import logo from "../Assets/logo2.png";
-import cart_icon from "../Assets/bolsa_compras.jpg";
+import logo from "../Assets/logoFichapp.jpeg";
+import cart_icon from "../Assets/cart2.jpg";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import lupa from "../Assets/lupa.png";
 import { IconButton } from "@mui/material";
@@ -58,12 +58,12 @@ const Nabvar = () => {
       </button>
       <ul className={`nav-menu ${showMenu ? "show" : ""}`}>
         <li onClick={() => setMenu("recintos")}>
-          <Link to="/">HOME</Link>
+          <Link to="/">INICIO</Link>
         </li>
 
         {user.role === "ADMIN" && (
           <li onClick={() => setMenu("AgregarFiesta")}>
-            <Link to="/agregarFiesta">AGREGAR FIESTA</Link>
+            <Link to="/agregarFiesta">AGREGAR PUBLICACIÓN</Link>
           </li>
         )}
 
@@ -80,7 +80,7 @@ const Nabvar = () => {
           </>
         ) : (
           <li onClick={() => setMenu("login")}>
-            <Link to="/loginSignUp">LOG IN/SING UP</Link>
+            <Link to="/loginSignUp">INGRESAR / REGISTRARSE</Link>
           </li>
         )}
       </ul>
