@@ -2,9 +2,9 @@
   display: flex;
   justify-content: space-between;
   padding: 16px;
-  box-shadow: 0 1px 3px -2px black;
-  background-color: black;
-  color: white;
+  box-shadow: 0 1px 3px -2px #1b3173;
+  background-color: white;
+  color: #1b3173;
   height: 100%;
 }
 
@@ -27,7 +27,7 @@
   align-items: center;
   list-style: none;
   gap: 40px;
-  color: white;
+  color: #1b3173;
   font-size: 18px;
   font-weight: bold;
   text-decoration: none;
@@ -40,11 +40,11 @@
   gap: 3px;
   cursor: pointer;
   text-decoration: none;
-  color: white; /* Change link color to grey */
+  color: #1b3173; /* Change link color to grey */
   transition: color 0.3s;
 }
 .nav-menu li a:hover {
-  color: #626261; /* Change link color on hover */
+  color: #a6b5de; /* Change link color on hover */
 }
 
 .menu-icon {
@@ -53,12 +53,12 @@
 .menu-icon-lines {
   width: 30px;
   height: 3px;
-  background-color: white;
+  background-color: #1b3173;
   margin: 9px 0;
 }
 .menu-icon {
-  color: white;
-  background-color: rgba(13, 13, 13, 0.755);
+  color: #1b3173;
+  background-color: #a6b5de;
   border: none;
   font-size: 50px;
   cursor: pointer;
@@ -75,8 +75,8 @@
     background-color: transparent;
     width: 50%;
     padding: 10px;
-    border: 1px solid white;
-    background-color: rgba(13, 13, 13, 0.755);
+    border: 1px solid #1b3173;
+    background-color: #a6b5de;
   }
 
   /* Mostrar el menú cuando se hace clic en el botón de hamburguesa */
@@ -88,7 +88,7 @@
     display: block; /* Mostrar el botón de hamburguesa en dispositivos pequeños */
   }
   .nav-menu li a {
-    color: white;
+    color: #1b3173;
   }
 }
 
@@ -108,8 +108,8 @@
   margin-left: -55px;
   border-radius: 11px;
   font-size: 14px;
-  color: white;
-  background-color: #626261;
+  color: #1b3173;
+  background-color: #a6b5de;
 }
 
 .container-fluid {
@@ -167,7 +167,7 @@
 .logout-button {
   width: 170px; /* Ancho del botón */
   height: 50px; /* Altura del botón */
-  background-color: whitesmoke; /* Color de fondo */
+  background-color: #a6b5de; /* Color de fondo */
   color: black; /* Color del texto */
   border: none; /* Eliminar borde */
   border-radius: 8px; /* Añadir bordes redondeados */

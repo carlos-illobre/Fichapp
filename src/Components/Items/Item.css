@@ -1,15 +1,25 @@
 .item{
-    width: 350px;
+    width: 390px;
 }
+.item-container {
+    background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 2px solid #a6b5de;
+  }
 .item img {
     width: 100%; /* Ensure the image fills its container */
-    height: 200px; /* Set a fixed height for consistency */
+    height: 300px; /* Set a fixed height for consistency */
     object-fit: cover; /* Maintain aspect ratio and cover container */
-    border-radius: 10px; /* Add rounded corners */
+    /* border-radius: 10px; Add rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
 }
 .item p{
+    text-align: left;
+    font-size: 20px;
+    font-weight: 300;
     margin: 6px 0px;
+    color: #a6b5de;
 }
 
 .item-prices{
@@ -18,8 +28,7 @@
 }
 .item-price-new{
     color:#374151;
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 15px;
 }
 .item-price-old{
     color:#8c8c8c;
