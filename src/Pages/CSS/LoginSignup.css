@@ -1,0 +1,108 @@
+/* CSS/LoginSignup.css */
+
+.loginsignup {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding-top: 5px;
+  background: linear-gradient(135deg, #ffffff, #f9b4e1);
+  width: 100%;
+}
+
+.loginsignup-container {
+  width: 580px;
+  background: white; /* Apply the background to the container */
+  margin: auto;
+  padding: 40px 60px;
+}
+
+.loginsignup-container h1 {
+  margin: 20px 0px;
+}
+
+.loginsignup-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 29px;
+  margin-top: 30px;
+}
+
+.loginsignup-fields input {
+  width: 100%;
+  height: 72px;
+  padding-left: 20px;
+  border: 1px solid #c9c9c9;
+  outline: none;
+  color: #5c5c5c;
+  font-size: 18px;
+}
+
+.loginsignup-container button {
+  width: 100%;
+  height: 72px;
+  color: white;
+  background: #ff4141;
+  margin-top: 30px;
+  border: none;
+  border-radius: 10px; /* Add border radius for a rounded button */
+  font-size: 24px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease; /* Add smooth transition effect */
+}
+
+/* Change button background color on hover */
+.loginsignup-container button:hover {
+  background: #e13333;
+}
+
+.loginsignup-login {
+  color: #5c5c5c;
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.loginsignup-login span {
+  color: #ff4141;
+  font-weight: bold;
+}
+
+.loginsignup-login span:hover {
+  color: #ff4141;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.loginsignup-agree {
+  display: flex;
+  gap: 20px;
+  margin-top: 25px;
+  align-items: center;
+  color: #5c5c5c;
+  font-size: 18px;
+  font-weight: 500;
+  padding-right: 20px;
+}
+
+input[type="checkbox"] {
+  width: 35px; /* Ancho del checkbox */
+  height: 35px; /* Altura del checkbox */
+  margin-right: 2px; /*Espacio entre el checkbox y el texto */
+}
+
+/* Selector específico para el calendario en input tipo date */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  /* Modifica el tamaño del icono del calendario */
+  position: relative;
+  transform: scale(2);
+  right: 25px;
+}
+
+/* Ajusta el tamaño del calendario */
+input[type="date"]::-webkit-calendar-picker-popup {
+  font-size: 40px; /* Ajusta el tamaño del texto en el calendario */
+  width: 300px; /* Ajusta el ancho del calendario */
+  height: 300px; /* Ajusta la altura del calendario */
+}

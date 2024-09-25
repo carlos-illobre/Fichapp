@@ -1,0 +1,787 @@
+From 7bb58df5e339d2e8e31a9c9df863e9a854ee26b5 Mon Sep 17 00:00:00 2001
+From: Elisheba Tawil <sabuttawil@gmail.com>
+Date: Fri, 19 Apr 2024 02:16:41 -0300
+Subject: [PATCH] pagina party
+
+---
+ tpo/src/Components/Assets/all_parties.js      | 188 +++++++++++++++---
+ tpo/src/Components/Assets/data.js             |   1 +
+ .../BotonComprarParty/BotonComprarParty.css   |  35 ++++
+ .../BotonComprarParty/BotonComprarParty.jsx   |  22 ++
+ .../Components/BotonesParty/BotonesParty.css  |  49 +++++
+ .../Components/BotonesParty/BotonesParty.jsx  |  47 +++++
+ tpo/src/Components/Breadcrums/Breadcrum.css   |   5 -
+ tpo/src/Components/Breadcrums/Breadcrum.jsx   |  14 --
+ .../Components/HeaderParty/HeaderParty.css    |  31 +++
+ .../Components/HeaderParty/HeaderParty.jsx    |  21 ++
+ .../ProductDisplay/ProductDisplay.jsx         |  54 -----
+ tpo/src/Pages/CSS/Partys.css                  |   0
+ tpo/src/Pages/Partys.jsx                      |  20 +-
+ 13 files changed, 383 insertions(+), 104 deletions(-)
+ create mode 100644 tpo/src/Components/BotonComprarParty/BotonComprarParty.css
+ create mode 100644 tpo/src/Components/BotonComprarParty/BotonComprarParty.jsx
+ create mode 100644 tpo/src/Components/BotonesParty/BotonesParty.css
+ create mode 100644 tpo/src/Components/BotonesParty/BotonesParty.jsx
+ delete mode 100644 tpo/src/Components/Breadcrums/Breadcrum.css
+ delete mode 100644 tpo/src/Components/Breadcrums/Breadcrum.jsx
+ create mode 100644 tpo/src/Components/HeaderParty/HeaderParty.css
+ create mode 100644 tpo/src/Components/HeaderParty/HeaderParty.jsx
+ delete mode 100644 tpo/src/Components/ProductDisplay/ProductDisplay.jsx
+ create mode 100644 tpo/src/Pages/CSS/Partys.css
+
+diff --git a/tpo/src/Components/Assets/all_parties.js b/tpo/src/Components/Assets/all_parties.js
+index 069c83f..00c49da 100644
+--- a/tpo/src/Components/Assets/all_parties.js
++++ b/tpo/src/Components/Assets/all_parties.js
+@@ -33,7 +33,12 @@ let all_parties = [
+         image: bali,
+         new_price: 100,
+         old_price: 200,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'14/11/2024',
++        hora:'19:50',
++        lugar: 'Estadio River Plate',
++        ubicacion:'Av Figueroa Alcorta y Udaondo',
++        stock: 100
+     },
+     {
+         id: 2,
+@@ -41,7 +46,12 @@ let all_parties = [
+         image: kika,
+         new_price: 150,
+         old_price: 250,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Teatro Vorterix',
++        ubicacion:'Av. Federico Lacroze 3455',
++        stock: 100
+     },
+     {
+         id: 3,
+@@ -49,7 +59,12 @@ let all_parties = [
+         image: terrazas,
+         new_price: 120,
+         old_price: 220,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Teatro Gran Rex',
++        ubicacion:'Av. Corrientes 857',
++        stock: 100
+     },
+     {
+         id: 4,
+@@ -57,7 +72,12 @@ let all_parties = [
+         image: pacha,
+         new_price: 90,
+         old_price: 180,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Niceto Club',
++        ubicacion:'Av. Cnel. Niceto Vega 5510',
++        stock: 100
+     },
+     {
+         id: 5,
+@@ -65,7 +85,12 @@ let all_parties = [
+         image: ibiza,
+         new_price: 180,
+         old_price: 280,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Estadio River Plate',
++        ubicacion:'Av Figueroa Alcorta y Udaondo',
++        stock: 100
+     },
+     {
+         id: 6,
+@@ -73,7 +98,12 @@ let all_parties = [
+         image: samba,
+         new_price: 200,
+         old_price: 300,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'La Trastienda Club',
++        ubicacion:'Balcarce 460',
++        stock: 100
+     },
+     {
+         id: 7,
+@@ -81,7 +111,12 @@ let all_parties = [
+         image: disco,
+         new_price: 140,
+         old_price: 240,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Teatro Gran Rex',
++        ubicacion:'Av. Corrientes 857',
++        stock: 100
+     },
+     {
+         id: 8,
+@@ -89,7 +124,12 @@ let all_parties = [
+         image: reggae,
+         new_price: 120,
+         old_price: 220,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Teatro Vorterix',
++        ubicacion:'Av. Federico Lacroze 3455',
++        stock: 100
+     },
+     {
+         id: 9,
+@@ -97,7 +137,12 @@ let all_parties = [
+         image: electro,
+         new_price: 160,
+         old_price: 260,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Estadio River Plate',
++        ubicacion:'Av Figueroa Alcorta y Udaondo',
++        stock: 100
+     },
+     {
+         id: 10,
+@@ -105,7 +150,12 @@ let all_parties = [
+         image: jazz,
+         new_price: 130,
+         old_price: 230,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Teatro Gran Rex',
++        ubicacion:'Av. Corrientes 857',
++        stock: 100
+     },
+     {
+         id: 11,
+@@ -113,7 +163,12 @@ let all_parties = [
+         image: revival,
+         new_price: 190,
+         old_price: 290,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'La Trastienda Club',
++        ubicacion:'Balcarce 460',
++        stock: 100
+     },
+     {
+         id: 12,
+@@ -121,7 +176,12 @@ let all_parties = [
+         image: hiphop,
+         new_price: 110,
+         old_price: 210,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Teatro Vorterix',
++        ubicacion:'Av. Federico Lacroze 3455',
++        stock: 100
+     },
+     {
+         id: 13,
+@@ -129,7 +189,12 @@ let all_parties = [
+         image: rock,
+         new_price: 170,
+         old_price: 270,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Luna Park',
++        ubicacion:'Av. Eduardo Madero 420',
++        stock: 100
+     },
+     {
+         id: 14,
+@@ -137,7 +202,12 @@ let all_parties = [
+         image: latin,
+         new_price: 150,
+         old_price: 250,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Teatro Gran Rex',
++        ubicacion:'Av. Corrientes 857',
++        stock: 100
+     },
+     {
+         id: 15,
+@@ -145,7 +215,12 @@ let all_parties = [
+         image: karaoke,
+         new_price: 100,
+         old_price: 200,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Niceto Club',
++        ubicacion:'Av. Cnel. Niceto Vega 5510',
++        stock: 100
+     },
+     {
+         id: 16,
+@@ -153,7 +228,12 @@ let all_parties = [
+         image: carnival,
+         new_price: 220,
+         old_price: 320,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Teatro Vorterix',
++        ubicacion:'Av. Federico Lacroze 3455',
++        stock: 100
+     },
+     {
+         id: 17,
+@@ -161,7 +241,12 @@ let all_parties = [
+         image: funky_town,
+         new_price: 170,
+         old_price: 270,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'La Trastienda Club',
++        ubicacion:'Balcarce 460',
++        stock: 100
+     },
+     {
+         id: 18,
+@@ -169,7 +254,12 @@ let all_parties = [
+         image: masquerade,
+         new_price: 200,
+         old_price: 300,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Luna Park',
++        ubicacion:'Av. Eduardo Madero 420',
++        stock: 100
+     },
+     {
+         id: 19,
+@@ -177,7 +267,12 @@ let all_parties = [
+         image: salsa,
+         new_price: 140,
+         old_price: 240,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Teatro Vorterix',
++        ubicacion:'Av. Federico Lacroze 3455',
++        stock: 100
+     },
+     {
+         id: 20,
+@@ -185,45 +280,86 @@ let all_parties = [
+         image: techno,
+         new_price: 180,
+         old_price: 280,
+-        category: "recintos"
++        category: "recintos",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'La Trastienda Club',
++        ubicacion:'Balcarce 460',
++        stock: 100
+     },
+ 
+     {
+         id: 21,
+         name: "Duki",
+         image: duki,
+-        category: "artistas"
++        new_price: 220,
++        category: "artistas",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Niceto Club',
++        ubicacion:'Av. Cnel. Niceto Vega 5510',
++        stock: 100
+ 
+     },
+     {
+         id: 22,
+         name: "Bad Bunny",
+         image: badBunny,
+-        category: "artistas"
++        new_price: 220,
++        category: "artistas",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Luna Park',
++        ubicacion:'Av. Eduardo Madero 420',
++        stock: 100
+     },
+     {
+         id: 23,
+         name: "Tini",
+         image: tini,
+-        category: "artistas"
++        new_price: 220,
++        category: "artistas",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'La Trastienda Club',
++        ubicacion:'Balcarce 460',
++        stock: 100
+     },
+     {
+         id: 24,
+         name: "Karol G",
+         image: karolG,
+-        category: "artistas"
++        new_price: 220,
++        category: "artistas",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Teatro Vorterix',
++        ubicacion:'Av. Federico Lacroze 3455',
++        stock: 100
+     },
+     {
+         id: 25,
+         name: "Daddy Yankee",
+         image: daddyYankee,
+-        category: "artistas"
++        new_price: 220,
++        category: "artistas",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Luna Park',
++        ubicacion:'Av. Eduardo Madero 420',
++        stock: 100
+     },
+     {
+         id: 26,
+         name: "Lali",
+         image: lali,
+-        category: "artistas"
++        new_price: 220,
++        category: "artistas",
++        fecha:'12/10/2024',
++        hora:'18:30',
++        lugar: 'Teatro Gran Rex',
++        ubicacion:'Av. Corrientes 857',
++        stock: 100
+     }
+     
+ ];
+diff --git a/tpo/src/Components/Assets/data.js b/tpo/src/Components/Assets/data.js
+index 4690747..cb9d1a3 100644
+--- a/tpo/src/Components/Assets/data.js
++++ b/tpo/src/Components/Assets/data.js
+@@ -9,6 +9,7 @@ let data_parties = [
+         image: bali,
+         new_price: 100,
+         old_price: 200
++     
+     },
+     {
+         id: 2,
+diff --git a/tpo/src/Components/BotonComprarParty/BotonComprarParty.css b/tpo/src/Components/BotonComprarParty/BotonComprarParty.css
+new file mode 100644
+index 0000000..8c68fdc
+--- /dev/null
++++ b/tpo/src/Components/BotonComprarParty/BotonComprarParty.css
+@@ -0,0 +1,35 @@
++.ComprarPartyButton{
++    display: flex;
++    justify-content: center;
++    align-items: center;
++    height: 220px;
++    
++}
++.botonComprar {
++    background-color: orangered;
++    color: white;
++    padding: 12px 24px; /* Espacio interno */
++    font-size: 25px;
++    border: none;
++    border-radius: 20px; /* Bordes redondeados */
++    cursor: pointer;
++    display: block;
++    width: 400px; /* Ancho del botón */
++    text-align: center;
++}
++
++.botonComprar:hover {
++    background-color: orangered; /* Cambio de color al pasar el mouse */
++}
++@media (max-width: 768px) {
++    .botonComprar{
++        width: 310px;
++        
++    }
++    .ComprarPartyButton{
++        justify-content: left;
++        align-items: left;
++        margin-left: 24px;
++    }
++    
++}
+\ No newline at end of file
+diff --git a/tpo/src/Components/BotonComprarParty/BotonComprarParty.jsx b/tpo/src/Components/BotonComprarParty/BotonComprarParty.jsx
+new file mode 100644
+index 0000000..f1cc9a0
+--- /dev/null
++++ b/tpo/src/Components/BotonComprarParty/BotonComprarParty.jsx
+@@ -0,0 +1,22 @@
++import './BotonComprarParty.css'
++import React, { useContext } from "react";
++import { ShopContext } from "../../Context/ShopContext";
++
++const BotonComprarParty = (props) => {
++    const { setShoppingCart, shoppingCart } = useContext(ShopContext);
++    const { party } = props;
++
++    const handleClickAddProduct = () => {
++        setShoppingCart([...shoppingCart, party]);
++    };
++
++    return (
++        <div className='ComprarPartyButton'>
++            
++                <button onClick={handleClickAddProduct} className="botonComprar">Comprar</button>
++            
++        </div>
++    );
++};
++
++export default BotonComprarParty;
+diff --git a/tpo/src/Components/BotonesParty/BotonesParty.css b/tpo/src/Components/BotonesParty/BotonesParty.css
+new file mode 100644
+index 0000000..d5264f4
+--- /dev/null
++++ b/tpo/src/Components/BotonesParty/BotonesParty.css
+@@ -0,0 +1,49 @@
++.barraBotones{
++    width: 100%;
++    height: 200px;
++     padding: 2px; 
++    display: flex;
++    flex-direction: row;
++    justify-content:center;
++    margin-bottom: 20px;
++    
++    
++}
++
++.boton {
++    width: 300px; 
++    height: 50px;
++    border: 2px solid orangered; 
++    margin-left: 2rem;
++    margin-top: 2px;
++    
++ 
++    
++ 
++}
++
++.estiloBoton {
++    width: 100%;
++    padding: 8px; /* Espacio interno */
++    background-color: white; /* Fondo blanco */
++    border: none; /* Quitamos el borde original */
++    outline: none; /* Quitamos el borde de enfoque */
++    text-align: left;
++    font-size: 20px;
++    color:orangered;
++}
++
++@media (max-width: 768px) {
++    .barraBotones{
++        display: block;
++        justify-content: center;
++        align-items: center;
++    }
++    .boton{
++        margin-top: 5px;
++    }
++    .boton:last-child {
++        margin-bottom: 10px; /* Agrega un margen inferior solo al último botón de la fila */
++    }
++
++}
+diff --git a/tpo/src/Components/BotonesParty/BotonesParty.jsx b/tpo/src/Components/BotonesParty/BotonesParty.jsx
+new file mode 100644
+index 0000000..5dce2ff
+--- /dev/null
++++ b/tpo/src/Components/BotonesParty/BotonesParty.jsx
+@@ -0,0 +1,47 @@
++import './BotonesParty.css'
++
++const BotonesParty = (props) => {
++    const {party} = props;
++
++  return (
++    <div className='barraBotones'>
++        <div className='boton'>
++            <select id='fecha' className='estiloBoton'>
++                <option selected>{party.fecha}</option>
++            </select>
++
++        </div>
++        <div className='boton'>
++            <select id='hora' className='estiloBoton'>
++                <option selected>{party.hora}</option>
++            </select>
++
++        </div>
++        <div className='boton'>
++            <select id='lugar' className='estiloBoton'>
++                <option selected>{party.lugar}</option>
++                <option>{party.ubicacion}</option>
++            </select>
++
++        </div>
++        <div className='boton'>
++            <select id='precio' className='estiloBoton'>
++                <option selected>{'$'+party.new_price}</option>
++            </select>
++
++        </div>
++        <div className='boton'>
++            <select id='cantidad' className='estiloBoton'>
++                <option selected>1</option>
++                <option selected>2</option>
++                <option selected>3</option>
++                <option selected>4</option>
++            </select>
++
++        </div>
++    </div>
++    
++  )
++}
++
++export default BotonesParty
+diff --git a/tpo/src/Components/Breadcrums/Breadcrum.css b/tpo/src/Components/Breadcrums/Breadcrum.css
+deleted file mode 100644
+index 4cb15c1..0000000
+--- a/tpo/src/Components/Breadcrums/Breadcrum.css
++++ /dev/null
+@@ -1,5 +0,0 @@
+-.breadcrum img {
+-    width: 16px; /* Adjust the width to your preference */
+-    height: 16px; /* Adjust the height to your preference */
+-    margin: 0 5px; /* Adjust the margin to add spacing between the icons */
+-}
+\ No newline at end of file
+diff --git a/tpo/src/Components/Breadcrums/Breadcrum.jsx b/tpo/src/Components/Breadcrums/Breadcrum.jsx
+deleted file mode 100644
+index 5890a2c..0000000
+--- a/tpo/src/Components/Breadcrums/Breadcrum.jsx
++++ /dev/null
+@@ -1,14 +0,0 @@
+-import React from 'react'
+-import './Breadcrum.css'
+-import arrow_icon from '../Assets/arrow_icon.webp'
+-
+-const Breadcrum = (props) => {
+-    const {party} = props;
+-    return ( 
+-        <div className='breadcrum'>
+-            HOME <img src={arrow_icon} alt="" /> SHOP <img src={arrow_icon} alt="" /> {party.category.toUpperCase()} <img src={arrow_icon} alt="" /> {party.name}
+-        </div>
+-     );
+-}
+- 
+-export default Breadcrum;
+\ No newline at end of file
+diff --git a/tpo/src/Components/HeaderParty/HeaderParty.css b/tpo/src/Components/HeaderParty/HeaderParty.css
+new file mode 100644
+index 0000000..3503197
+--- /dev/null
++++ b/tpo/src/Components/HeaderParty/HeaderParty.css
+@@ -0,0 +1,31 @@
++.contenedor {
++    position: relative;
++    width: 100%;
++    height: 400px; /* 100% del viewport height */
++    overflow: hidden;
++}
++
++.imagenHeader {
++    position: absolute;
++    top: 0;
++    left: 0;
++    width: 100%;
++    height: 100%;
++    background-size: cover;
++    background-position: center;
++    background-repeat: no-repeat;
++    
++}
++
++.tituloParty{
++    position: absolute;
++    top: 50%;
++    left: 50%;
++    transform: translate(-50%, -50%);
++    z-index: 1; /* Para que esté encima de la imagen de fondo */
++}
++.tituloParty h1{
++    color: aliceblue;
++    font-size: 6em;
++    font-weight:500;
++}
+\ No newline at end of file
+diff --git a/tpo/src/Components/HeaderParty/HeaderParty.jsx b/tpo/src/Components/HeaderParty/HeaderParty.jsx
+new file mode 100644
+index 0000000..fae57a1
+--- /dev/null
++++ b/tpo/src/Components/HeaderParty/HeaderParty.jsx
+@@ -0,0 +1,21 @@
++
++import './HeaderParty.css'
++
++const HeaderParty = (props) => {
++    const {party} = props;
++  return (
++    <div className='contenedor'>
++        <div className='imagenHeader' style={{ backgroundImage:`linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${party.image})`  } }>
++            <div className='tituloParty'>
++                <h1>{party.name}</h1>
++            </div>
++            
++        
++        </div>
++    </div>
++    
++
++  )
++}
++
++export default HeaderParty
+diff --git a/tpo/src/Components/ProductDisplay/ProductDisplay.jsx b/tpo/src/Components/ProductDisplay/ProductDisplay.jsx
+deleted file mode 100644
+index af8c023..0000000
+--- a/tpo/src/Components/ProductDisplay/ProductDisplay.jsx
++++ /dev/null
+@@ -1,54 +0,0 @@
+-import React, { useContext } from "react";
+-import { ShopContext } from "../../Context/ShopContext";
+-import { Button } from "@mui/material";
+-
+-const ProductDisplay = (props) => {
+-  const { setShoppingCart, shoppingCart } = useContext(ShopContext);
+-
+-  const { party } = props;
+-  const handleClickAddProduct = () => {
+-    setShoppingCart([...shoppingCart, party]);
+-  };
+-
+-  return (
+-    <div className="partydisplay">
+-      <div className="productdisplay-left">
+-        <div className="productdisplay-img-list">
+-          <img src={party.image} alt="" />
+-        </div>
+-      </div>
+-      <div className="productdisplay-right">
+-        <h1>{party.name}</h1>
+-        <div className="productdisplay-right-star">
+-          {/*  <img src={star_icon} alt="" />
+-                    <img src={star_icon} alt="" />
+-                    <img src={star_icon} alt="" />
+-                    <img src={star_icon} alt="" />
+-                    <img src={star_dull_icon} alt="" />
+-    <p>(122)</p>*/}
+-        </div>
+-        <div className="productdisplay-right-prices">
+-          <div className="productdisplay-right-price-new">
+-            $ {party.new_price}
+-          </div>
+-          <div className="productdisplay-right-price-old">
+-            $ {party.old_price}
+-          </div>
+-        </div>
+-        <div className="productdisplay-right-description">Party</div>
+-
+-        <Button onClick={handleClickAddProduct}>AGREGAR AL CARRITO</Button>
+-        <p className="productdisplay-right-category">
+-          {" "}
+-          <span>Fiesta</span>
+-        </p>
+-        <p className="productdisplay-right-category">
+-          {" "}
+-          <span>Fiesta, Boliche, Noche, Amigos</span>
+-        </p>
+-      </div>
+-    </div>
+-  );
+-};
+-
+-export default ProductDisplay;
+diff --git a/tpo/src/Pages/CSS/Partys.css b/tpo/src/Pages/CSS/Partys.css
+new file mode 100644
+index 0000000..e69de29
+diff --git a/tpo/src/Pages/Partys.jsx b/tpo/src/Pages/Partys.jsx
+index 788fc4f..fe06baf 100644
+--- a/tpo/src/Pages/Partys.jsx
++++ b/tpo/src/Pages/Partys.jsx
+@@ -1,9 +1,10 @@
+ import React, { useEffect, useContext } from "react";
+ import { ShopContext } from "../Context/ShopContext";
+ import { useParams } from "react-router-dom";
+-import Breadcrum from "../Components/Breadcrums/Breadcrum";
+-import ProductDisplay from "../Components/ProductDisplay/ProductDisplay";
+-
++import './CSS/Partys.css';
++import HeaderParty from "../Components/HeaderParty/HeaderParty";
++import BotonesParty from "../Components/BotonesParty/BotonesParty";
++import BotonComprarParty from "../Components/BotonComprarParty/BotonComprarParty";
+ const Partys = () => {
+   const { all_parties, user } = useContext(ShopContext);
+   const { partyId } = useParams();
+@@ -17,8 +18,17 @@ const Partys = () => {
+ 
+   return (
+     <div>
+-      <Breadcrum party={party} />
+-      <ProductDisplay party={party} />
++
++      <HeaderParty party={party}/>
++      <div>
++      <BotonesParty party = {party}/>
++      </div>
++      <div className="botonParaComprar" style={{marginTop: '20px'}}>
++      <BotonComprarParty party={party}/>
++      </div>
++      
++      
++      
+     </div>
+   );
+ };
+-- 
+2.44.0.windows.1
+

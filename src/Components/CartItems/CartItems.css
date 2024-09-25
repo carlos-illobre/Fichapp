@@ -1,0 +1,123 @@
+.cartitems{
+    margin: 50px 10%;
+}
+.cartitems hr{
+    height: 3px;
+    background: #e2e2e2;
+    border: 0;
+}
+.cartitems-format-main{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    align-items: center;
+    gap: 20px;
+    padding: 20px 0px;
+    color: #454545;
+    font-size: 16px;
+    font-weight: 600;
+}
+.cartitems-format{
+    font-size: 17px;
+    font-weight: 500;
+}
+.carticon-product-icon{
+    height: 62px;
+}
+.cartitems-remove-icon{
+    width: 15px;
+    margin: 0px 40px;
+    cursor: pointer;
+}
+.cartitems-quantity{
+    width: 64px;
+    height: 50px;
+    border: 2px solid #ebebeb;
+    background: #fff;
+}
+.cartitems-down{
+    display: flex;
+    margin: 100px 0px;
+}
+.cartitems-total{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-right: 200px;
+    gap:40px;
+
+}
+.cartitems-total-item{
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 0px;
+}
+.cartitems-total button{
+    width: 262px;
+    height: 58px;
+    outline: none;
+    border: none;
+    background: #ff5a5a;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.cartitems-promocode {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 500;
+    padding-top: 15px;
+}
+
+.cartitems-promocode p {
+    color: #555;
+}
+
+.cartitems-promobox {
+    display: flex;
+    align-items: center;
+    width: 300px; /* Adjust width as needed */
+    margin-top: 15px;
+    padding-left: 20px;
+    height: 58px;
+    background: #eaeaea;
+    border-radius: 5px; /* Add border-radius for rounded corners */
+}
+
+.cartitems-promobox input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 16px;
+    flex: 1; /* Expand input to fill available space */
+    padding: 0 10px; /* Add some padding for better appearance */
+}
+
+.cartitems-promobox button {
+    width: 100px; /* Adjust width as needed */
+    height: 100%; /* Match height to parent */
+    background: black;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    border: none; /* Remove button border */
+    border-radius: 0 5px 5px 0; /* Match parent's border-radius */
+}
+
+@media (max-width: 768px) {
+    .cartitems {
+        margin: 50px 5%;
+    }
+
+    .cartitems-format-main {
+        font-size: 14px;
+    }
+
+    .carticon-product-icon {
+        height: 40px;
+    }
+
+    .cartitems-remove-icon {
+        margin: 0 20px;
+    }
+}

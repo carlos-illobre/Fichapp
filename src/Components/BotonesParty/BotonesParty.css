@@ -1,0 +1,83 @@
+.ComprarPartyButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 220px;
+  margin-top: -140px;
+}
+.botonComprar {
+  color: white;
+  padding: 12px 24px; /* Espacio interno */
+  font-size: 25px;
+  border: none;
+  border-radius: 20px; /* Bordes redondeados */
+  cursor: pointer;
+  display: block;
+  width: 400px; /* Ancho del botón */
+  text-align: center;
+}
+.aviable {
+  background-color: orangered;
+}
+.disable {
+  background-color: grey;
+}
+
+@media (max-width: 768px) {
+  .botonComprar {
+    width: 310px;
+  }
+  .ComprarPartyButton {
+    justify-content: left;
+    align-items: left;
+    margin-left: 24px;
+  }
+}
+
+.barraBotones {
+  width: 100%;
+  height: 200px;
+  padding: 2px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.boton {
+  width: 300px;
+  height: 50px;
+  border: 2px solid orangered;
+  margin-left: 2rem;
+  margin-top: 2px;
+}
+
+/* Aplica el margen entre los botones */
+.ComprarPartyButton .botonComprar + .botonComprar {
+  margin-left: 30px; /* Ajusta este valor según sea necesario */
+}
+
+.estiloBoton {
+  width: 100%;
+  padding: 8px; /* Espacio interno */
+  background-color: white; /* Fondo blanco */
+  border: none; /* Quitamos el borde original */
+  outline: none; /* Quitamos el borde de enfoque */
+  text-align: left;
+  font-size: 20px;
+  color: orangered;
+}
+
+@media (max-width: 768px) {
+  .barraBotones {
+    display: block;
+    justify-content: center;
+    align-items: center;
+  }
+  .boton {
+    margin-top: 5px;
+  }
+  .boton:last-child {
+    margin-bottom: 10px; /* Agrega un margen inferior solo al último botón de la fila */
+  }
+}

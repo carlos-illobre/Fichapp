@@ -1,0 +1,182 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  box-shadow: 0 1px 3px -2px black;
+  background-color: black;
+  color: white;
+  height: 100%;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logoshopper {
+  width: 100px;
+  height: 80px;
+}
+.logocart {
+  width: 4rem;
+  height: 4rem;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  gap: 40px;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  text-decoration: none;
+}
+.nav-menu li a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  text-decoration: none;
+  color: white; /* Change link color to grey */
+  transition: color 0.3s;
+}
+.nav-menu li a:hover {
+  color: #626261; /* Change link color on hover */
+}
+
+.menu-icon {
+  display: none;
+}
+.menu-icon-lines {
+  width: 30px;
+  height: 3px;
+  background-color: white;
+  margin: 9px 0;
+}
+.menu-icon {
+  color: white;
+  background-color: rgba(13, 13, 13, 0.755);
+  border: none;
+  font-size: 50px;
+  cursor: pointer;
+}
+
+/* Estilo para el menú en dispositivos pequeños */
+@media (max-width: 768px) {
+  .nav-menu {
+    display: none; /* Ocultar el menú por defecto */
+    flex-direction: column;
+    position: fixed;
+    top: 85px;
+    left: 0;
+    background-color: transparent;
+    width: 50%;
+    padding: 10px;
+    border: 1px solid white;
+    background-color: rgba(13, 13, 13, 0.755);
+  }
+
+  /* Mostrar el menú cuando se hace clic en el botón de hamburguesa */
+  .nav-menu.show {
+    display: flex;
+  }
+
+  .menu-icon {
+    display: block; /* Mostrar el botón de hamburguesa en dispositivos pequeños */
+  }
+  .nav-menu li a {
+    color: white;
+  }
+}
+
+.nav-login-cart {
+  display: flex;
+  gap: 45px;
+  align-items: center;
+}
+
+.nav-cart-count {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -35px;
+  margin-left: -55px;
+  border-radius: 11px;
+  font-size: 14px;
+  color: white;
+  background-color: #626261;
+}
+
+.container-fluid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: inline;
+}
+.nav-search {
+  display: flex;
+  align-items: center;
+  background-color: #f2f2f2;
+  border-radius: 20px; /* Redondear los bordes del contenedor */
+  padding: 5px 10px; /* Añadir espacio interno al contenedor */
+  width: 300px; /* Ajustar la longitud del contenedor */
+}
+
+.nav-search input {
+  flex: 1; /* El input ocupa todo el espacio disponible */
+  border: none;
+  background: transparent;
+  margin-right: 10px; /* Añadir espacio entre el input y el botón */
+}
+
+.nav-search input:focus {
+  outline: none; /* Eliminar el contorno al hacer foco en el input */
+}
+
+.nav-search button {
+  border: none;
+  border-radius: 20px; /* Redondear los bordes del botón */
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.nav-search button img {
+  width: 20px;
+  height: 20px;
+}
+@media (max-width: 768px) {
+  .nav-search {
+    padding: 2px 2px; /* Añadir espacio interno al contenedor */
+    width: 100px; /* Ajustar la longitud del contenedor */
+  }
+
+  .nav-search button img {
+    display: none;
+  }
+}
+.loginName p {
+  text-transform: uppercase;
+  margin-top: 12px;
+}
+
+.logout-button {
+  width: 170px; /* Ancho del botón */
+  height: 50px; /* Altura del botón */
+  background-color: whitesmoke; /* Color de fondo */
+  color: black; /* Color del texto */
+  border: none; /* Eliminar borde */
+  border-radius: 8px; /* Añadir bordes redondeados */
+  font-size: 18px; /* Tamaño de fuente */
+  font-weight: bold; /* Peso de la fuente */
+  cursor: pointer; /* Cambiar el cursor al pasar sobre el botón */
+  transition: background-color 0.3s; /* Efecto de transición al cambiar el color de fondo */
+}
+
+.logout-button:hover {
+  background-color: #e13333; /* Cambiar el color de fondo al pasar el ratón sobre el botón */
+}
