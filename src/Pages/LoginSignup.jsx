@@ -3,6 +3,8 @@ import "./CSS/LoginSignup.css";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../ReduxToolkit/userSlice";
+import { auth, googleProvider } from "../firebase"; 
+import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 
 const LoginSignup = () => {
   const dispatch = useDispatch();
@@ -25,7 +27,7 @@ const LoginSignup = () => {
     setRegistro({ ...registro, [target.name]: target.value });
   };
 
-  const handleContinuarClick = () => {
+  const handleContinuarClick = async () => {
     const { name, email, password } = registro;
     if (!name || !email || !password) {
       setErrorMessage("Por favor, completa todos los campos.");
@@ -39,9 +41,61 @@ const LoginSignup = () => {
       setErrorMessage("Por favor, ingresa un correo electrónico válido.");
       return;
     }
-    dispatch(setUser({...registro, isLogged:true}));
-    navigate("/");
-    setErrorMessage("");
+    
+    if (!isValidPassword(password)) {
+      setErrorMessage("La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+
+    try {
+      // Registro de usuario con Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Si el registro es exitoso, actualizamos el estado global con Redux
+      dispatch(setUser({ ...registro, isLogged: true, uid: user.uid }));
+      setErrorMessage("");
+
+      // Navegamos al inicio
+      navigate("/");
+    } catch (error) {
+      console.error("Error al registrar el usuario:", error);
+      let message = "";
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          message = "El correo electrónico ya está en uso. Por favor, prueba con otro.";
+          break;
+        case 'auth/invalid-email':
+          message = "El correo electrónico no es válido. Por favor, ingresa un correo electrónico correcto.";
+          break;
+        case 'auth/weak-password':
+          message = "La contraseña es demasiado débil. Por favor, elige una contraseña más fuerte.";
+          break;
+        default:
+          message = "Error al registrar el usuario. Inténtalo de nuevo.";
+      }
+      setErrorMessage(message);
+    }
+  };
+
+  // Nueva función para manejar el registro con Google
+  const handleGoogleSignup = async () => {
+    if (!aceptarTerminos) {
+      setErrorMessage("Debes aceptar nuestros Términos y Condiciones para registrarte con Google.");
+      return;
+    }
+
+    try {
+      const userCredential = await signInWithPopup(auth, googleProvider);
+      const user = userCredential.user;
+
+      // Actualizamos el estado global con Redux
+      dispatch(setUser({ name: user.displayName, email: user.email, isLogged: true, uid: user.uid }));
+      navigate("/");
+    } catch (error) {
+      console.error("Error al registrarse con Google:", error);
+      setErrorMessage("Error al registrarse con Google. Inténtalo de nuevo.");
+    }
   };
 
   useEffect(() => {
@@ -51,6 +105,10 @@ const LoginSignup = () => {
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+  };
+
+  const isValidPassword = (password) => {
+    return password.length >= 6;
   };
 
   return (
@@ -86,6 +144,8 @@ const LoginSignup = () => {
           </p>
         )}
         <button onClick={handleContinuarClick}>Continuar</button>
+        {/* Botón para registrarse con Google, ahora revisa si se aceptan los términos */}
+        <button onClick={handleGoogleSignup}>Registrarse con Google</button>
         <p className="loginsignup-login">
           ¿Ya tienes una cuenta?{" "}
           <span onClick={() => navigate("/loginUser")}>Inicia Sesión</span>
