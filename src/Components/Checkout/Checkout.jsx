@@ -13,7 +13,7 @@ import { selectAllParties, descountStockParty } from '../../ReduxToolkit/partySl
 
 const Checkout = () => {
   const cartItems = useSelector(selectCartItems);
-  const discountApplied = useSelector(selectDiscount);
+  const discountApplied = useSelector(selectDiscount); // eslint-disable-line no-unused-vars
   const totalAmount = useSelector(selectTotalCartAmount);
   const dispatch = useDispatch();
   const allParties = useSelector(selectAllParties);
@@ -98,7 +98,7 @@ const Checkout = () => {
     return /^\d{3}$/.test(cvv);
   };
 
-  const isValidString = (value) => {
+  const isValidString = (value) => { // eslint-disable-line no-unused-vars
     return typeof value === "string" && value.trim() !== "";
   };
 

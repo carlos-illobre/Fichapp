@@ -7,13 +7,13 @@ import lupa from "../Assets/lupa.png";
 import { IconButton } from "@mui/material";
 import { setSearch, selectSearch } from "../../ReduxToolkit/partySlice";
 import { useSelector, useDispatch } from "react-redux";
-import { setUser, clearUser  } from "../../ReduxToolkit/userSlice";
-import { removeFromCart, removeAllFromCart, selectTotalCartItems } from "../../ReduxToolkit/cartSlice";
+import { setUser, clearUser  } from "../../ReduxToolkit/userSlice"; // eslint-disable-line no-unused-vars
+import { removeFromCart, removeAllFromCart, selectTotalCartItems } from "../../ReduxToolkit/cartSlice"; // eslint-disable-line no-unused-vars
 
 const Nabvar = () => {
   const dispatch = useDispatch();
-  const search = useSelector(selectSearch) || '';
-  const [menu, setMenu] = useState("recintos");  
+  const search = useSelector(selectSearch) || ''; // eslint-disable-line no-unused-vars
+  const [menu, setMenu] = useState("recintos");   // eslint-disable-line no-unused-vars
   const user = useSelector(state => state.user);
   const [localSearch, setLocalSearch] = useState("");
   const [showMenu, setShowMenu] = useState(false);

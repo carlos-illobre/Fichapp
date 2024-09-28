@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./CSS/LoginSignup.css";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setUser } from "../ReduxToolkit/userSlice";
 
 const LoginUser = () => {
@@ -15,7 +15,7 @@ const LoginUser = () => {
   };
 
   const handleContinuarClick = () => {
-    const { name, email, password, role } = registro;
+    const { name, email, password } = registro;
 
     if (!name || !email || !password) {
       setErrorMessage("Por favor, completá todos los campos.");
