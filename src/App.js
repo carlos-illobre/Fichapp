@@ -11,7 +11,7 @@ import ModificarFiesta from './Pages/ModificarFiesta';
 import Payments from "./Pages/Payments";
 import LoginUser from './Pages/LoginUser';
 import BotonesParty from './Components/BotonesParty/BotonesParty';
-import Terminos_y_condiciones from './Pages/Terminos_y_condiciones';
+import TERMINOS_Y_CONDICIONES from './Pages/Terminos_y_condiciones';
 import Contacto from './Pages/Contacto';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
@@ -34,7 +34,7 @@ function App() {
           <Route path="/modificarFiesta" element={<ModificarFiesta />} />
           <Route path="/EventsCategory" element={<EventsCategory />} />
           <Route path="/comprar" element={<BotonesParty />} />
-          <Route path="/Terminos_y_condiciones" element={<Terminos_y_condiciones />} />
+          <Route path="/Terminos_y_condiciones" element={<TERMINOS_Y_CONDICIONES />} />
           <Route path="/Contacto" element={<Contacto />} />
         </Routes>
         <Footer />

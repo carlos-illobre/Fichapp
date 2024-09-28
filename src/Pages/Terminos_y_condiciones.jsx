@@ -2,7 +2,7 @@ import React from 'react'
 import TerminosYCondiciones from '../Components/TerminosYCondiciones/TerminosYCondiciones';
 
 
-const Terminos_y_condiciones = () => {
+const TERMINOS_Y_CONDICIONES = () => {
     return ( 
         <div>
             <TerminosYCondiciones/>
@@ -10,4 +10,4 @@ const Terminos_y_condiciones = () => {
      );
 }
  
-export default Terminos_y_condiciones;
+export default TERMINOS_Y_CONDICIONES;

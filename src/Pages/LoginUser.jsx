@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./CSS/LoginSignup.css";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setUser } from "../ReduxToolkit/userSlice";
+import { auth, googleProvider } from "../firebase"; 
+import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 
 const LoginUser = () => {
   const dispatch = useDispatch();
@@ -14,17 +16,40 @@ const LoginUser = () => {
     setRegistro({ ...registro, [target.name]: target.value, isLogged: true });
   };
 
-  const handleContinuarClick = () => {
-    const { name, email, password, role } = registro;
+  const handleContinuarClick = async () => {
+    const { email, password } = registro;
 
-    if (!name || !email || !password) {
+    if (!email || !password) {
       setErrorMessage("Por favor, completá todos los campos.");
       return;
     }
 
-    dispatch(setUser(registro)); // actualizar el estado del usuario en Redux
-    navigate("/");
-    setErrorMessage("");
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      console.log(user.email);
+      dispatch(setUser({ ...registro, isLogged: true })); // actualizar el estado del usuario en Redux
+      navigate("/");
+      setErrorMessage("");
+    } catch (error) {
+      setErrorMessage("Error al iniciar sesión. Verifica tus credenciales.");
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      dispatch(setUser({
+        name: user.displayName,
+        email: user.email,
+        role: "ADMIN", // Aquí puedes ajustar según tu lógica de roles
+        isLogged: true
+      }));
+      navigate("/");
+    } catch (error) {
+      setErrorMessage("Error al iniciar sesión con Google.");
+    }
   };
 
   useEffect(() => {
@@ -36,13 +61,6 @@ const LoginUser = () => {
       <div className="loginsignup-container">
         <h1>Inicia Sesión</h1>
         <div className="loginsignup-fields">
-        <input
-            type="text"
-            name="name"
-            onChange={onChangeValues}
-            placeholder="Tu Nombre"
-            value={registro.name}
-          />
           <input
             type="email"
             name="email"
@@ -64,6 +82,7 @@ const LoginUser = () => {
           </p>
         )}
         <button onClick={handleContinuarClick}>Iniciar Sesión</button>
+        <button onClick={handleGoogleLogin}>Iniciar Sesión con Google</button>
         <p className="loginsignup-login">
           No tienes una cuenta?{" "}
           <span onClick={() => navigate("/loginSignUp")}>Registrate</span>

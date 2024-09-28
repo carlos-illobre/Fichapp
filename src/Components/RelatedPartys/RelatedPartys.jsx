@@ -1,6 +1,5 @@
 import React from 'react'
 import './RelatedPartys.css'
-import data_product from '../Assets/data'
 import Item from '../Items/Item'
 import { useSelector } from 'react-redux';
 import { selectAllParties } from '../../ReduxToolkit/partySlice';

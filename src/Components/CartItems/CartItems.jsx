@@ -7,7 +7,7 @@ import { removeFromCart, selectCartItems, selectTotalCartItems, selectDiscount, 
 
 const CartItems = () => {
   const cartItems = useSelector(selectCartItems);
-  const totalCartItems = useSelector(selectTotalCartItems);
+  const totalCartItems = useSelector(selectTotalCartItems); // eslint-disable-line no-unused-vars
   const discountApplied = useSelector(selectDiscount);
   const subtotal = useSelector(selectSubtotal);
   const totalAmount = useSelector(selectTotalCartAmount);

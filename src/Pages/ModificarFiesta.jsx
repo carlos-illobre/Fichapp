@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./CSS/LoginSignup.css";
 import {useLocation, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { updateParty } from "../ReduxToolkit/partySlice";
 
 const ModificarFiesta = () => {

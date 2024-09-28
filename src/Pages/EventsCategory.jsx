@@ -17,7 +17,7 @@ const EventsCategory = (props) => {
   const handleChangeSortBy = (option) => {
     setSortBy(option);
   };
-  const handleSearchChange = (event) => {
+  const handleSearchChange = (event) => { // eslint-disable-line no-unused-vars
     dispatch(setSearch(event.target.value)); // Actualizar el estado de búsqueda
   };
 
