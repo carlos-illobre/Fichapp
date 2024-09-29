@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { addParty } from "../ReduxToolkit/partySlice";
 import { useNavigate } from "react-router-dom";
 import { storage, db } from "../firebase"; 
-import { ref, uploadBytes } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore";
 
 const AgregarFiesta = () => {
@@ -74,7 +74,7 @@ const AgregarFiesta = () => {
 
   const handleContinuarClick = async () => {
     const { name, fecha, hora, lugar, new_price, stock, images, ubicacion } = registro;
-    if (!name || !fecha || !hora || !lugar || !new_price || !stock || images.length === 0 || !ubicacion) {
+    if (!name || !fecha || !hora || !lugar || !new_price || !stock || images.length === 0) {
       setErrorMessage("Por favor, completá los campos obligatorios.");
       return;
     }
@@ -88,7 +88,8 @@ const AgregarFiesta = () => {
       for (const file of images) {
         const storageRef = ref(storage, `fiestas/${file.name}`);
         await uploadBytes(storageRef, file);
-        imageUrls.push(`fiestas/${file.name}`); // Guardar el nombre de la imagen en Firestore
+        const url = await getDownloadURL(storageRef); // Obtener la URL de descarga
+        imageUrls.push(url); // Guardar la URL
       }
     } catch (error) {
       console.error("Error al subir las imágenes:", error);
@@ -96,28 +97,27 @@ const AgregarFiesta = () => {
       return;
     }
 
-    // Crear un nuevo ID para la fiesta
     const nuevoId = allParties.length > 0 ? allParties[allParties.length - 1].id + 1 : 1;
 
-    // Construir el objeto de fiesta
     const partyData = { 
       id: nuevoId, 
       name, 
       fecha, 
       hora, 
       lugar, 
-      ubicacion, // Asegúrate de que 'ubicacion' esté aquí
+      ubicacion, 
       stock, 
       new_price, 
-      images: imageUrls, // Usar imageUrls para almacenar las rutas
+      images: imageUrls, 
+      image: imageUrls[0], // Tomar la primera imagen
       descripcion: registro.descripcion,
       category: registro.category,
     };
 
     // Guardar los datos en Firestore
     try {
-      const partyRef = doc(db, "fiestas", nuevoId.toString()); // Crear referencia al documento en Firestore
-      await setDoc(partyRef, partyData); // Guardar los datos en Firestore
+      const partyRef = doc(db, "fiestas", nuevoId.toString());
+      await setDoc(partyRef, partyData);
     } catch (error) {
       console.error("Error al guardar la fiesta en Firestore:", error);
       setErrorMessage("Error al guardar la fiesta. Intenta nuevamente.");
