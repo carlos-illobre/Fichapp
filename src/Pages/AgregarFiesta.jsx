@@ -11,7 +11,7 @@ const AgregarFiesta = () => {
   
   const [registro, setRegistro] = useState({
     name: "",
-    image: "",
+    images: [], // Cambiado a un arreglo para almacenar múltiples imágenes
     new_price: "",
     old_price: 0,
     category: "recintos",
@@ -22,16 +22,56 @@ const AgregarFiesta = () => {
     stock: 1,
     descripcion: "",
   });
+  
   const [errorMessage, setErrorMessage] = useState("");
+  const [imagePreviews, setImagePreviews] = useState([]); // Arreglo para las previsualizaciones
 
   const onChangeValues = (event) => {
     const { name, value } = event.target;
     setRegistro({ ...registro, [name]: value });
   };
 
+  const handleImageChange = (event) => {
+    const files = Array.from(event.target.files);
+    const newImages = [];
+    const newPreviews = [];
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        newPreviews.push(reader.result);
+        setImagePreviews((prev) => [...prev, reader.result]);
+        newImages.push(reader.result); // Agregar la imagen cargada
+        setRegistro((prev) => ({ ...prev, images: [...prev.images, reader.result] })); // Actualizar el estado
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handlePaste = (event) => {
+    const items = event.clipboardData.items;
+    const newImages = [];
+    const newPreviews = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.kind === "file") {
+        const file = item.getAsFile();
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviews.push(reader.result);
+          setImagePreviews((prev) => [...prev, reader.result]);
+          newImages.push(reader.result); // Agregar la imagen pegada
+          setRegistro((prev) => ({ ...prev, images: [...prev.images, reader.result] })); // Actualizar el estado
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  };
+
   const handleContinuarClick = () => {
-    const { name, fecha, hora, lugar, new_price, stock, image } = registro;
-    if (!name || !fecha || !hora || !lugar || !new_price || !stock || !image) {
+    const { name, fecha, hora, lugar, new_price, stock, images } = registro;
+    if (!name || !fecha || !hora || !lugar || !new_price || !stock || images.length === 0) {
       setErrorMessage("Por favor, completá los campos obligatorios.");
       return;
     }
@@ -53,7 +93,7 @@ const AgregarFiesta = () => {
   }, []);
 
   return (
-    <div className="loginsignup">
+    <div className="loginsignup" onPaste={handlePaste}>
       <div className="loginsignup-container">
         <h1>Agregar Fiesta</h1>
         <div className="loginsignup-fields">
@@ -112,13 +152,32 @@ const AgregarFiesta = () => {
             />
           </div>
 
+          {/* Campo de archivo oculto para cargar imágenes */}
           <input
-            type="text"
-            name="image"
-            onChange={onChangeValues}
-            placeholder="URL de la Imagen del Evento (*)"
-            value={registro.image}
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            style={{ display: "none" }} // Ocultar el campo de archivo
+            id="file-upload" // ID para referenciar
+            multiple // Permitir selección de múltiples archivos
           />
+          
+          {/* Botón personalizado para cargar imagen */}
+          <label htmlFor="file-upload" style={{ cursor: "pointer", border: "1px solid #ccc", padding: "10px", display: "inline-block", backgroundColor: "#f0f0f0" }}>
+            Cargar Imágenes del Evento
+          </label>
+          
+          {/* Previsualización de las imágenes */}
+          {imagePreviews.length > 0 && (
+            <div style={{ marginTop: "10px" }}>
+              <h4>Previsualización de las Imágenes:</h4>
+              <div style={{ display: "flex", flexWrap: "wrap" }}>
+                {imagePreviews.map((image, index) => (
+                  <img key={index} src={image} alt={`Imagen del Evento ${index + 1}`} style={{ maxWidth: "100px", height: "auto", marginRight: "10px", marginBottom: "10px" }} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         {errorMessage && (
           <p className="error-message" style={{ color: "red" }}>
