@@ -8,11 +8,11 @@ import { addToCart, selectTotalCartItems } from "../../ReduxToolkit/cartSlice";
 const BotonesParty = (props) => {
   const { party} = props;
   const user = useSelector((state) => state.user);
-  const totalCartItems = useSelector(selectTotalCartItems);
+  const totalCartItems = useSelector(selectTotalCartItems);  // eslint-disable-line no-unused-vars
   const [cantidadSeleccionada, setCantidadSeleccionada] = useState(1);
   const navigate = useNavigate();
-  const location = useLocation();
-  const [previousPath, setPreviousPath] = useState(null);
+  const location = useLocation(); // eslint-disable-line no-unused-vars
+  const [previousPath, setPreviousPath] = useState(null); // eslint-disable-line no-unused-vars
   const dispatch = useDispatch();
   
 

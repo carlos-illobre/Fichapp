@@ -1,19 +1,16 @@
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux"; // eslint-disable-line no-unused-vars
 import { useParams } from "react-router-dom";
 import RelatedPartys from "../Components/RelatedPartys/RelatedPartys";
 import "./CSS/Partys.css";
 import HeaderParty from "../Components/HeaderParty/HeaderParty";
 import BotonesParty from "../Components/BotonesParty/BotonesParty";
-import { useNavigate } from "react-router-dom";
 import { selectAllParties } from "../ReduxToolkit/partySlice";
 
 const Partys = () => {
-  const dispatch = useDispatch();
   const allParties = useSelector(selectAllParties);
   const { partyId } = useParams();
   const party = allParties.find((e) => e.id === Number(partyId));
-  const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
