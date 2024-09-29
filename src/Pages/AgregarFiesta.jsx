@@ -3,6 +3,9 @@ import "./CSS/LoginSignup.css";
 import { useSelector, useDispatch } from "react-redux";
 import { addParty } from "../ReduxToolkit/partySlice";
 import { useNavigate } from "react-router-dom";
+import { storage, db } from "../firebase"; 
+import { ref, uploadBytes } from "firebase/storage";
+import { doc, setDoc } from "firebase/firestore";
 
 const AgregarFiesta = () => {
   const dispatch = useDispatch();
@@ -11,7 +14,7 @@ const AgregarFiesta = () => {
   
   const [registro, setRegistro] = useState({
     name: "",
-    images: [], // Cambiado a un arreglo para almacenar múltiples imágenes
+    images: [],
     new_price: "",
     old_price: 0,
     category: "recintos",
@@ -24,7 +27,7 @@ const AgregarFiesta = () => {
   });
   
   const [errorMessage, setErrorMessage] = useState("");
-  const [imagePreviews, setImagePreviews] = useState([]); // Arreglo para las previsualizaciones
+  const [imagePreviews, setImagePreviews] = useState([]);
 
   const onChangeValues = (event) => {
     const { name, value } = event.target;
@@ -41,8 +44,8 @@ const AgregarFiesta = () => {
       reader.onloadend = () => {
         newPreviews.push(reader.result);
         setImagePreviews((prev) => [...prev, reader.result]);
-        newImages.push(reader.result); // Agregar la imagen cargada
-        setRegistro((prev) => ({ ...prev, images: [...prev.images, reader.result] })); // Actualizar el estado
+        newImages.push(file);
+        setRegistro((prev) => ({ ...prev, images: [...prev.images, file] }));
       };
       reader.readAsDataURL(file);
     });
@@ -61,17 +64,17 @@ const AgregarFiesta = () => {
         reader.onloadend = () => {
           newPreviews.push(reader.result);
           setImagePreviews((prev) => [...prev, reader.result]);
-          newImages.push(reader.result); // Agregar la imagen pegada
-          setRegistro((prev) => ({ ...prev, images: [...prev.images, reader.result] })); // Actualizar el estado
+          newImages.push(file);
+          setRegistro((prev) => ({ ...prev, images: [...prev.images, file] }));
         };
         reader.readAsDataURL(file);
       }
     }
   };
 
-  const handleContinuarClick = () => {
-    const { name, fecha, hora, lugar, new_price, stock, images } = registro;
-    if (!name || !fecha || !hora || !lugar || !new_price || !stock || images.length === 0) {
+  const handleContinuarClick = async () => {
+    const { name, fecha, hora, lugar, new_price, stock, images, ubicacion } = registro;
+    if (!name || !fecha || !hora || !lugar || !new_price || !stock || images.length === 0 || !ubicacion) {
       setErrorMessage("Por favor, completá los campos obligatorios.");
       return;
     }
@@ -79,11 +82,49 @@ const AgregarFiesta = () => {
       setErrorMessage("Por favor, revisa los datos ingresados.");
       return;
     }
-    
-    const nuevoId = allParties.length > 0 ? allParties[allParties.length - 1].id + 1 : 1;
-    const party = { id: nuevoId, ...registro };
 
-    dispatch(addParty(party));
+    const imageUrls = [];
+    try {
+      for (const file of images) {
+        const storageRef = ref(storage, `fiestas/${file.name}`);
+        await uploadBytes(storageRef, file);
+        imageUrls.push(`fiestas/${file.name}`); // Guardar el nombre de la imagen en Firestore
+      }
+    } catch (error) {
+      console.error("Error al subir las imágenes:", error);
+      setErrorMessage("Error al subir las imágenes. Intenta nuevamente.");
+      return;
+    }
+
+    // Crear un nuevo ID para la fiesta
+    const nuevoId = allParties.length > 0 ? allParties[allParties.length - 1].id + 1 : 1;
+
+    // Construir el objeto de fiesta
+    const partyData = { 
+      id: nuevoId, 
+      name, 
+      fecha, 
+      hora, 
+      lugar, 
+      ubicacion, // Asegúrate de que 'ubicacion' esté aquí
+      stock, 
+      new_price, 
+      images: imageUrls, // Usar imageUrls para almacenar las rutas
+      descripcion: registro.descripcion,
+      category: registro.category,
+    };
+
+    // Guardar los datos en Firestore
+    try {
+      const partyRef = doc(db, "fiestas", nuevoId.toString()); // Crear referencia al documento en Firestore
+      await setDoc(partyRef, partyData); // Guardar los datos en Firestore
+    } catch (error) {
+      console.error("Error al guardar la fiesta en Firestore:", error);
+      setErrorMessage("Error al guardar la fiesta. Intenta nuevamente.");
+      return;
+    }
+
+    dispatch(addParty(partyData)); // Agregar la fiesta al estado de Redux
     navigate(`/partys/${nuevoId}`);
     setErrorMessage("");
   };
@@ -152,22 +193,19 @@ const AgregarFiesta = () => {
             />
           </div>
 
-          {/* Campo de archivo oculto para cargar imágenes */}
           <input
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            style={{ display: "none" }} // Ocultar el campo de archivo
-            id="file-upload" // ID para referenciar
-            multiple // Permitir selección de múltiples archivos
+            style={{ display: "none" }}
+            id="file-upload"
+            multiple
           />
           
-          {/* Botón personalizado para cargar imagen */}
           <label htmlFor="file-upload" style={{ cursor: "pointer", border: "1px solid #ccc", padding: "10px", display: "inline-block", backgroundColor: "#f0f0f0" }}>
             Cargar Imágenes del Evento
           </label>
           
-          {/* Previsualización de las imágenes */}
           {imagePreviews.length > 0 && (
             <div style={{ marginTop: "10px" }}>
               <h4>Previsualización de las Imágenes:</h4>
