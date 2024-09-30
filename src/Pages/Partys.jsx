@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux"; // eslint-disable-line no-unused-vars
+import { useSelector } from "react-redux"; 
 import { useParams } from "react-router-dom";
 import RelatedPartys from "../Components/RelatedPartys/RelatedPartys";
 import "./CSS/Partys.css";
@@ -25,6 +25,20 @@ const Partys = () => {
       <HeaderParty party={party} />
       <div>
         <BotonesParty party={party} />
+      </div>
+
+      <div>
+        <h3>Imágenes del Evento:</h3>
+        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+          {party.images.map((imageUrl, index) => (
+            <img
+              key={index}
+              src={imageUrl}
+              alt={`Imagen del Evento ${index + 1}`}
+              style={{ maxWidth: "100px", height: "auto", marginRight: "10px", marginBottom: "10px" }}
+            />
+          ))}
+        </div>
       </div>
 
       <div>
