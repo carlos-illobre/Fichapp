@@ -1,21 +1,16 @@
 import React, { useMemo, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import "./CSS/EventsCategory.css";
 import Item from "../Components/Items/Item";
 import Carousel from "../Components/Carousel/carousel";
 import pub1 from "../Components/Assets/FotosCarousel/pub1.webp";
 import pub2 from "../Components/Assets/FotosCarousel/pub2.jpg";
 import pub3 from "../Components/Assets/FotosCarousel/pub3.jpg";
-import { selectAllParties, selectSearch, setSearch } from "../ReduxToolkit/partySlice";
 import { useEffect } from "react";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase"; // Asegúrate de la ruta correcta
 
 const EventsCategory = (props) => {
-  //const dispatch = useDispatch();
-  //const allParties = useSelector(selectAllParties);
-  //const search = useSelector(selectSearch) || '';
-  //const [sortBy, setSortBy] = useState(null);
+
   const [parties, setParties] = useState([]);
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState(null);
@@ -33,16 +28,6 @@ const EventsCategory = (props) => {
     // Cleanup on unmount
     return () => unsubscribe();
   }, []);
-
-  
-  
-
-  //const handleChangeSortBy = (option) => {
-  //  setSortBy(option);
-  //};
-  //const handleSearchChange = (event) => { // eslint-disable-line no-unused-vars
-  //  dispatch(setSearch(event.target.value)); // Actualizar el estado de búsqueda
-  //};
 
   // Lógica para filtrar y ordenar los elementos según la opción seleccionada
   const filteredAndSortedParties = useMemo(() => {
