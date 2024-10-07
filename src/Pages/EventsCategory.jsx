@@ -7,34 +7,67 @@ import pub1 from "../Components/Assets/FotosCarousel/pub1.webp";
 import pub2 from "../Components/Assets/FotosCarousel/pub2.jpg";
 import pub3 from "../Components/Assets/FotosCarousel/pub3.jpg";
 import { selectAllParties, selectSearch, setSearch } from "../ReduxToolkit/partySlice";
+import { useEffect } from "react";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase"; // Asegúrate de la ruta correcta
 
 const EventsCategory = (props) => {
-  const dispatch = useDispatch();
-  const allParties = useSelector(selectAllParties);
-  const search = useSelector(selectSearch) || '';
+  //const dispatch = useDispatch();
+  //const allParties = useSelector(selectAllParties);
+  //const search = useSelector(selectSearch) || '';
+  //const [sortBy, setSortBy] = useState(null);
+  const [parties, setParties] = useState([]);
+  const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState(null);
 
-  const handleChangeSortBy = (option) => {
-    setSortBy(option);
-  };
-  const handleSearchChange = (event) => { // eslint-disable-line no-unused-vars
-    dispatch(setSearch(event.target.value)); // Actualizar el estado de búsqueda
-  };
+  useEffect(() => {
+    const q = query(collection(db, "fiestas"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const fiestasArray = [];
+      querySnapshot.forEach((doc) => {
+        fiestasArray.push({ id: doc.id, ...doc.data() });
+      });
+      setParties(fiestasArray);
+    });
+
+    // Cleanup on unmount
+    return () => unsubscribe();
+  }, []);
+
+  
+  
+
+  //const handleChangeSortBy = (option) => {
+  //  setSortBy(option);
+  //};
+  //const handleSearchChange = (event) => { // eslint-disable-line no-unused-vars
+  //  dispatch(setSearch(event.target.value)); // Actualizar el estado de búsqueda
+  //};
 
   // Lógica para filtrar y ordenar los elementos según la opción seleccionada
   const filteredAndSortedParties = useMemo(() => {
-    let values = allParties.filter((item) => {
+    let filtered = parties.filter((item) => {
       return item.name.toLowerCase().includes(search.toLowerCase());
     });
 
     if (sortBy === "price") {
-      values.sort((a, b) => a.new_price - b.new_price); // Ordenar por precio
+      filtered.sort((a, b) => a.new_price - b.new_price);
     } else if (sortBy === "date") {
-      values.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)); // Ordenar por fecha
+      filtered.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
     }
 
-    return values;
-  }, [allParties, search, sortBy]);
+    return filtered;
+  }, [parties, search, sortBy]);
+
+   // Funciones de control
+   const handleSearchChange = (event) => {
+    setSearch(event.target.value);
+  };
+
+  const handleChangeSortBy = (option) => {
+    setSortBy(option);
+  };
+
   
   const carouselImages = [
     pub1,
