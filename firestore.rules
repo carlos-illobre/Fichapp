@@ -17,5 +17,12 @@ service cloud.firestore {
     match /fiestas/{fiestaId} {
       allow read, write: if request.auth != null; // Permitir solo a usuarios autenticados
     }
+
+    //Regla piezas
+
+    match /piezas/{docId} {
+      allow read, write: if true;
+    }
+
   }
 }
