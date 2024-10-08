@@ -28,7 +28,7 @@ const Partys = () => {
       </div>
 
       <div>
-        <h3>Imágenes de la pieza:</h3>
+        <h3>Imágenes del Evento:</h3>
         <div style={{ display: 'flex', flexWrap: 'wrap' }}>
           {party.images.map((imageUrl, index) => (
             <img

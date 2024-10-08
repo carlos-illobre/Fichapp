@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Esta regla bloquea el acceso por defecto a todos los documentos
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Esta regla permite leer y escribir solo en la colección "users" para el usuario autenticado correspondiente
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Esta regla permite leer y escribir en la colección "fiestas" para usuarios autenticados
+    match /fiestas/{fiestaId} {
+      allow read, write: if request.auth != null; // Permitir solo a usuarios autenticados
+    }
+  }
+}

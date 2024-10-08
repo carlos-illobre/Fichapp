@@ -5,10 +5,12 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../ReduxToolkit/userSlice";
 import { auth, googleProvider } from "../firebase"; 
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { getDoc, doc } from "firebase/firestore";
+import { db } from "../firebase";
 
 const LoginUser = () => {
   const dispatch = useDispatch();
-  const [registro, setRegistro] = useState({role:"ADMIN",name:"", email: "", password: "", isLogged: false });
+  const [registro, setRegistro] = useState({ role: "ADMIN", name: "", email: "", password: "", isLogged: false });
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
@@ -27,12 +29,53 @@ const LoginUser = () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      console.log(user.email);
-      dispatch(setUser({ ...registro, isLogged: true })); // actualizar el estado del usuario en Redux
-      navigate("/");
-      setErrorMessage("");
+
+      // Obtener el nombre del usuario desde Firestore
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        // Actualizar el estado del usuario en Redux con el nombre
+        dispatch(setUser({ 
+          name: userData.name,
+          email: user.email,
+          role: "ADMIN",
+          isLogged: true
+        }));
+        navigate("/");
+        setErrorMessage("");
+      } else {
+        console.log("No existe el documento del usuario.");
+        setErrorMessage("No existe el documento del usuario.");
+      }
+
     } catch (error) {
-      setErrorMessage("Error al iniciar sesión. Verifica tus credenciales.");
+      console.log(error.code)
+      switch (error.code) {
+        case 'auth/invalid-email':
+          setErrorMessage("El correo electrónico no es válido.");
+          break;
+        case 'auth/user-disabled':
+          setErrorMessage("El usuario ha sido deshabilitado.");
+          break;
+        case 'auth/user-not-found':
+          setErrorMessage("No se encontró un usuario con ese correo electrónico.");
+          break;
+        case 'auth/wrong-password':
+          setErrorMessage("La contraseña es incorrecta.");
+          break;
+        case 'auth/invalid-credential':
+          setErrorMessage("Las credenciales proporcionadas son inválidas. Verifica tu correo y contraseña.");
+          break;
+        case 'auth/too-many-requests':
+          setErrorMessage("Demasiadas solicitudes. Intenta de nuevo más tarde.");
+          break;
+        case 'auth/network-request-failed':
+          setErrorMessage("Error de red. Verifica tu conexión.");
+          break;
+        default:
+          setErrorMessage("Error al iniciar sesión. Verifica tus credenciales.");
+          break;
+      }
     }
   };
 

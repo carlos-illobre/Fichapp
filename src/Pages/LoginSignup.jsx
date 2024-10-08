@@ -3,8 +3,9 @@ import "./CSS/LoginSignup.css";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../ReduxToolkit/userSlice";
-import { auth, googleProvider } from "../firebase"; 
+import { auth, googleProvider, db } from "../firebase"; 
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore"; // Importar Firestore
 
 const LoginSignup = () => {
   const dispatch = useDispatch();
@@ -52,6 +53,13 @@ const LoginSignup = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
+      // Guardar el nombre del usuario en Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        name: registro.name,
+        email: registro.email,
+        role: registro.role,
+      });
+
       // Si el registro es exitoso, actualizamos el estado global con Redux
       dispatch(setUser({ ...registro, isLogged: true, uid: user.uid }));
       setErrorMessage("");
@@ -88,6 +96,13 @@ const LoginSignup = () => {
     try {
       const userCredential = await signInWithPopup(auth, googleProvider);
       const user = userCredential.user;
+
+      // Guardar los datos del usuario de Google en Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        name: user.displayName,
+        email: user.email,
+        role: "USER",
+      });
 
       // Actualizamos el estado global con Redux
       dispatch(setUser({ name: user.displayName, email: user.email, isLogged: true, uid: user.uid }));
@@ -144,7 +159,7 @@ const LoginSignup = () => {
           </p>
         )}
         <button onClick={handleContinuarClick}>Continuar</button>
-        {/* Botón para registrarse con Google, ahora revisa si se aceptan los términos */}
+        {/* Botón para registrarse con Google */}
         <button onClick={handleGoogleSignup}>Registrarse con Google</button>
         <p className="loginsignup-login">
           ¿Ya tienes una cuenta?{" "}
