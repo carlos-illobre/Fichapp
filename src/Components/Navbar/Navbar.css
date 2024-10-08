@@ -13,10 +13,12 @@
   align-items: center;
   gap: 10px;
 }
+
 .logoshopper {
   width: 100px;
   height: 80px;
 }
+
 .logocart {
   width: 4rem;
   height: 4rem;
@@ -32,6 +34,7 @@
   font-weight: bold;
   text-decoration: none;
 }
+
 .nav-menu li a {
   display: flex;
   flex-direction: column;
@@ -40,22 +43,25 @@
   gap: 3px;
   cursor: pointer;
   text-decoration: none;
-  color: #1b3173; /* Change link color to grey */
+  color: #1b3173;
   transition: color 0.3s;
 }
+
 .nav-menu li a:hover {
-  color: #a6b5de; /* Change link color on hover */
+  color: #a6b5de;
 }
 
 .menu-icon {
   display: none;
 }
+
 .menu-icon-lines {
   width: 30px;
   height: 3px;
   background-color: #1b3173;
   margin: 9px 0;
 }
+
 .menu-icon {
   color: #1b3173;
   background-color: #a6b5de;
@@ -64,10 +70,9 @@
   cursor: pointer;
 }
 
-/* Estilo para el menú en dispositivos pequeños */
 @media (max-width: 768px) {
   .nav-menu {
-    display: none; /* Ocultar el menú por defecto */
+    display: none;
     flex-direction: column;
     position: fixed;
     top: 85px;
@@ -79,14 +84,14 @@
     background-color: #a6b5de;
   }
 
-  /* Mostrar el menú cuando se hace clic en el botón de hamburguesa */
   .nav-menu.show {
     display: flex;
   }
 
   .menu-icon {
-    display: block; /* Mostrar el botón de hamburguesa en dispositivos pequeños */
+    display: block;
   }
+
   .nav-menu li a {
     color: #1b3173;
   }
@@ -112,71 +117,84 @@
   background-color: #a6b5de;
 }
 
-.container-fluid {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-  display: inline;
-}
 .nav-search {
   display: flex;
   align-items: center;
   background-color: #f2f2f2;
-  border-radius: 20px; /* Redondear los bordes del contenedor */
-  padding: 5px 10px; /* Añadir espacio interno al contenedor */
-  width: 300px; /* Ajustar la longitud del contenedor */
+  border-radius: 20px;
+  padding: 5px 10px;
+  width: 300px;
 }
 
 .nav-search input {
-  flex: 1; /* El input ocupa todo el espacio disponible */
+  flex: 1;
   border: none;
   background: transparent;
-  margin-right: 10px; /* Añadir espacio entre el input y el botón */
+  margin-right: 10px;
 }
 
 .nav-search input:focus {
-  outline: none; /* Eliminar el contorno al hacer foco en el input */
-}
-
-.nav-search button {
-  border: none;
-  border-radius: 20px; /* Redondear los bordes del botón */
-  padding: 8px 16px;
-  cursor: pointer;
+  outline: none;
 }
 
 .nav-search button img {
   width: 20px;
   height: 20px;
 }
-@media (max-width: 768px) {
-  .nav-search {
-    padding: 2px 2px; /* Añadir espacio interno al contenedor */
-    width: 100px; /* Ajustar la longitud del contenedor */
-  }
 
-  .nav-search button img {
-    display: none;
-  }
-}
 .loginName p {
   text-transform: uppercase;
   margin-top: 12px;
 }
 
-.logout-button {
-  width: 170px; /* Ancho del botón */
-  height: 50px; /* Altura del botón */
-  background-color: #a6b5de; /* Color de fondo */
-  color: black; /* Color del texto */
-  border: none; /* Eliminar borde */
-  border-radius: 8px; /* Añadir bordes redondeados */
-  font-size: 18px; /* Tamaño de fuente */
-  font-weight: bold; /* Peso de la fuente */
-  cursor: pointer; /* Cambiar el cursor al pasar sobre el botón */
-  transition: background-color 0.3s; /* Efecto de transición al cambiar el color de fondo */
+/* Estilos para el menú desplegable */
+.user-dropdown {
+  position: relative;
+  display: inline-block;
+  margin-right: 20px;
 }
 
-.logout-button:hover {
-  background-color: #e13333; /* Cambiar el color de fondo al pasar el ratón sobre el botón */
+.dropdown-trigger {
+  cursor: pointer;
+  padding: 10px;
+  font-weight: bold;
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-icon {
+  margin-left: 5px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #fff;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  overflow: hidden;
+  z-index: 1000;
+  display: block; /* Forzar que el menú se muestre */
+  opacity: 1; /* Asegurar opacidad */
+}
+
+.dropdown-menu ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dropdown-menu ul li {
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdown-menu ul li:hover {
+  background-color: #f0f0f0;
 }

@@ -1,20 +1,22 @@
-import { createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+// src/ReduxToolkit/userSlice.js
 
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+
+// Acción asincrónica para registrar usuario (puedes dejar esta parte si la necesitas)
 export const registerUser = createAsyncThunk(
-  "user/registerUser",
+  'user/registerUser',
   async (userData, thunkAPI) => {
     try {
-      const response = await fetch("http://localhost:8080/api/auth/register", {
-        method: "POST",
+      const response = await fetch('http://localhost:8080/api/auth/register', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(userData),
       });
       if (!response.ok) {
-        throw new Error("Failed to register user");
+        throw new Error('Failed to register user');
       }
-      console.log(response);
       const data = await response.json();
       return data.accessToken;
     } catch (error) {
@@ -23,14 +25,16 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+// Estado inicial del usuario
 const initialState = {
-    name: "",
-    role: "",
-    email: "",
-    hashedPassword: "",
-    isLogged: false,
+  name: '',
+  role: '',
+  email: '',
+  hashedPassword: '',
+  isLogged: false,
 };
 
+// Slice de usuario
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -43,14 +47,20 @@ const userSlice = createSlice({
       state.isLogged = action.payload.isLogged;
     },
     clearUser: (state) => {
-      state.name = "";
-      state.role = "";
-      state.email = "";
-      state.hashedPassword = "";
+      state.name = '';
+      state.role = '';
+      state.email = '';
+      state.hashedPassword = '';
       state.isLogged = false;
+    },
+    // Acción para actualizar el nombre del usuario
+    updateUser: (state, action) => {
+      state.name = action.payload.name || state.name;
+      state.phone = action.payload.phone || state.phone;
+      // Puedes agregar más campos a actualizar si es necesario
     },
   },
 });
 
-export const { setUser, clearUser } = userSlice.actions;
+export const { setUser, clearUser, updateUser } = userSlice.actions;
 export default userSlice.reducer;
