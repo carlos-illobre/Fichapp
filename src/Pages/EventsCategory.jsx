@@ -1,18 +1,22 @@
 import React, { useMemo, useState } from "react";
+
 import { useSelector, useDispatch } from "react-redux";
 import { useLoadScript } from "@react-google-maps/api"; // Cambio a useLoadScript
+
 import "./CSS/EventsCategory.css";
 import Item from "../Components/Items/Item";
 import Carousel from "../Components/Carousel/carousel";
 import pub1 from "../Components/Assets/FotosCarousel/pub1.webp";
 import pub2 from "../Components/Assets/FotosCarousel/pub2.jpg";
 import pub3 from "../Components/Assets/FotosCarousel/pub3.jpg";
-import { selectAllParties, selectSearch, setSearch } from "../ReduxToolkit/partySlice";
+import { useEffect } from "react";
+import { collection, query, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase"; // Asegúrate de la ruta correcta
 
 const EventsCategory = (props) => {
-  const dispatch = useDispatch();
-  const allParties = useSelector(selectAllParties);
-  const search = useSelector(selectSearch) || '';
+
+  const [parties, setParties] = useState([]);
+  const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState(null);
 
   // Configuración del hook useLoadScript para cargar la API de Google Maps
@@ -27,18 +31,18 @@ const EventsCategory = (props) => {
   const handleSearchChange = (event) => {
     dispatch(setSearch(event.target.value)); // Actualizar el estado de búsqueda
   };
-
   // Lógica para filtrar y ordenar los elementos según la opción seleccionada
   const filteredAndSortedParties = useMemo(() => {
-    let values = allParties.filter((item) => {
-      return item.name.toLowerCase().includes(search.toLowerCase());
+    let filtered = parties.filter((item) => {
+      return item.nombre.toLowerCase().includes(search.toLowerCase());
     });
 
     if (sortBy === "price") {
-      values.sort((a, b) => a.new_price - b.new_price); // Ordenar por precio
-    } else if (sortBy === "date") {
-      values.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)); // Ordenar por fecha
+      filtered.sort((a, b) => a.price - b.price);
+    }else if (sortBy === "nombre") {
+    filtered.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
     }
+
 
     return values;
   }, [allParties, search, sortBy]);
@@ -50,6 +54,7 @@ const EventsCategory = (props) => {
 
   // Mostrar un mensaje de carga si la librería aún no está lista
   if (!isLoaded) return <div>Cargando mapa...</div>;
+
 
   return (
     <div className="shop-category">
@@ -67,12 +72,13 @@ const EventsCategory = (props) => {
           >
             <option value="">Seleccionar</option>
             <option value="price">Precio</option>
-            <option value="date">Ubicación</option>
+            <option value="barrio">Ubicación</option>
           </select>
         </div>
       </div>
       <div className="shopCategory-Parties">
         {filteredAndSortedParties.map((item, index) => {
+
           return (
             <Item
               key={index}
@@ -82,6 +88,7 @@ const EventsCategory = (props) => {
               newPrice={item.new_price}
             />
           );
+
         })}
       </div>
     </div>
