@@ -7,8 +7,11 @@ import lupa from "../Assets/lupa.png";
 import { IconButton } from "@mui/material";
 import { setSearch, selectSearch } from "../../ReduxToolkit/partySlice";
 import { useSelector, useDispatch } from "react-redux";
-import { setUser, clearUser  } from "../../ReduxToolkit/userSlice"; // eslint-disable-line no-unused-vars
-import { removeFromCart, removeAllFromCart, selectTotalCartItems } from "../../ReduxToolkit/cartSlice"; // eslint-disable-line no-unused-vars
+import { clearUser  } from "../../ReduxToolkit/userSlice"; // eslint-disable-line no-unused-vars
+import { removeAllFromCart, selectTotalCartItems } from "../../ReduxToolkit/cartSlice"; // eslint-disable-line no-unused-vars
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../../firebase";
+
 
 const Nabvar = () => {
   const dispatch = useDispatch();
@@ -32,10 +35,30 @@ const Nabvar = () => {
     }
   };
 
-  const handleClickSearch = () => {
+  const handleClickSearch = async () => {
     if (localSearch.length >= 3) {
-      dispatch(setSearch(localSearch));
-      navigate("/recintos"); // Ajusta la ruta según sea necesario
+      // Realizamos la búsqueda en Firestore dentro de la colección "piezas"
+      const piezasCollection = collection(db, 'piezas');
+      const q = query(piezasCollection, where('nombre', '==', localSearch));
+
+      try {
+        const querySnapshot = await getDocs(q);
+        const piezas = [];
+        querySnapshot.forEach((doc) => {
+          piezas.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Si obtienes piezas, podrías redirigir a una página de resultados o mostrar las piezas
+        if (piezas.length > 0) {
+          console.log("Piezas encontradas:", piezas);
+          dispatch(setSearch(localSearch)); // Opcional: Guarda el término de búsqueda en Redux
+          navigate("/recintos"); // Ajusta la ruta según sea necesario
+        } else {
+          console.log("No se encontraron piezas.");
+        }
+      } catch (error) {
+        console.error("Error al realizar la búsqueda:", error);
+      }
     }
   };
 
@@ -92,7 +115,7 @@ const Nabvar = () => {
         <div className="nav-search">
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Buscar..."
             onChange={handleChangeSearch}
           />
           <IconButton onClick={handleClickSearch}>
