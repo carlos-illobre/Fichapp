@@ -24,10 +24,7 @@ const EventsCategory = (props) => {
   const handleChangeSortBy = (option) => {
     setSortBy(option);
   };
-  const handleSearchChange = (event) => {
-    dispatch(setSearch(event.target.value)); // Actualizar el estado de búsqueda
-  };
-
+ 
   // Lógica para filtrar y ordenar los elementos según la opción seleccionada
   const filteredAndSortedParties = useMemo(() => {
     let values = allParties.filter((item) => {
