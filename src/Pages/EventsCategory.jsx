@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useLoadScript } from "@react-google-maps/api"; // Cambio a useLoadScript
 import "./CSS/EventsCategory.css";
 import Item from "../Components/Items/Item";
 import Carousel from "../Components/Carousel/carousel";
@@ -14,10 +15,16 @@ const EventsCategory = (props) => {
   const search = useSelector(selectSearch) || '';
   const [sortBy, setSortBy] = useState(null);
 
+  // Configuración del hook useLoadScript para cargar la API de Google Maps
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: "AIzaSyATBiLTxjMFxOAVYgVGaWMHvsC2MtQ093A",
+    libraries: ["places"], 
+  });
+
   const handleChangeSortBy = (option) => {
     setSortBy(option);
   };
-  const handleSearchChange = (event) => { // eslint-disable-line no-unused-vars
+  const handleSearchChange = (event) => {
     dispatch(setSearch(event.target.value)); // Actualizar el estado de búsqueda
   };
 
@@ -35,12 +42,14 @@ const EventsCategory = (props) => {
 
     return values;
   }, [allParties, search, sortBy]);
-  
-  const carouselImages = [
-    pub1,
-    pub2,
-    pub3
-  ];
+
+  const carouselImages = [pub1, pub2, pub3];
+
+  // Si la carga de Google Maps falla, mostrar un mensaje de error
+  if (loadError) return <div>Error al cargar Google Maps</div>;
+
+  // Mostrar un mensaje de carga si la librería aún no está lista
+  if (!isLoaded) return <div>Cargando mapa...</div>;
 
   return (
     <div className="shop-category">
@@ -64,23 +73,15 @@ const EventsCategory = (props) => {
       </div>
       <div className="shopCategory-Parties">
         {filteredAndSortedParties.map((item, index) => {
-          // if (item.category === props.category) {
-            return (
-              <Item
-                key={index}
-                id={item.id}
-                name={item.name}
-                image={item.image}
-                // Render price information conditionally
-                newPrice={item.new_price}
-                // oldPrice={
-                //   props.category === "artistas" ? null : `${item.old_price}`
-                // }
-              />
-            );
-          // } else {
-          //   return null;
-          // }
+          return (
+            <Item
+              key={index}
+              id={item.id}
+              name={item.name}
+              image={item.image}
+              newPrice={item.new_price}
+            />
+          );
         })}
       </div>
     </div>
