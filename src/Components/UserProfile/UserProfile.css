@@ -1,0 +1,213 @@
+/* General Styles */
+.user-profile {
+  margin: 20px auto;
+  width: 40%;
+  font-family: Arial, sans-serif;
+}
+
+h3 {
+  margin-bottom: 15px;
+}
+
+/* Header Section */
+.header-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-info {
+  margin-left: 15px;
+  text-align: left;
+}
+
+.photo-header-small {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.spacer {
+  height: 20px;
+}
+
+/* User Credentials Section */
+.user-credentials {
+  margin: 0 auto 30px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-container input {
+  flex: 1;
+  padding: 8px;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  max-width: 500px;
+}
+
+/* Botones de Modificar y Mostrar dentro de User Credentials */
+.button-group {
+  display: flex;
+  gap: 10px; /* Añade espacio entre los botones */
+}
+
+.toggle-button,
+.modify-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.toggle-button:hover,
+.modify-button:hover {
+  background-color: #218838;
+}
+
+/* Personal Info Section */
+.personal-info {
+  margin-top: 30px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+}
+
+.photo-large {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.centered-photo {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.profile-photo-large {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.profile-details {
+  margin-top: 20px;
+}
+
+.photo-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.edit-button,
+.save-button,
+.delete-button,
+.edit-button-small,
+.save-button-small,
+.delete-button-small {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 0 5px;
+}
+
+.edit-button:hover,
+.save-button:hover,
+.delete-button:hover {
+  background-color: #218838;
+}
+
+.edit-button-small,
+.save-button-small,
+.delete-button-small {
+  margin: 5px;
+}
+
+.upload-button-hidden {
+  display: none;
+}
+
+.message {
+  color: green;
+  margin: 10px 0;
+  text-align: center;
+}
+
+.service-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px;
+}
+
+.service-button:hover {
+  background-color: #0056b3;
+}
+
+.additional-buttons {
+  display: flex;
+  justify-content: center;
+  margin: 40px auto 0;
+}
+
+.delete-account-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-account-button:hover {
+  background-color: #c82333;
+}
+
+/* Estilo del contenedor del botón Crear Publicación */
+.create-publication-container {
+  display: flex;
+  justify-content: center; /* Centrar horizontalmente */
+  margin-top: 20px;
+}
+
+/* Estilo del botón Crear Publicación */
+.create-publication-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.create-publication-button:hover {
+  background-color: #0056b3;
+}
