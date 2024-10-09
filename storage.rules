@@ -1,16 +1,19 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Permitir acceso solo a la carpeta 'fiestas' para usuarios autenticados
+    // Permitir acceso completo (lectura, escritura y eliminación) para la carpeta 'profilePhotos' a usuarios autenticados
+    match /profilePhotos/{userId} {
+      allow read, write, delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Permitir acceso a la carpeta 'fiestas' para usuarios autenticados
     match /fiestas/{allImages=**} {
       allow read, write: if request.auth != null; // Permitir acceso solo a usuarios autenticados
     }
 
-    // Denegar acceso a cualquier otra parte
+    // Denegar acceso a cualquier otra parte fuera de las carpetas definidas
     match /{allPaths=**} {
       allow read, write: if false; // Denegar acceso por defecto
     }
   }
 }
-
-

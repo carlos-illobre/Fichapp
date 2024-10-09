@@ -16,6 +16,7 @@ import Contacto from './Pages/Contacto';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import PiezasPage from './Pages/Piezas';
 
+
 function App() {
   
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route path="/Terminos_y_condiciones" element={<TERMINOS_Y_CONDICIONES />} />
           <Route path="/Contacto" element={<Contacto />} />
           <Route path="/Piezas" element={<PiezasPage />} />
+
         </Routes>
         <Footer />
         </BrowserRouter>
