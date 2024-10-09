@@ -15,6 +15,7 @@ import TERMINOS_Y_CONDICIONES from './Pages/Terminos_y_condiciones';
 import Contacto from './Pages/Contacto';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import PiezasPage from './Pages/Piezas';
+import UserProfile from './Components/UserProfile/UserProfile'; // Ajusta la ruta si es necesario
 
 function App() {
   
@@ -38,6 +39,7 @@ function App() {
           <Route path="/Terminos_y_condiciones" element={<TERMINOS_Y_CONDICIONES />} />
           <Route path="/Contacto" element={<Contacto />} />
           <Route path="/Piezas" element={<PiezasPage />} />
+          <Route path="/user-profile" element={<UserProfile />} /> {/* Nueva ruta para el perfil */}
         </Routes>
         <Footer />
         </BrowserRouter>
