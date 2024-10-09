@@ -95,7 +95,7 @@ const Nabvar = () => {
         <div className="menu-icon-lines"></div>
         <div className="menu-icon-lines"></div>
       </button>
-      <ul className={`nav-menu ${showMenu ? "show" : ""}`}>
+      <ul className={'nav-menu ${showMenu ? "show" : ""}'}>
         <li onClick={() => setMenu("Piezas")}>
           <Link to="/">INICIO</Link>
         </li>
