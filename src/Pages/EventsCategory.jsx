@@ -33,17 +33,24 @@ const EventsCategory = (props) => {
   // Lógica para filtrar y ordenar los elementos según la opción seleccionada
   const filteredAndSortedParties = useMemo(() => {
     let filtered = parties.filter((item) => {
-      return item.nombre.toLowerCase().includes(search.toLowerCase());
+      // Verificamos si item.nombre y search existen
+      if (item.nombre && search) {
+        return item.nombre.toLowerCase().includes(search.toLowerCase());
+      }
+      // Si no existen, devolvemos false para que no se incluyan en el filtro
+      return false;
     });
-
+  
+    // Lógica de ordenamiento
     if (sortBy === "price") {
       filtered.sort((a, b) => a.price - b.price);
-    }else if (sortBy === "nombre") {
-    filtered.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+    } else if (sortBy === "nombre") {
+      filtered.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
     }
-
+  
     return filtered;
   }, [parties, search, sortBy]);
+  
 
    // Funciones de control
    const handleSearchChange = (event) => {
