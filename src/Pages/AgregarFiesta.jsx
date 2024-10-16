@@ -136,34 +136,34 @@ const AgregarFiesta = () => {
   return (
     <div className="loginsignup" onPaste={handlePaste}>
       <div className="loginsignup-container">
-        <h1>Agregar Fiesta</h1>
+        <h1>Agregar Pieza</h1>
         <div className="loginsignup-fields">
           <input
             type="text"
             name="name"
             onChange={onChangeValues}
-            placeholder="Título del Evento (*)"
+            placeholder="Nombre de la pieza (*)"
             value={registro.name}
           />
-          <input
+          { /*<input
             type="date"
             name="fecha"
             onChange={onChangeValues}
             placeholder="Fecha del Evento (DD/MM/AA) (*)"
             value={registro.fecha}
-          />
+          /> 
           <input
             type="text"
             name="hora"
             onChange={onChangeValues}
             placeholder="Hora del Evento (HH:MM) (*)"
             value={registro.hora}
-          />
+          /> */}
           <input
             type="text"
             name="lugar"
             onChange={onChangeValues}
-            placeholder="Nombre del Lugar del Evento (*)"
+            placeholder="Nombre del Juego de la pieza (*)"
             value={registro.lugar}
           />
           <input
@@ -173,14 +173,14 @@ const AgregarFiesta = () => {
             placeholder="Dirección del Lugar"
             value={registro.ubicacion}
           />
-          <input
+          { /* <input
             type="number"
             name="stock"
             min="1"
             onChange={onChangeValues}
             placeholder="Cantidad de Entradas del Evento (*)"
             value={registro.stock}
-          />
+          /> */ }
           <div style={{ display: "flex", alignItems: "center" }}>
             <span style={{ fontSize: "1.5rem", marginRight: "10px" }}>$</span>
             <input
@@ -188,7 +188,7 @@ const AgregarFiesta = () => {
               name="new_price"
               min="1"
               onChange={onChangeValues}
-              placeholder="Precio de la Entrada del Evento (*)"
+              placeholder="Precio de la pieza (*)"
               value={registro.new_price}
             />
           </div>
@@ -203,7 +203,7 @@ const AgregarFiesta = () => {
           />
           
           <label htmlFor="file-upload" style={{ cursor: "pointer", border: "1px solid #ccc", padding: "10px", display: "inline-block", backgroundColor: "#f0f0f0" }}>
-            Cargar Imágenes del Evento
+            Cargar Imágenes de la pieza
           </label>
           
           {imagePreviews.length > 0 && (
@@ -211,7 +211,7 @@ const AgregarFiesta = () => {
               <h4>Previsualización de las Imágenes:</h4>
               <div style={{ display: "flex", flexWrap: "wrap" }}>
                 {imagePreviews.map((image, index) => (
-                  <img key={index} src={image} alt={`Imagen del Evento ${index + 1}`} style={{ maxWidth: "100px", height: "auto", marginRight: "10px", marginBottom: "10px" }} />
+                  <img key={index} src={image} alt={`Imagen de la pieza ${index + 1}`} style={{ maxWidth: "100px", height: "auto", marginRight: "10px", marginBottom: "10px" }} />
                 ))}
               </div>
             </div>
@@ -222,7 +222,7 @@ const AgregarFiesta = () => {
             {errorMessage}
           </p>
         )}
-        <button onClick={handleContinuarClick}>Agregar Fiesta</button>
+        <button onClick={handleContinuarClick}>Agregar Pieza</button>
       </div>
     </div>
   );
