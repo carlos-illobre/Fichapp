@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState,useEffect   } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import "./CSS/EventsCategory.css";
 import Item from "../Components/Items/Item";
@@ -6,13 +6,17 @@ import Carousel from "../Components/Carousel/carousel";
 import pub1 from "../Components/Assets/FotosCarousel/pub1.webp";
 import pub2 from "../Components/Assets/FotosCarousel/pub2.jpg";
 import pub3 from "../Components/Assets/FotosCarousel/pub3.jpg";
-import { selectAllParties, selectSearch, setSearch } from "../ReduxToolkit/partySlice";
+import { selectAllParties, selectSearch, setSearch, fetchParties } from "../ReduxToolkit/partySlice";
 
 const EventsCategory = (props) => {
   const dispatch = useDispatch();
   const allParties = useSelector(selectAllParties);
   const search = useSelector(selectSearch) || '';
   const [sortBy, setSortBy] = useState(null);
+
+  useEffect(() => {
+    dispatch(fetchParties());
+  }, [dispatch]); // Solo se ejecuta una vez al montar el componente
 
   const handleChangeSortBy = (option) => {
     setSortBy(option);
@@ -24,14 +28,17 @@ const EventsCategory = (props) => {
   // Lógica para filtrar y ordenar los elementos según la opción seleccionada
   const filteredAndSortedParties = useMemo(() => {
     let values = allParties.filter((item) => {
-      return item.name.toLowerCase().includes(search.toLowerCase());
+    // const itemName = item.name || item.juego || '';
+      // return item.name.toLowerCase().includes(search.toLowerCase());
+      return item.nombre == search.toLowerCase();
     });
 
     if (sortBy === "price") {
-      values.sort((a, b) => a.new_price - b.new_price); // Ordenar por precio
-    } else if (sortBy === "date") {
-      values.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)); // Ordenar por fecha
-    }
+      values.sort((a, b) => a.price - b.price); // Ordenar por precio
+    } 
+    // else if (sortBy === "date") {
+    //   values.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)); // Ordenar por fecha
+    // }
 
     return values;
   }, [allParties, search, sortBy]);
@@ -69,10 +76,10 @@ const EventsCategory = (props) => {
               <Item
                 key={index}
                 id={item.id}
-                name={item.name}
+                name={item.juego}
                 image={item.image}
                 // Render price information conditionally
-                newPrice={item.new_price}
+                newPrice={item.price}
                 // oldPrice={
                 //   props.category === "artistas" ? null : `${item.old_price}`
                 // }
