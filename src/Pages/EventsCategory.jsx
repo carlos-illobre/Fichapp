@@ -80,9 +80,6 @@ const EventsCategory = (props) => {
                 image={item.image}
                 // Render price information conditionally
                 newPrice={item.price}
-                // oldPrice={
-                //   props.category === "artistas" ? null : `${item.old_price}`
-                // }
               />
             );
           // } else {
