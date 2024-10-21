@@ -11,8 +11,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
 import { setFoundPiezas, setSearch, selectSearch } from "../../ReduxToolkit/partySlice";
-import { setUser, clearUser } from "../../ReduxToolkit/userSlice";
-import { removeFromCart, removeAllFromCart, selectTotalCartItems } from "../../ReduxToolkit/cartSlice";
+import { clearUser } from "../../ReduxToolkit/userSlice";
+import { removeAllFromCart, selectTotalCartItems } from "../../ReduxToolkit/cartSlice";
 import { getAuth, signOut } from "firebase/auth";
 import { FaChevronDown } from "react-icons/fa";
 
@@ -62,14 +62,16 @@ const Navbar = () => {
         });
 
         // Si obtienes piezas, podrías redirigir a una página de resultados o mostrar las piezas
-        if (piezas.length > 0) {
-          console.log("Piezas encontradas:", piezas);
+        if (piezas.length > 0) { // Para piezas
+          console.log("Piezas encontradas:", piezas); 
           dispatch(setFoundPiezas(piezas)); // Opcional: Guarda el término de búsqueda en Redux
           navigate("/Piezas"); // Ajusta la ruta según sea necesario
         } else {
           console.log("No se encontraron piezas.");
+          dispatch(setFoundPiezas([]));
+          navigate("/Piezas");
         }
-        if (juegos.length > 0) {
+        if (juegos.length > 0) { // Para juegos
           console.log("Juegos encontrados:", juegos);
           dispatch(setFoundPiezas(juegos)); // Opcional: Guarda el término de búsqueda en Redux
           navigate("/Piezas"); // Ajusta la ruta según sea necesario
