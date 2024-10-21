@@ -21,7 +21,7 @@ const EventsCategory = (props) => {
       const piezasArray = [];
       querySnapshot.forEach((doc) => {
         piezasArray.push({ id: doc.id, ...doc.data() });
-        console.log("i")
+       
       });
       setParties(piezasArray);
     });

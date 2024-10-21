@@ -10,11 +10,12 @@ import { IconButton } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
-import { setFoundPiezas, setSearch, selectSearch } from "../../ReduxToolkit/partySlice";
+import { setFoundPiezas, setFoundPiezasEmpresa, setSearch, selectSearch } from "../../ReduxToolkit/partySlice";
 import { clearUser } from "../../ReduxToolkit/userSlice";
 import { removeAllFromCart, selectTotalCartItems } from "../../ReduxToolkit/cartSlice";
 import { getAuth, signOut } from "firebase/auth";
 import { FaChevronDown } from "react-icons/fa";
+
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -27,6 +28,9 @@ const Navbar = () => {
   const location = useLocation();
   const totalCartItems = useSelector(selectTotalCartItems);
   const auth = getAuth();
+
+  const [showEmpresaButton, setShowEmpresaButton] = useState(false); // Estado del botón de búsqueda de piezas de Empresa
+ 
 
   const handleChangeSearch = (event) => {
     const value = event.target.value;
@@ -43,8 +47,8 @@ const Navbar = () => {
     if (localSearch.length >= 3) {
       // Realizamos la búsqueda en Firestore dentro de la colección "piezas"
       const piezasCollection = collection(db, 'piezas');
-      const queryPieza = query(piezasCollection, where('nombre', '==', localSearch));
-      const queryJuego = query(piezasCollection, where('juego', '==', localSearch));
+      const queryPieza = query(piezasCollection, where('nombre', '==', localSearch), where('esEmpresa', '==', false));
+      const queryJuego = query(piezasCollection, where('juego', '==', localSearch), where('esEmpresa', '==', false));
 
       try {
         const querySnapshotPieza = await getDocs(queryPieza);
@@ -75,8 +79,10 @@ const Navbar = () => {
           console.log("Juegos encontrados:", juegos);
           dispatch(setFoundPiezas(juegos)); // Opcional: Guarda el término de búsqueda en Redux
           navigate("/Piezas"); // Ajusta la ruta según sea necesario
+          setShowEmpresaButton(true); //Mostrar boton Piezas de Empresa
         } else {
-          console.log("No se encontraron juegos.");
+          console.log("No se encontraron juegos.")
+          setShowEmpresaButton(true); //Mostrar boton Piezas de Empresa
         }
       } catch (error) {
         console.error("Error al realizar la búsqueda:", error);
@@ -95,6 +101,53 @@ const Navbar = () => {
         console.error("Error al cerrar la sesión:", error);
         alert("Error al cerrar la sesión");
       });
+  };
+
+  const handleSearchEmpresas = async () => {
+    if (localSearch.length >= 3) {
+      // Realizamos la búsqueda en Firestore dentro de la colección "piezas"
+      const piezasCollection = collection(db, 'piezas');
+      const queryPiezaEmp = query(piezasCollection, where('nombre', '==', localSearch), where('esEmpresa', '==', true));
+      const queryJuegoEmp = query(piezasCollection, where('juego', '==', localSearch), where('esEmpresa', '==', true));
+
+      try {
+        const querySnapshotPieza = await getDocs(queryPiezaEmp);
+        const querySnapshotJuego= await getDocs(queryJuegoEmp);
+
+        const piezasEmp = [];
+        const juegosEmp = [];
+        
+        querySnapshotPieza.forEach((doc) => {
+          piezasEmp.push({ id: doc.id, ...doc.data() });
+        });
+
+        querySnapshotJuego.forEach((doc) => {
+          juegosEmp.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Si obtienes piezas, podrías redirigir a una página de resultados o mostrar las piezas
+        if (piezasEmp.length > 0) { // Para piezas
+          console.log("Piezas encontradas:", piezasEmp); 
+          dispatch(setFoundPiezasEmpresa(piezasEmp)); // Opcional: Guarda el término de búsqueda en Redux
+          navigate("/PiezasEmpresa"); // Ajusta la ruta según sea necesario
+        } else {
+          console.log("No se encontraron piezas.");
+          dispatch(setFoundPiezasEmpresa([]));
+          navigate("/PiezasEmpresa");
+        }
+        if (juegosEmp.length > 0) { // Para juegos
+          console.log("Juegos encontrados:", juegosEmp);
+          dispatch(setFoundPiezasEmpresa(juegosEmp)); // Opcional: Guarda el término de búsqueda en Redux
+          navigate("/PiezasEmpresa"); // Ajusta la ruta según sea necesario
+          setShowEmpresaButton(false);
+        } else {
+          console.log("No se encontraron juegos.");
+          setShowEmpresaButton(false);
+        }
+      } catch (error) {
+        console.error("Error al realizar la búsqueda:", error);
+      }
+    }
   };
 
   return (
@@ -169,6 +222,12 @@ const Navbar = () => {
           </IconButton>
         </div>
       ) : null}
+       {/* Mostrar el botón si no se encontraron resultados en la búsqueda inicial */}
+       {showEmpresaButton && (
+        <button onClick={handleSearchEmpresas}>
+          Buscar Repuestos de Empresa
+        </button>
+      )}
       <Link className="nav-login-cart" to="/cart">
         <img src={cart_icon} alt="" className="logocart" />
         <div className="nav-cart-count">{totalCartItems}</div>
