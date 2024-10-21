@@ -6,6 +6,7 @@ const initialState = {
   search: '',
   foundPiezas: [],
   foundPiezasEmpresa: [],
+  foundPiezasImpresora: [],
 };
 
 const partySlice = createSlice({
@@ -43,10 +44,13 @@ const partySlice = createSlice({
     setFoundPiezasEmpresa: (state, action) => {  // Nueva acción para almacenar las piezas encontradas
       state.foundPiezasEmpresa = action.payload;
     },
+    setFoundPiezasImpresora: (state, action) => {  // Nueva acción para almacenar las piezas encontradas
+      state.foundPiezasImpresora = action.payload;
+    },
   },
 });
 
-export const { setParties, addParty, updateParty, deleteParty, descountStockParty, setSearch, setFoundPiezas, setFoundPiezasEmpresa } = partySlice.actions;
+export const { setParties, addParty, updateParty, deleteParty, descountStockParty, setSearch, setFoundPiezas, setFoundPiezasEmpresa, setFoundPiezasImpresora } = partySlice.actions;
 
 
 // Selectores
@@ -55,6 +59,6 @@ export const selectPartyById = (state, partyId) => state.party.items.find(party 
 export const selectSearch = state => state.party.search;
 export const selectFoundPiezas = (state) => state.party.foundPiezas;
 export const selectFoundPiezasEmpresa = (state) => state.party.foundPiezasEmpresa;
-
+export const selectFoundPiezasImpresora = (state) => state.party.foundPiezasImpresora;
 
 export default partySlice.reducer;

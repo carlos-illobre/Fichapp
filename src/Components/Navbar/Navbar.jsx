@@ -10,7 +10,7 @@ import { IconButton } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
-import { setFoundPiezas, setFoundPiezasEmpresa, setSearch, selectSearch } from "../../ReduxToolkit/partySlice";
+import { setFoundPiezas, setFoundPiezasEmpresa, setFoundPiezasImpresora, setSearch, selectSearch } from "../../ReduxToolkit/partySlice";
 import { clearUser } from "../../ReduxToolkit/userSlice";
 import { removeAllFromCart, selectTotalCartItems } from "../../ReduxToolkit/cartSlice";
 import { getAuth, signOut } from "firebase/auth";
@@ -30,6 +30,7 @@ const Navbar = () => {
   const auth = getAuth();
 
   const [showEmpresaButton, setShowEmpresaButton] = useState(false); // Estado del botón de búsqueda de piezas de Empresa
+  const [showImpresoraButton, setShowImpresoraButton] = useState(false); // Estado del botón de búsqueda de piezas de Empresa
  
 
   const handleChangeSearch = (event) => {
@@ -80,9 +81,11 @@ const Navbar = () => {
           dispatch(setFoundPiezas(juegos)); // Opcional: Guarda el término de búsqueda en Redux
           navigate("/Piezas"); // Ajusta la ruta según sea necesario
           setShowEmpresaButton(true); //Mostrar boton Piezas de Empresa
+          setShowImpresoraButton(true);
         } else {
           console.log("No se encontraron juegos.")
           setShowEmpresaButton(true); //Mostrar boton Piezas de Empresa
+          setShowImpresoraButton(true);
         }
       } catch (error) {
         console.error("Error al realizar la búsqueda:", error);
@@ -101,6 +104,35 @@ const Navbar = () => {
         console.error("Error al cerrar la sesión:", error);
         alert("Error al cerrar la sesión");
       });
+  };
+
+  const handleSearchImpresoras = async () => {
+    if (localSearch.length >= 3) {
+      // Realizamos la búsqueda en Firestore dentro de la colección "piezas"
+      const piezasCollection = collection(db, 'impresoras');
+      const queryImpresora = query(piezasCollection);
+
+      try {
+        const querySnapshotImpresora = await getDocs(queryImpresora);
+
+        const impresoras = [];
+        
+        querySnapshotImpresora.forEach((doc) => {
+          impresoras.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Si obtienes piezas, podrías redirigir a una página de resultados o mostrar las piezas
+        if (impresoras) { // Para piezas
+          console.log("Impresoras 3D encontradas:", impresoras); 
+          dispatch(setFoundPiezasImpresora(impresoras)); // Opcional: Guarda el término de búsqueda en Redux
+          navigate("/PiezasImpresora"); // Ajusta la ruta según sea necesario
+          setShowEmpresaButton(false);
+          setShowImpresoraButton(false);
+        }
+      } catch (error) {
+        console.error("Error al realizar la búsqueda:", error);
+      }
+    }
   };
 
   const handleSearchEmpresas = async () => {
@@ -140,9 +172,11 @@ const Navbar = () => {
           dispatch(setFoundPiezasEmpresa(juegosEmp)); // Opcional: Guarda el término de búsqueda en Redux
           navigate("/PiezasEmpresa"); // Ajusta la ruta según sea necesario
           setShowEmpresaButton(false);
+          setShowImpresoraButton(false);
         } else {
           console.log("No se encontraron juegos.");
           setShowEmpresaButton(false);
+          setShowImpresoraButton(false);
         }
       } catch (error) {
         console.error("Error al realizar la búsqueda:", error);
@@ -226,6 +260,11 @@ const Navbar = () => {
        {showEmpresaButton && (
         <button onClick={handleSearchEmpresas}>
           Buscar Repuestos de Empresa
+        </button>
+      )}
+      {showImpresoraButton && (
+        <button onClick={handleSearchImpresoras}>
+          Buscar Servicios de Impresoras 3D
         </button>
       )}
       <Link className="nav-login-cart" to="/cart">
