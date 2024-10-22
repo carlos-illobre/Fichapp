@@ -42,9 +42,9 @@
 }
 
 .shopCategory-Parties {
-    margin: 20px auto;
+    /* margin: 20px auto; */
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* Adjust column width */
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); 
     gap: 20px;
     justify-items: center; /* Align items in the center horizontally */
 }

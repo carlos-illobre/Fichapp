@@ -41,10 +41,22 @@ service cloud.firestore {
     match /piezas/{piezaId} {
       allow read, write: if request.auth != null;
     }
-    
-    // Esta regla permite leer y escribir en la colección "piezas" para usuarios autenticados
-    match /piezas/{piezaId} {
-      allow read, write: if request.auth != null; // Permitir solo a usuarios autenticados
+
+    // Permite leer y escribir en la colección "fiestas" para usuarios autenticados
+    match /fiestas/{fiestaId} {
+      allow read, write: if request.auth != null;
     }
+
+    // Permite leer y escribir en la colección "piezas" para usuarios autenticados
+    match /piezas/{piezaId} {
+      allow read, write: if request.auth != null;
+    }
+
+    //Regla piezas
+
+    match /piezas/{docId} {
+      allow read, write: if true;
+    }
+
   }
 }

@@ -9,7 +9,8 @@ const Item = (props) => {
         <Link to={`/partys/${props.id}`}>
           <img onClick={() => window.scrollTo(0, 0)} src={props.image} alt="" />
         </Link>
-        <p>{props.name}</p>
+        <p>{`${props.name} : ${props.desc}`}</p>
+
         <div className="item-prices">
           {props.newPrice > 0 && (
             <div className="item-price-new">

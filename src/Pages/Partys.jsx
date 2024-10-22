@@ -5,10 +5,10 @@ import RelatedPartys from "../Components/RelatedPartys/RelatedPartys";
 import "./CSS/Partys.css";
 import HeaderParty from "../Components/HeaderParty/HeaderParty";
 import BotonesParty from "../Components/BotonesParty/BotonesParty";
-import { selectAllParties } from "../ReduxToolkit/partySlice";
+import { selectAllPiezas } from "../ReduxToolkit/partySlice";
 
 const Partys = () => {
-  const allParties = useSelector(selectAllParties);
+  const allParties = useSelector(selectAllPiezas);
   const { partyId } = useParams();
   const party = allParties.find((e) => e.id === Number(partyId));
 
@@ -28,17 +28,17 @@ const Partys = () => {
       </div>
 
       <div>
-        <h3>Imágenes de la pieza:</h3>
-        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-          {party.images.map((imageUrl, index) => (
+        {/* <h3>Imágenes del Evento:</h3> */}
+        {/* <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+          {party.images.map((image, index) => (
             <img
               key={index}
-              src={imageUrl}
+              src={image}
               alt={`Imagen del Evento ${index + 1}`}
               style={{ maxWidth: "100px", height: "auto", marginRight: "10px", marginBottom: "10px" }}
             />
           ))}
-        </div>
+        </div> */}
       </div>
 
       <div>

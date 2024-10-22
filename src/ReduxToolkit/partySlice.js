@@ -1,55 +1,122 @@
-import { createSlice } from '@reduxjs/toolkit';
-import all_parties from '../Components/Assets/all_parties';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { db } from '../firebase';  // Importa la instancia de Firestore
+import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc, getDoc } from 'firebase/firestore';
 
+// Thunks asíncronos para interactuar con Firestore
+
+// Obtener todas las piezas desde Firestore
+export const fetchPiezas = createAsyncThunk('party/fetchPiezas', async () => {
+  const piezasCollection = collection(db, 'piezas');
+  const piezasSnapshot = await getDocs(piezasCollection);
+  const piezasList = piezasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return piezasList;
+});
+
+// Agregar una nueva pieza a Firestore
+export const addPieza = createAsyncThunk('party/addPieza', async (newPieza) => {
+  const docRef = await addDoc(collection(db, 'piezas'), newPieza);
+  return { id: docRef.id, ...newPieza };
+});
+
+// Actualizar una pieza existente en Firestore
+export const updatePieza = createAsyncThunk('party/updatePieza', async (updatedPieza) => {
+  const piezaRef = doc(db, 'piezas', updatedPieza.id);
+  await updateDoc(piezaRef, updatedPieza);
+  return updatedPieza;
+});
+
+// Borrar una pieza de Firestore
+export const deletePieza = createAsyncThunk('party/deletePieza', async (id) => {
+  const piezaRef = doc(db, 'piezas', id);
+  await deleteDoc(piezaRef);
+  return id;
+});
+
+export const descountStockParty = createAsyncThunk('party/descountStockParty', async ({ id, quantity }) => {
+  const partyRef = doc(db, "piezas", id);
+  const docSnap = await getDoc(partyRef);  // Cambiamos a getDoc para obtener un único documento
+  const currentParty = docSnap.data();
+  const newStock = currentParty.stock - quantity;
+
+  if (newStock < 0) {
+    throw new Error('El stock no puede ser negativo');
+  }
+
+  await updateDoc(partyRef, { stock: newStock });
+  return { id, newStock };
+});
+
+
+
+// Estado inicial
 const initialState = {
-  items: all_parties, 
+  items: [],  // Ahora vacío, ya que se obtendrán de Firestore
   search: '',
   foundPiezas: [],
+  loading: false,
+  error: null
 };
 
 const partySlice = createSlice({
   name: 'party',
   initialState,
   reducers: {
-    setParties: (state, action) => {
+    setSearch: (state, action) => {
+      state.search = action.payload;
+    },
+    setFoundPiezas: (state, action) => {
+      state.foundPiezas = action.payload;
+    }
+  },
+  extraReducers: (builder) => {
+    // Manejar fetchPiezas
+    builder.addCase(fetchPiezas.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(fetchPiezas.fulfilled, (state, action) => {
       state.items = action.payload;
-    },
-    addParty: (state, action) => {
+      state.loading = false;
+    });
+    builder.addCase(fetchPiezas.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message;
+    });
+
+    // Manejar addPieza
+    builder.addCase(addPieza.fulfilled, (state, action) => {
       state.items.push(action.payload);
-    },
-    updateParty: (state, action) => {
-      const index = state.items.findIndex(party => party.id === action.payload.id);
+    });
+
+    // Manejar updatePieza
+    builder.addCase(updatePieza.fulfilled, (state, action) => {
+      const index = state.items.findIndex(pieza => pieza.id === action.payload.id);
       if (index !== -1) {
         state.items[index] = action.payload;
       }
-    },
-    deleteParty: (state, action) => {
-      state.items = state.items.filter(party => party.id !== action.payload);
-    },
-    descountStockParty: (state, action) => {
-      const { id, quantity } = action.payload;
-      const party = state.items.find(party => party.id === id);
+    });
+
+    // Manejar deletePieza
+    builder.addCase(deletePieza.fulfilled, (state, action) => {
+      state.items = state.items.filter(pieza => pieza.id !== action.payload);
+    });
+
+    builder.addCase(descountStockParty.fulfilled, (state, action) => {
+      const party = state.items.find(party => party.id === action.payload.id);
       if (party) {
-        party.stock -= quantity;
+        party.stock = action.payload.newStock;
       }
-    },
-    setSearch: (state, action) => {
-        state.search = action.payload;
-      },
-    setFoundPiezas: (state, action) => {  // Nueva acción para almacenar las piezas encontradas
-      state.foundPiezas = action.payload;
-    },
-  },
+    });
+  }
 });
 
-export const { setParties, addParty, updateParty, deleteParty, descountStockParty, setSearch, setFoundPiezas } = partySlice.actions;
-
+// Acciones
+export const { setSearch, setFoundPiezas } = partySlice.actions;
 
 // Selectores
-export const selectAllParties = state => state.party.items;
-export const selectPartyById = (state, partyId) => state.party.items.find(party => party.id === partyId);
-export const selectSearch = state => state.party.search;
+export const selectAllPiezas = (state) => state.party.items;
+export const selectPiezaById = (state, piezaId) => state.party.items.find(pieza => pieza.id === piezaId);
+export const selectSearch = (state) => state.party.search;
 export const selectFoundPiezas = (state) => state.party.foundPiezas;
-
 
 export default partySlice.reducer;

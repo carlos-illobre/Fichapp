@@ -16,6 +16,8 @@ import { removeFromCart, removeAllFromCart, selectTotalCartItems } from "../../R
 import { getAuth, signOut } from "firebase/auth";
 import { FaChevronDown } from "react-icons/fa";
 
+
+
 const Navbar = () => {
   const dispatch = useDispatch();
   const search = useSelector(selectSearch) || "";
@@ -41,44 +43,8 @@ const Navbar = () => {
 
   const handleClickSearch = async () => {
     if (localSearch.length >= 3) {
-      // Realizamos la búsqueda en Firestore dentro de la colección "piezas"
-      const piezasCollection = collection(db, 'piezas');
-      const queryPieza = query(piezasCollection, where('nombre', '==', localSearch));
-      const queryJuego = query(piezasCollection, where('juego', '==', localSearch));
-
-      try {
-        const querySnapshotPieza = await getDocs(queryPieza);
-        const querySnapshotJuego= await getDocs(queryJuego);
-
-        const piezas = [];
-        const juegos = [];
-        
-        querySnapshotPieza.forEach((doc) => {
-          piezas.push({ id: doc.id, ...doc.data() });
-        });
-
-        querySnapshotJuego.forEach((doc) => {
-          juegos.push({ id: doc.id, ...doc.data() });
-        });
-
-        // Si obtienes piezas, podrías redirigir a una página de resultados o mostrar las piezas
-        if (piezas.length > 0) {
-          console.log("Piezas encontradas:", piezas);
-          dispatch(setFoundPiezas(piezas)); // Opcional: Guarda el término de búsqueda en Redux
-          navigate("/Piezas"); // Ajusta la ruta según sea necesario
-        } else {
-          console.log("No se encontraron piezas.");
-        }
-        if (juegos.length > 0) {
-          console.log("Juegos encontrados:", juegos);
-          dispatch(setFoundPiezas(juegos)); // Opcional: Guarda el término de búsqueda en Redux
-          navigate("/Piezas"); // Ajusta la ruta según sea necesario
-        } else {
-          console.log("No se encontraron juegos.");
-        }
-      } catch (error) {
-        console.error("Error al realizar la búsqueda:", error);
-      }
+      dispatch(setSearch(localSearch));
+      navigate("/"); // Ajusta la ruta según sea necesario
     }
   };
 

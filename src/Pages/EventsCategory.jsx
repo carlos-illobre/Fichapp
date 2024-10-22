@@ -1,45 +1,38 @@
-import React, { useMemo, useState } from "react";
-import "./CSS/EventsCategory.css";
-import Item from "../Components/Items/Item";
-import Carousel from "../Components/Carousel/carousel";
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPiezas, selectAllPiezas, selectSearch } from "../ReduxToolkit/partySlice";  // Importamos las acciones y selectores desde el slice
+import Item from "../Components/Items/Item";  // Asegúrate de la ruta correcta
+import Carousel from "../Components/Carousel/carousel";  // Asegúrate de la ruta correcta
 import pub1 from "../Components/Assets/FotosCarousel/pub1.webp";
 import pub2 from "../Components/Assets/FotosCarousel/pub2.jpg";
 import pub3 from "../Components/Assets/FotosCarousel/pub3.jpg";
-import { useEffect } from "react";
-import { collection, query, onSnapshot } from "firebase/firestore";
-import { db } from "../firebase"; // Asegúrate de la ruta correcta
+import "./CSS/EventsCategory.css";
 
 const EventsCategory = (props) => {
+  const dispatch = useDispatch();
+  const piezas = useSelector(selectAllPiezas);  // Obtenemos las piezas desde Redux
+  const search = useSelector(selectSearch);
+  const [sortBy, setSortBy] = useState('');
 
-  const [parties, setParties] = useState([]);
-  const [search, setSearch] = useState('');
-  const [sortBy, setSortBy] = useState(null);
-
+  // Despachamos la acción para obtener las piezas cuando el componente se monta
   useEffect(() => {
-    const q = query(collection(db, "piezas"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const piezasArray = [];
-      querySnapshot.forEach((doc) => {
-        piezasArray.push({ id: doc.id, ...doc.data() });
-        console.log("i")
-      });
-      setParties(piezasArray);
-    });
-
-    // Cleanup on unmount
-    return () => unsubscribe();
-  }, []);
+    dispatch(fetchPiezas());
+  }, [dispatch]);
 
   // Lógica para filtrar y ordenar los elementos según la opción seleccionada
-  const filteredAndSortedParties = useMemo(() => {
-    let filtered = parties.filter((item) => {
-      // Verificamos si item.nombre y search existen
-      if (item.nombre && search) {
-        return item.nombre.toLowerCase().includes(search.toLowerCase());
-      }
-      // Si no existen, devolvemos false para que no se incluyan en el filtro
-      return false;
-    });
+  const filteredAndSortedPiezas = useMemo(() => {
+    let filtered = piezas
+      .filter(item => item.nombre && item.juego)  // Filtrar solo los elementos que tengan nombre
+      .filter(item => {
+        const searchTerm = search.toLowerCase();
+        return (
+          !searchTerm || 
+          item.nombre.toLowerCase().includes(searchTerm) || 
+          item.juego.toLowerCase().includes(searchTerm)  // Filtrar por nombre o por juego
+        );
+      });
+    console.log('search:', search)
+    console.log('filtered:', filtered)
   
     // Lógica de ordenamiento
     if (sortBy === "price") {
@@ -49,14 +42,8 @@ const EventsCategory = (props) => {
     }
   
     return filtered;
-  }, [parties, search, sortBy]);
+  }, [piezas, search, sortBy]);
   
-
-   // Funciones de control
-   const handleSearchChange = (event) => {
-    setSearch(event.target.value);
-  };
-
   const handleChangeSortBy = (option) => {
     setSortBy(option);
   };
@@ -67,6 +54,8 @@ const EventsCategory = (props) => {
     pub2,
     pub3
   ];
+
+  console.log("carousel images: ", carouselImages)
 
   return (
     <div className="shop-category">
@@ -89,20 +78,17 @@ const EventsCategory = (props) => {
         </div>
       </div>
       <div className="shopCategory-Parties">
-        {filteredAndSortedParties.map((item, index) => {
+        {filteredAndSortedPiezas.map((item, index) => {
           // if (item.category === props.category) {
             return (
               <Item
                 key={index}
                 id={item.id}
-                nombre={item.nombre}
+                name={item.juego}
+                desc={item.nombre}
                 image={item.image}
-                barrio={item.barrio}
-                // Render price information conditionally
+                // barrio={item.barrio}
                 newPrice={item.price}
-                // oldPrice={
-                //   props.category === "artistas" ? null : `${item.old_price}`
-                // }
               />
             );
           // } else {
