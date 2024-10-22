@@ -1,72 +1,46 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { collection, onSnapshot, query, addDoc, updateDoc, doc, deleteDoc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase'; // Asegúrate de tener configurada la conexión a Firebase correctamente
+import { db } from '../firebase';  // Importa la instancia de Firestore
+import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+
+// Thunks asíncronos para interactuar con Firestore
+
+// Obtener todas las piezas desde Firestore
+export const fetchPiezas = createAsyncThunk('party/fetchPiezas', async () => {
+  const piezasCollection = collection(db, 'piezas');
+  const piezasSnapshot = await getDocs(piezasCollection);
+  const piezasList = piezasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return piezasList;
+});
+
+// Agregar una nueva pieza a Firestore
+export const addPieza = createAsyncThunk('party/addPieza', async (newPieza) => {
+  const docRef = await addDoc(collection(db, 'piezas'), newPieza);
+  return { id: docRef.id, ...newPieza };
+});
+
+// Actualizar una pieza existente en Firestore
+export const updatePieza = createAsyncThunk('party/updatePieza', async (updatedPieza) => {
+  const piezaRef = doc(db, 'piezas', updatedPieza.id);
+  await updateDoc(piezaRef, updatedPieza);
+  return updatedPieza;
+});
+
+// Borrar una pieza de Firestore
+export const deletePieza = createAsyncThunk('party/deletePieza', async (id) => {
+  const piezaRef = doc(db, 'piezas', id);
+  await deleteDoc(piezaRef);
+  return id;
+});
 
 // Estado inicial
 const initialState = {
-  items: [], 
+  items: [],  // Ahora vacío, ya que se obtendrán de Firestore
   search: '',
-  status: 'idle', // Para manejar estados de carga
-  error: null,
+  foundPiezas: [],
+  loading: false,
+  error: null
 };
 
-// Thunks asíncronos para obtener los datos de Firebase
-export const fetchParties = createAsyncThunk('party/fetchParties', async (_, { dispatch }) => {
-  const q = query(collection(db, "piezas"));
-
-  return new Promise((resolve, reject) => {
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const partiesArray = [];
-      querySnapshot.forEach((doc) => {
-        partiesArray.push({ id: doc.id, ...doc.data() });
-      });
-
-      // Actualiza el estado de Redux con los datos en tiempo real
-      dispatch(updateParties(partiesArray));
-
-      // Resuelve la promesa para que el thunk sea considerado 'cumplido'
-      resolve(partiesArray);
-    }, (error) => {
-      // Si hay un error, rechaza la promesa
-      reject(error);
-    });
-
-    // Cleanup si se desmonta
-    return () => unsubscribe();
-  });
-});
-
-export const addParty = createAsyncThunk('party/addPartyToFirebase', async (newParty) => {
-  const docRef = await addDoc(collection(db, "piezas"), newParty);
-  return { id: docRef.id, ...newParty };
-});
-
-export const updateParty = createAsyncThunk('party/updatePartyInFirebase', async (updatedParty) => {
-  const partyRef = doc(db, "piezas", updatedParty.id);
-  await updateDoc(partyRef, updatedParty);
-  return updatedParty;
-});
-
-export const deleteParty = createAsyncThunk('party/deletePartyFromFirebase', async (partyId) => {
-  await deleteDoc(doc(db, "piezas", partyId));
-  return partyId;
-});
-
-export const descountStockParty = createAsyncThunk('party/descountStockParty', async ({ id, quantity }) => {
-  const partyRef = doc(db, "piezas", id);
-  const docSnap = await getDoc(partyRef);  // Cambiamos a getDoc para obtener un único documento
-  const currentParty = docSnap.data();
-  const newStock = currentParty.stock - quantity;
-
-  if (newStock < 0) {
-    throw new Error('El stock no puede ser negativo');
-  }
-
-  await updateDoc(partyRef, { stock: newStock });
-  return { id, newStock };
-});
-
-// Slice
 const partySlice = createSlice({
   name: 'party',
   initialState,
@@ -74,49 +48,52 @@ const partySlice = createSlice({
     setSearch: (state, action) => {
       state.search = action.payload;
     },
-    updateParties: (state, action) => {
-      state.items = action.payload; // Actualizamos los items en tiempo real
+    setFoundPiezas: (state, action) => {
+      state.foundPiezas = action.payload;
     }
   },
   extraReducers: (builder) => {
-    builder
-      .addCase(fetchParties.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(fetchParties.fulfilled, (state) => {
-        state.status = 'succeeded';
-      })
-      .addCase(fetchParties.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message;
-      })
-      .addCase(addParty.fulfilled, (state, action) => {
-        state.items.push(action.payload);
-      })
-      .addCase(updateParty.fulfilled, (state, action) => {
-        const index = state.items.findIndex(party => party.id === action.payload.id);
-        if (index !== -1) {
-          state.items[index] = action.payload;
-        }
-      })
-      .addCase(deleteParty.fulfilled, (state, action) => {
-        state.items = state.items.filter(party => party.id !== action.payload);
-      })
-      .addCase(descountStockParty.fulfilled, (state, action) => {
-        const party = state.items.find(party => party.id === action.payload.id);
-        if (party) {
-          party.stock = action.payload.newStock;
-        }
-      });
-  },
+    // Manejar fetchPiezas
+    builder.addCase(fetchPiezas.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(fetchPiezas.fulfilled, (state, action) => {
+      state.items = action.payload;
+      state.loading = false;
+    });
+    builder.addCase(fetchPiezas.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message;
+    });
+
+    // Manejar addPieza
+    builder.addCase(addPieza.fulfilled, (state, action) => {
+      state.items.push(action.payload);
+    });
+
+    // Manejar updatePieza
+    builder.addCase(updatePieza.fulfilled, (state, action) => {
+      const index = state.items.findIndex(pieza => pieza.id === action.payload.id);
+      if (index !== -1) {
+        state.items[index] = action.payload;
+      }
+    });
+
+    // Manejar deletePieza
+    builder.addCase(deletePieza.fulfilled, (state, action) => {
+      state.items = state.items.filter(pieza => pieza.id !== action.payload);
+    });
+  }
 });
 
 // Acciones
-export const { setSearch, updateParties } = partySlice.actions;
+export const { setSearch, setFoundPiezas } = partySlice.actions;
 
 // Selectores
-export const selectAllParties = state => state.party.items;
-export const selectPartyById = (state, partyId) => state.party.items.find(party => party.id === partyId);
-export const selectSearch = state => state.party.search;
+export const selectAllPiezas = (state) => state.party.items;
+export const selectPiezaById = (state, piezaId) => state.party.items.find(pieza => pieza.id === piezaId);
+export const selectSearch = (state) => state.party.search;
+export const selectFoundPiezas = (state) => state.party.foundPiezas;
 
 export default partySlice.reducer;
