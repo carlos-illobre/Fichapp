@@ -7,8 +7,10 @@ import cart_icon from "../Assets/cart2.jpg";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import lupa from "../Assets/lupa.png";
 import { IconButton } from "@mui/material";
-import { setSearch, selectSearch } from "../../ReduxToolkit/partySlice";
 import { useSelector, useDispatch } from "react-redux";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../../firebase";
+import { setFoundPiezas, setSearch, selectSearch } from "../../ReduxToolkit/partySlice";
 import { setUser, clearUser } from "../../ReduxToolkit/userSlice";
 import { removeFromCart, removeAllFromCart, selectTotalCartItems } from "../../ReduxToolkit/cartSlice";
 import { getAuth, signOut } from "firebase/auth";
@@ -39,7 +41,7 @@ const Navbar = () => {
     }
   };
 
-  const handleClickSearch = () => {
+  const handleClickSearch = async () => {
     if (localSearch.length >= 3) {
       dispatch(setSearch(localSearch));
       navigate("/"); // Ajusta la ruta según sea necesario
@@ -69,8 +71,8 @@ const Navbar = () => {
         <div className="menu-icon-lines"></div>
         <div className="menu-icon-lines"></div>
       </button>
-      <ul className={`nav-menu ${menu ? "show" : ""}`}>
-        <li onClick={() => setMenu("recintos")}>
+      <ul className={'nav-menu ${showMenu ? "show" : ""}'}>
+        <li onClick={() => setMenu("Piezas")}>
           <Link to="/">INICIO</Link>
         </li>
 
@@ -123,7 +125,7 @@ const Navbar = () => {
         <div className="nav-search">
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Buscar..."
             onChange={handleChangeSearch}
           />
           <IconButton onClick={handleClickSearch}>
