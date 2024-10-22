@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPiezas, selectAllPiezas } from "../ReduxToolkit/partySlice";  // Importamos las acciones y selectores desde el slice
+import { fetchPiezas, selectAllPiezas, selectSearch } from "../ReduxToolkit/partySlice";  // Importamos las acciones y selectores desde el slice
 import Item from "../Components/Items/Item";  // Asegúrate de la ruta correcta
 import Carousel from "../Components/Carousel/carousel";  // Asegúrate de la ruta correcta
 import pub1 from "../Components/Assets/FotosCarousel/pub1.webp";
 import pub2 from "../Components/Assets/FotosCarousel/pub2.jpg";
 import pub3 from "../Components/Assets/FotosCarousel/pub3.jpg";
+import "./CSS/EventsCategory.css";
 
 const EventsCategory = (props) => {
   const dispatch = useDispatch();
   const piezas = useSelector(selectAllPiezas);  // Obtenemos las piezas desde Redux
-  console.log('piezas: ', piezas)
-  const [search, setSearch] = useState('');
+  const search = useSelector(selectSearch);
   const [sortBy, setSortBy] = useState('');
 
   // Despachamos la acción para obtener las piezas cuando el componente se monta
@@ -22,9 +22,15 @@ const EventsCategory = (props) => {
   // Lógica para filtrar y ordenar los elementos según la opción seleccionada
   const filteredAndSortedPiezas = useMemo(() => {
     let filtered = piezas
-      .filter(item => item.nombre)  // Filtrar solo los elementos que tengan nombre
-      .filter(item => !search || item.nombre.toLowerCase().includes(search.toLowerCase()));  // Si no hay valor de busqueda no se filtra la pieza
-    
+      .filter(item => item.nombre && item.juego)  // Filtrar solo los elementos que tengan nombre
+      .filter(item => {
+        const searchTerm = search.toLowerCase();
+        return (
+          !searchTerm || 
+          item.nombre.toLowerCase().includes(searchTerm) || 
+          item.juego.toLowerCase().includes(searchTerm)  // Filtrar por nombre o por juego
+        );
+      });
     console.log('search:', search)
     console.log('filtered:', filtered)
   
@@ -38,13 +44,6 @@ const EventsCategory = (props) => {
     return filtered;
   }, [piezas, search, sortBy]);
   
-  console.log('filteredAndSortedPiezas:', filteredAndSortedPiezas)
-
-   // Funciones de control
-   const handleSearchChange = (event) => {
-    setSearch(event.target.value);
-  };
-
   const handleChangeSortBy = (option) => {
     setSortBy(option);
   };
@@ -85,10 +84,10 @@ const EventsCategory = (props) => {
               <Item
                 key={index}
                 id={item.id}
-                nombre={item.nombre}
+                name={item.juego}
+                desc={item.nombre}
                 image={item.image}
-                barrio={item.barrio}
-                // Render price information conditionally
+                // barrio={item.barrio}
                 newPrice={item.price}
               />
             );

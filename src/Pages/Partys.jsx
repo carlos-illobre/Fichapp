@@ -28,17 +28,17 @@ const Partys = () => {
       </div>
 
       <div>
-        <h3>Imágenes del Evento:</h3>
-        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-          {party.images.map((imageUrl, index) => (
+        {/* <h3>Imágenes del Evento:</h3> */}
+        {/* <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+          {party.images.map((image, index) => (
             <img
               key={index}
-              src={imageUrl}
+              src={image}
               alt={`Imagen del Evento ${index + 1}`}
               style={{ maxWidth: "100px", height: "auto", marginRight: "10px", marginBottom: "10px" }}
             />
           ))}
-        </div>
+        </div> */}
       </div>
 
       <div>

@@ -57,23 +57,23 @@ const BotonesParty = (props) => {
       <div className="barraBotones">
         <div className="boton">
           <select id="fecha" className="estiloBoton">
-            <option selected>{party.fecha}</option>
+            <option selected>{party.nombre}</option>
           </select>
         </div>
         <div className="boton">
           <select id="hora" className="estiloBoton">
-            <option selected>{party.hora}</option>
+            <option selected>{party.price}</option>
           </select>
         </div>
         <div className="boton">
           <select id="lugar" className="estiloBoton">
-            <option selected>{party.lugar}</option>
+            <option selected>{party.stock}</option>
             <option>{party.ubicacion}</option>
           </select>
         </div>
         <div className="boton">
           <select id="precio" className="estiloBoton">
-            <option selected>{"$" + party.new_price}</option>
+            <option selected>{"$" + party.price}</option>
           </select>
         </div>
         <div className="boton">

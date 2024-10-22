@@ -46,6 +46,8 @@ export const descountStockParty = createAsyncThunk('party/descountStockParty', a
   return { id, newStock };
 });
 
+
+
 // Estado inicial
 const initialState = {
   items: [],  // Ahora vacío, ya que se obtendrán de Firestore

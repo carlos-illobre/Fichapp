@@ -14,6 +14,8 @@ import { removeFromCart, removeAllFromCart, selectTotalCartItems } from "../../R
 import { getAuth, signOut } from "firebase/auth";
 import { FaChevronDown } from "react-icons/fa";
 
+
+
 const Navbar = () => {
   const dispatch = useDispatch();
   const search = useSelector(selectSearch) || "";
@@ -40,7 +42,7 @@ const Navbar = () => {
   const handleClickSearch = () => {
     if (localSearch.length >= 3) {
       dispatch(setSearch(localSearch));
-      navigate("/recintos");
+      navigate("/"); // Ajusta la ruta según sea necesario
     }
   };
 
