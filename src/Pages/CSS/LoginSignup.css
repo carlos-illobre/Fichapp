@@ -107,3 +107,9 @@ input[type="date"]::-webkit-calendar-picker-popup {
   width: 300px; /* Ajusta el ancho del calendario */
   height: 300px; /* Ajusta la altura del calendario */
 }
+
+.hyperlink {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+}

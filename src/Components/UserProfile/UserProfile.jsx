@@ -295,7 +295,9 @@ const UserProfile = () => {
       </div>
 
       <div className="additional-buttons">
-        <button className="service-button">Ofrecer servicios 3D</button>
+        <button className="service-button" onClick={() => navigate("/registro3D")}>
+          Ofrecer servicios 3D
+        </button>
         <button className="service-button">Quiero ofrecer servicios como empresa</button>
       </div>
     </div>

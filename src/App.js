@@ -16,6 +16,8 @@ import Contacto from './Pages/Contacto';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import PiezasPage from './Pages/Piezas';
 import UserProfile from './Components/UserProfile/UserProfile'; // Ajusta la ruta si es necesario
+import Registro3D from './Pages/Registro3D';
+
 
 function App() {
   
@@ -40,6 +42,7 @@ function App() {
           <Route path="/Contacto" element={<Contacto />} />
           <Route path="/Piezas" element={<PiezasPage />} />
           <Route path="/user-profile" element={<UserProfile />} /> {/* Nueva ruta para el perfil */}
+          <Route path="/registro3D" element={<Registro3D />} />
         </Routes>
         <Footer />
         </BrowserRouter>
