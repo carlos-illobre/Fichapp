@@ -5,10 +5,10 @@ import RelatedPartys from "../Components/RelatedPartys/RelatedPartys";
 import "./CSS/Partys.css";
 import HeaderParty from "../Components/HeaderParty/HeaderParty";
 import BotonesParty from "../Components/BotonesParty/BotonesParty";
-import { selectAllParties } from "../ReduxToolkit/partySlice";
+import { selectAllPiezas } from "../ReduxToolkit/partySlice";
 
 const Partys = () => {
-  const allParties = useSelector(selectAllParties);
+  const allParties = useSelector(selectAllPiezas);
   const { partyId } = useParams();
   const party = allParties.find((e) => e.id === Number(partyId));
 

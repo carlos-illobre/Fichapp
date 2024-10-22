@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./CSS/LoginSignup.css";
 import { useSelector, useDispatch } from "react-redux";
-import { addParty } from "../ReduxToolkit/partySlice";
+import { addPieza } from "../ReduxToolkit/partySlice";
 import { useNavigate } from "react-router-dom";
 import { storage, db } from "../firebase"; 
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -124,7 +124,7 @@ const AgregarFiesta = () => {
       return;
     }
 
-    dispatch(addParty(partyData)); // Agregar la fiesta al estado de Redux
+    dispatch(addPieza(partyData)); // Agregar la fiesta al estado de Redux
     navigate(`/partys/${nuevoId}`);
     setErrorMessage("");
   };

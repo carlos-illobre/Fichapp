@@ -1,7 +1,7 @@
 import "./BotonesParty.css";
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { deleteParty } from "../../ReduxToolkit/partySlice";
+import { deletePieza } from "../../ReduxToolkit/partySlice";
 import { useSelector,useDispatch } from "react-redux";
 import { addToCart, selectTotalCartItems } from "../../ReduxToolkit/cartSlice";
 
@@ -48,7 +48,7 @@ const BotonesParty = (props) => {
     // const partyId = location.pathname.split("/").pop();
     const partyId = party.id;
     console.log("ID de la party a eliminar: ", partyId);
-    dispatch(deleteParty(partyId));
+    dispatch(deletePieza(partyId));
     navigate("/");
   };
 

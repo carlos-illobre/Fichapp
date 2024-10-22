@@ -1,53 +1,62 @@
-import React, { useMemo, useState,useEffect   } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import "./CSS/EventsCategory.css";
-import Item from "../Components/Items/Item";
-import Carousel from "../Components/Carousel/carousel";
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPiezas, selectAllPiezas } from "../ReduxToolkit/partySlice";  // Importamos las acciones y selectores desde el slice
+import Item from "../Components/Items/Item";  // Asegúrate de la ruta correcta
+import Carousel from "../Components/Carousel/carousel";  // Asegúrate de la ruta correcta
 import pub1 from "../Components/Assets/FotosCarousel/pub1.webp";
 import pub2 from "../Components/Assets/FotosCarousel/pub2.jpg";
 import pub3 from "../Components/Assets/FotosCarousel/pub3.jpg";
-import { selectAllParties, selectSearch, setSearch, fetchParties } from "../ReduxToolkit/partySlice";
 
 const EventsCategory = (props) => {
   const dispatch = useDispatch();
-  const allParties = useSelector(selectAllParties);
-  const search = useSelector(selectSearch) || '';
-  const [sortBy, setSortBy] = useState(null);
+  const piezas = useSelector(selectAllPiezas);  // Obtenemos las piezas desde Redux
+  console.log('piezas: ', piezas)
+  const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState('');
 
+  // Despachamos la acción para obtener las piezas cuando el componente se monta
   useEffect(() => {
-    dispatch(fetchParties());
-  }, [dispatch]); // Solo se ejecuta una vez al montar el componente
+    dispatch(fetchPiezas());
+  }, [dispatch]);
+
+  // Lógica para filtrar y ordenar los elementos según la opción seleccionada
+  const filteredAndSortedPiezas = useMemo(() => {
+    let filtered = piezas
+      .filter(item => item.nombre)  // Filtrar solo los elementos que tengan nombre
+      .filter(item => !search || item.nombre.toLowerCase().includes(search.toLowerCase()));  // Si no hay valor de busqueda no se filtra la pieza
+    
+    console.log('search:', search)
+    console.log('filtered:', filtered)
+  
+    // Lógica de ordenamiento
+    if (sortBy === "price") {
+      filtered.sort((a, b) => a.price - b.price);
+    } else if (sortBy === "nombre") {
+      filtered.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+    }
+  
+    return filtered;
+  }, [piezas, search, sortBy]);
+  
+  console.log('filteredAndSortedPiezas:', filteredAndSortedPiezas)
+
+   // Funciones de control
+   const handleSearchChange = (event) => {
+    setSearch(event.target.value);
+  };
 
   const handleChangeSortBy = (option) => {
     setSortBy(option);
   };
-  const handleSearchChange = (event) => { // eslint-disable-line no-unused-vars
-    dispatch(setSearch(event.target.value)); // Actualizar el estado de búsqueda
-  };
 
-  // Lógica para filtrar y ordenar los elementos según la opción seleccionada
-  const filteredAndSortedParties = useMemo(() => {
-    let values = allParties.filter((item) => {
-    // const itemName = item.name || item.juego || '';
-      // return item.name.toLowerCase().includes(search.toLowerCase());
-      return item.nombre == search.toLowerCase();
-    });
-
-    if (sortBy === "price") {
-      values.sort((a, b) => a.price - b.price); // Ordenar por precio
-    } 
-    // else if (sortBy === "date") {
-    //   values.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)); // Ordenar por fecha
-    // }
-
-    return values;
-  }, [allParties, search, sortBy]);
   
   const carouselImages = [
     pub1,
     pub2,
     pub3
   ];
+
+  console.log("carousel images: ", carouselImages)
 
   return (
     <div className="shop-category">
@@ -65,19 +74,20 @@ const EventsCategory = (props) => {
           >
             <option value="">Seleccionar</option>
             <option value="price">Precio</option>
-            <option value="date">Ubicación</option>
+            <option value="barrio">Ubicación</option>
           </select>
         </div>
       </div>
       <div className="shopCategory-Parties">
-        {filteredAndSortedParties.map((item, index) => {
+        {filteredAndSortedPiezas.map((item, index) => {
           // if (item.category === props.category) {
             return (
               <Item
                 key={index}
                 id={item.id}
-                name={item.juego}
+                nombre={item.nombre}
                 image={item.image}
+                barrio={item.barrio}
                 // Render price information conditionally
                 newPrice={item.price}
               />

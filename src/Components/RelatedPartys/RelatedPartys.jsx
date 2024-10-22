@@ -2,10 +2,10 @@ import React from 'react'
 import './RelatedPartys.css'
 import Item from '../Items/Item'
 import { useSelector } from 'react-redux';
-import { selectAllParties } from '../../ReduxToolkit/partySlice';
+import { selectAllPiezas } from '../../ReduxToolkit/partySlice';
 
 const RelatedPartys = () => {
-  const allParties = useSelector(selectAllParties);
+  const allParties = useSelector(selectAllPiezas);
   const firstThreeParties = allParties.slice(3, 7);
   return (
     <div className='relatedproducts'>

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { db } from '../firebase';  // Importa la instancia de Firestore
-import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc, getDoc } from 'firebase/firestore';
 
 // Thunks asíncronos para interactuar con Firestore
 
@@ -30,6 +30,20 @@ export const deletePieza = createAsyncThunk('party/deletePieza', async (id) => {
   const piezaRef = doc(db, 'piezas', id);
   await deleteDoc(piezaRef);
   return id;
+});
+
+export const descountStockParty = createAsyncThunk('party/descountStockParty', async ({ id, quantity }) => {
+  const partyRef = doc(db, "piezas", id);
+  const docSnap = await getDoc(partyRef);  // Cambiamos a getDoc para obtener un único documento
+  const currentParty = docSnap.data();
+  const newStock = currentParty.stock - quantity;
+
+  if (newStock < 0) {
+    throw new Error('El stock no puede ser negativo');
+  }
+
+  await updateDoc(partyRef, { stock: newStock });
+  return { id, newStock };
 });
 
 // Estado inicial
@@ -83,6 +97,13 @@ const partySlice = createSlice({
     // Manejar deletePieza
     builder.addCase(deletePieza.fulfilled, (state, action) => {
       state.items = state.items.filter(pieza => pieza.id !== action.payload);
+    });
+
+    builder.addCase(descountStockParty.fulfilled, (state, action) => {
+      const party = state.items.find(party => party.id === action.payload.id);
+      if (party) {
+        party.stock = action.payload.newStock;
+      }
     });
   }
 });
