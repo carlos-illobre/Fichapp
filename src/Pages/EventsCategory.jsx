@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPiezas, selectAllPiezas, selectSearch } from "../ReduxToolkit/partySlice";  // Importamos las acciones y selectores desde el slice
+import { fetchPiezas, selectAllPiezas, selectSearch, setFoundPiezasEmpresa, setFoundPiezasImpresora, setFoundPiezas, setSearch, selectIsSearching} from "../ReduxToolkit/partySlice";  // Importamos las acciones y selectores desde el slice
 import Item from "../Components/Items/Item";  // Asegúrate de la ruta correcta
 import Carousel from "../Components/Carousel/carousel";  // Asegúrate de la ruta correcta
 import pub1 from "../Components/Assets/FotosCarousel/pub1.webp";
@@ -8,11 +8,19 @@ import pub2 from "../Components/Assets/FotosCarousel/pub2.jpg";
 import pub3 from "../Components/Assets/FotosCarousel/pub3.jpg";
 import "./CSS/EventsCategory.css";
 
+
+import { Link, useNavigate, useLocation } from "react-router-dom";
+
 const EventsCategory = (props) => {
   const dispatch = useDispatch();
   const piezas = useSelector(selectAllPiezas);  // Obtenemos las piezas desde Redux
   const search = useSelector(selectSearch);
   const [sortBy, setSortBy] = useState('');
+  const [showEmpresaButton, setShowEmpresaButton] = useState(false); // Estado del botón de búsqueda de piezas de Empresa
+  const [showImpresoraButton, setShowImpresoraButton] = useState(false); // Estado del botón de búsqueda de piezas de Empresa
+  const navigate = useNavigate();
+  const isSearching = useSelector(selectIsSearching);
+ 
 
   // Despachamos la acción para obtener las piezas cuando el componente se monta
   useEffect(() => {
@@ -47,6 +55,23 @@ const EventsCategory = (props) => {
   const handleChangeSortBy = (option) => {
     setSortBy(option);
   };
+  
+  const handleSearchImpresoras = async () => {
+  
+          navigate("/PiezasImpresora"); // Ajusta la ruta según sea necesario
+          setShowEmpresaButton(false);
+          setShowImpresoraButton(false);
+   
+  };
+
+  const handleSearchEmpresas = async () => {
+    
+          navigate("/PiezasEmpresa"); // Ajusta la ruta según sea necesario
+          setShowEmpresaButton(false);
+          setShowImpresoraButton(false);
+     
+  };
+
 
   
   const carouselImages = [
@@ -91,12 +116,24 @@ const EventsCategory = (props) => {
                 newPrice={item.price}
               />
             );
-          // } else {
-          //   return null;
-          // }
+          
         })}
       </div>
+      {isSearching && (
+        <div className="search-buttons">
+            <button onClick={handleSearchEmpresas}>
+            Buscar Repuestos de Empresa
+          </button>
+          <button onClick={handleSearchImpresoras}>
+            Buscar Servicios de Impresoras 3D
+          </button>
+      </div>
+
+      )}
+      
+     
     </div>
+    
   );
 };
 

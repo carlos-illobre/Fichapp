@@ -52,6 +52,7 @@ export const descountStockParty = createAsyncThunk('party/descountStockParty', a
 const initialState = {
   items: [],  // Ahora vacío, ya que se obtendrán de Firestore
   search: '',
+  isSearching: false, // variable agregada para saber si se disparo una busquda
   foundPiezas: [],
   foundPiezasEmpresa: [],
   foundPiezasImpresora: [],
@@ -65,9 +66,12 @@ const partySlice = createSlice({
   reducers: {
     setSearch: (state, action) => {
       state.search = action.payload;
+      state.isSearching = action.payload !== ''
     },
     setFoundPiezas: (state, action) => {  // Nueva acción para almacenar las piezas encontradas
       state.foundPiezas = action.payload;
+      state.isSearching = action.payload !== ''
+
     },
     setFoundPiezasEmpresa: (state, action) => {  // Nueva acción para almacenar las piezas encontradas
       state.foundPiezasEmpresa = action.payload;
@@ -127,5 +131,6 @@ export const selectSearch = (state) => state.party.search;
 export const selectFoundPiezas = (state) => state.party.foundPiezas;
 export const selectFoundPiezasEmpresa = (state) => state.party.foundPiezasEmpresa;
 export const selectFoundPiezasImpresora = (state) => state.party.foundPiezasImpresora;
+export const selectIsSearching = (state) => state.party.isSearching;
 
 export default partySlice.reducer;

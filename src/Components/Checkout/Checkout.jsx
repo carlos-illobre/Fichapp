@@ -220,9 +220,9 @@ const Checkout = () => {
             if (party) {
               return (
                 <div className="checkout-parties-item" key={party.id}>
-                  <p>{party.name}</p>
+                  <p>{party.juego}</p>
                   <p>Quantity: {item.cantidad}</p>
-                  <p>Total: ${party.new_price * item.cantidad}</p>
+                  <p>Total: ${party.price * item.cantidad}</p>
                   <button onClick={() => handleRemoveFromCart(party.id)}>
                     Remove
                   </button>

@@ -46,10 +46,10 @@ const CartItems = () => {
                 alt=""
                 className="carticon-product-icon"
               />
-              <p>{item.name}</p>
-              <p>${item.new_price}</p>
+              <p>{item.juego}</p>
+              <p>${item.price}</p>
               <button className="cartitems-quantity">{item.cantidad}</button>
-              <p>${item.new_price * item.cantidad}</p>
+              <p>${item.price * item.cantidad}</p>
               <img
                 className="cartitems-remove-icon"
                 src={remove_icon}

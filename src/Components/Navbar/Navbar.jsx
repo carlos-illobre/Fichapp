@@ -66,11 +66,14 @@ const Navbar = () => {
           juegos.push({ id: doc.id, ...doc.data() });
         });
 
+        handleSearchEmpresas();
+      handleSearchImpresoras();
+
         // Si obtienes piezas, podrías redirigir a una página de resultados o mostrar las piezas
         if (piezas.length > 0) { // Para piezas
           console.log("Piezas encontradas:", piezas); 
           dispatch(setFoundPiezas(piezas)); // Opcional: Guarda el término de búsqueda en Redux
-          navigate("/Piezas"); // Ajusta la ruta según sea necesario
+          navigate("/"); // Ajusta la ruta según sea necesario
         } else {
           console.log("No se encontraron piezas.");
           dispatch(setFoundPiezas([]));
@@ -79,7 +82,7 @@ const Navbar = () => {
         if (juegos.length > 0) { // Para juegos
           console.log("Juegos encontrados:", juegos);
           dispatch(setFoundPiezas(juegos)); // Opcional: Guarda el término de búsqueda en Redux
-          navigate("/Piezas"); // Ajusta la ruta según sea necesario
+          navigate("/"); // Ajusta la ruta según sea necesario
           setShowEmpresaButton(true); //Mostrar boton Piezas de Empresa
           setShowImpresoraButton(true);
         } else {
@@ -125,7 +128,7 @@ const Navbar = () => {
         if (impresoras) { // Para piezas
           console.log("Impresoras 3D encontradas:", impresoras); 
           dispatch(setFoundPiezasImpresora(impresoras)); // Opcional: Guarda el término de búsqueda en Redux
-          navigate("/PiezasImpresora"); // Ajusta la ruta según sea necesario
+          // navigate("/PiezasImpresora"); // Ajusta la ruta según sea necesario
           setShowEmpresaButton(false);
           setShowImpresoraButton(false);
         }
@@ -161,16 +164,16 @@ const Navbar = () => {
         if (piezasEmp.length > 0) { // Para piezas
           console.log("Piezas encontradas:", piezasEmp); 
           dispatch(setFoundPiezasEmpresa(piezasEmp)); // Opcional: Guarda el término de búsqueda en Redux
-          navigate("/PiezasEmpresa"); // Ajusta la ruta según sea necesario
+          // navigate("/PiezasEmpresa"); // Ajusta la ruta según sea necesario
         } else {
           console.log("No se encontraron piezas.");
           dispatch(setFoundPiezasEmpresa([]));
-          navigate("/PiezasEmpresa");
+          // navigate("/PiezasEmpresa");
         }
         if (juegosEmp.length > 0) { // Para juegos
           console.log("Juegos encontrados:", juegosEmp);
           dispatch(setFoundPiezasEmpresa(juegosEmp)); // Opcional: Guarda el término de búsqueda en Redux
-          navigate("/PiezasEmpresa"); // Ajusta la ruta según sea necesario
+          // navigate("/PiezasEmpresa"); // Ajusta la ruta según sea necesario
           setShowEmpresaButton(false);
           setShowImpresoraButton(false);
         } else {
@@ -257,17 +260,7 @@ const Navbar = () => {
           </IconButton>
         </div>
       ) : null}
-       {/* Mostrar el botón si no se encontraron resultados en la búsqueda inicial */}
-       {showEmpresaButton && (
-        <button onClick={handleSearchEmpresas}>
-          Buscar Repuestos de Empresa
-        </button>
-      )}
-      {showImpresoraButton && (
-        <button onClick={handleSearchImpresoras}>
-          Buscar Servicios de Impresoras 3D
-        </button>
-      )}
+       
       <Link className="nav-login-cart" to="/cart">
         <img src={cart_icon} alt="" className="logocart" />
         <div className="nav-cart-count">{totalCartItems}</div>
