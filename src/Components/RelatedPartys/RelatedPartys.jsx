@@ -9,7 +9,7 @@ const RelatedPartys = () => {
   const firstThreeParties = allParties.slice(3, 6);
   return (
     <div className='relatedproducts'>
-      <h1>Fiestas relacionadas</h1>
+      <h1>Publicaciones relacionadas</h1>
       <hr />
       <div className='relatedproducts-item'>
         {firstThreeParties.map((item,i) => {

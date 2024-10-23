@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';  // Importamos el selector para obtener las piezas
 import { selectFoundPiezas } from '../ReduxToolkit/partySlice';  // Importamos el selector para obtener las piezas encontradas
+import Item from "../Components/Items/Item";
 const PiezasPage = () => {
   const piezas = useSelector(selectFoundPiezas);  // Obtenemos las piezas desde Redux
 
@@ -11,7 +12,15 @@ const PiezasPage = () => {
       {piezas && piezas.length > 0 ? (
         <ul>
           {piezas.map((pieza) => (
-            <li key={pieza.id}>
+            <Item
+            key={pieza.id}
+            id={pieza.id}
+            name={pieza.juego}
+            image={pieza.image}
+            desc={pieza.descripcion}
+            newPrice={pieza.price}
+          />
+            /*<li key={pieza.id}>
               <h3>{pieza.nombre}</h3>
               <p>{pieza.juego}</p>
               <p>{pieza.descripcion}</p>
@@ -22,7 +31,7 @@ const PiezasPage = () => {
                 style={{ width: '200px', height: '200px' }}  // Ajusta el tamaño según sea necesario
               />
 
-            </li>
+            </li>*/
           ))}
         </ul>
       ) : (

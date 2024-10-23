@@ -91,7 +91,7 @@ const BotonesParty = (props) => {
         </div>
       </div>
 
-      {esAdmin() ? (
+      {/* {esAdmin() ? (
         <div className="ComprarPartyButton">
           <button
             className="botonComprar aviable"
@@ -106,7 +106,8 @@ const BotonesParty = (props) => {
             ELIMINAR FIESTA
           </button>
         </div>
-      ) : VerificarStock(cantidadSeleccionada) ? (
+      ) :  */}
+      {VerificarStock(cantidadSeleccionada) ? (
         <div className="ComprarPartyButton">
           <button
             onClick={handleAgregarAlCarrito}

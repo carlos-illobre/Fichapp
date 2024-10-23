@@ -1,19 +1,5 @@
 rules_version = '2';
 
-service firebase.storage {
-  match /b/{bucket}/o {
-    // Permitir acceso completo (lectura, escritura y eliminación) solo para usuarios autenticados
-    match /profilePhotos/{userId} {
-      allow read, write, delete: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Permitir acceso a todas las rutas solo para usuarios autenticados
-    match /{allPaths=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -22,29 +8,34 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Permite leer y escribir en la colección "users" solo para el usuario autenticado
+    // Permitir acceso a la colección "users" solo para el usuario autenticado
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
-    
-    // Permite modificar foto para usuarios autenticados
+
+    // Permitir acceso completo (lectura, escritura y eliminación) solo para usuarios autenticados para sus fotos de perfil
     match /profilePhotos/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Permite leer y escribir en la colección "fiestas" para usuarios autenticados
+    // Permitir acceso a la colección "fiestas" solo para usuarios autenticados
     match /fiestas/{fiestaId} {
       allow read, write: if request.auth != null;
     }
 
-    // Permite leer y escribir en la colección "piezas" para usuarios autenticados
+    // Permitir acceso a la colección "piezas" solo para usuarios autenticados
     match /piezas/{piezaId} {
       allow read, write: if request.auth != null;
     }
 
-    // Permite leer y escribir en la colección "fiestas" para usuarios autenticados
-    match /fiestas/{fiestaId} {
+    // Permitir acceso a la colección "impresoras" solo para usuarios autenticados
+    match /impresoras/{impresoraId} {
       allow read, write: if request.auth != null;
+    }
+
+    // Permitir acceso a la colección "admin-panel" solo a administradores (usuarios con el campo 'role' como 'ADMIN')
+    match /admin-panel/{document=**} {
+      allow read, write: if request.auth != null && request.auth.token.role == 'ADMIN';
     }
 
     // Permite leer y escribir en la colección "piezas" para usuarios autenticados
