@@ -211,3 +211,54 @@ h3 {
 .create-publication-button:hover {
   background-color: #0056b3;
 }
+
+/* --- Estilos agregados para el formulario de empresa --- */
+
+/* Estilos para el formulario de empresa */
+.company-form {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  width: 100%; /* Mantener el formulario dentro del layout */
+}
+
+.company-form p {
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #333;
+}
+
+.company-form div {
+  margin-bottom: 20px; /* Espaciado mayor entre campos */
+}
+
+.company-form label {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 8px; /* Margen más amplio */
+}
+
+.company-form input[type="text"],
+.company-form input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.company-form .submit-button {
+  background-color: #28a745; /* Color verde */
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px; /* Espaciado mayor debajo del botón */
+}
+
+.company-form .submit-button:hover {
+  background-color: #218838;
+}
