@@ -17,17 +17,14 @@ return (
           return (
             <div key={pieza.id} className="pieza-container">
               <Item
-                key={pieza.id}
-                id={pieza.id}
-                name={(
-                  <>
-                    Empresa: {pieza.empresa} <br/>
-                    Ubicación: {pieza.barrio}
-                  </>
-                )} 
-                image={pieza.image}
-                newPrice={pieza.price}
-              />
+              key={pieza.id}
+              id={pieza.id}
+              name={
+              `Empresa: ${pieza.empresa} - Ubicación: ${pieza.barrio}`}
+              image={pieza.image}
+              newPrice={pieza.price}
+              desc={""}
+            />
             </div>
           );
         })}

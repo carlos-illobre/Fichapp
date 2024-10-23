@@ -195,7 +195,8 @@ const Navbar = () => {
         <div className="menu-icon-lines"></div>
       </button>
       <ul className={'nav-menu ${showMenu ? "show" : ""}'}>
-        <li onClick={() => setMenu("Piezas")}>
+        <li onClick={() => {setMenu("Piezas"); setShowEmpresaButton(false);
+          setShowImpresoraButton(false);}}>
           <Link to="/">INICIO</Link>
         </li>
 

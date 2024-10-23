@@ -9,14 +9,14 @@ import {
   removeAllFromCart,
   selectCartItems
 } from "../../ReduxToolkit/cartSlice";
-import { selectAllParties, descountStockParty } from '../../ReduxToolkit/partySlice';
+import { selectAllPiezas, descountStockParty } from '../../ReduxToolkit/partySlice';
 
 const Checkout = () => {
   const cartItems = useSelector(selectCartItems);
   const discountApplied = useSelector(selectDiscount); // eslint-disable-line no-unused-vars
   const totalAmount = useSelector(selectTotalCartAmount);
   const dispatch = useDispatch();
-  const allParties = useSelector(selectAllParties);
+  const allParties = useSelector(selectAllPiezas);
 
 
   const [fullName, setFullName] = useState("");
