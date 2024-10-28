@@ -47,8 +47,6 @@ const EventsCategory = (props) => {
       filtered.sort((a, b) => a.price - b.price);
     } else if (sortBy === "nombre") {
       filtered.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-    } else if (sortBy === "date") {
-      filtered.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)); // Ordenar por fecha
     }
   
     return filtered;
@@ -74,15 +72,23 @@ const EventsCategory = (props) => {
      
   };
 
-  const carouselImages = [pub1, pub2, pub3];
 
+  
+  const carouselImages = [
+    pub1,
+    pub2,
+    pub3
+  ];
+
+  console.log("carousel images: ", carouselImages)
 
   return (
     <div className="shop-category">
-      <Carousel images={carouselImages} />
+      <Carousel images={carouselImages} /> 
       <img className="shopcategory-banner" src={props.banner} alt="" />
       <div className="shopcategory-indexSort">
         <p>{/* <span>Mostrando 1-12</span> de 20 resultados */}</p>
+        {/* Botón desplegable para ordenar */}
         <div className="shopCategory-sort">
           Filtrar por{" "}
           <select
@@ -92,11 +98,10 @@ const EventsCategory = (props) => {
           >
             <option value="">Seleccionar</option>
             <option value="price">Precio</option>
-            <option value="date">Ubicación</option>
+            <option value="barrio">Ubicación</option>
           </select>
         </div>
       </div>
-    
       <div className="shopCategory-Parties">
         {filteredAndSortedPiezas.map((item, index) => {
           // if (item.category === props.category) {

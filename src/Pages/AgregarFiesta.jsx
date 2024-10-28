@@ -1,39 +1,33 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import "./CSS/LoginSignup.css";
 import { useSelector, useDispatch } from "react-redux";
 import { addPieza } from "../ReduxToolkit/partySlice";
 import { useNavigate } from "react-router-dom";
-import { storage, db } from "../firebase";
+import { storage, db } from "../firebase"; 
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore";
-import { useLoadScript, Autocomplete } from "@react-google-maps/api"; // Importar Autocomplete y useLoadScript
 
 const AgregarFiesta = () => {
   const dispatch = useDispatch();
   const allParties = useSelector((state) => state.party.items);
   const navigate = useNavigate();
-
+  
   const [registro, setRegistro] = useState({
     name: "",
     images: [],
-    price: "",
+    new_price: "",
+    old_price: 0,
     category: "recintos",
+    fecha: "",
+    hora: "",
+    lugar: "",
     ubicacion: "",
     stock: 1,
     descripcion: "",
   });
-
+  
   const [errorMessage, setErrorMessage] = useState("");
   const [imagePreviews, setImagePreviews] = useState([]);
-
-  // Ref para almacenar la referencia del Autocomplete
-  const autocompleteRef = useRef(null);
-
-  // useLoadScript para cargar la biblioteca de Google Maps
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyATBiLTxjMFxOAVYgVGaWMHvsC2MtQ093A", // Reemplazar con tu clave
-    libraries: ["places"],
-  });
 
   const onChangeValues = (event) => {
     const { name, value } = event.target;
@@ -79,28 +73,12 @@ const AgregarFiesta = () => {
   };
 
   const handleContinuarClick = async () => {
-    const { name, descripcion, price, stock, images, ubicacion } = registro;
-    if (!name) {
-      setErrorMessage("Por favor, completá el campo 'Nombre'.");
+    const { name, fecha, hora, lugar, new_price, stock, images, ubicacion } = registro;
+    if (!name || !fecha || !hora || !lugar || !new_price || !stock || images.length === 0) {
+      setErrorMessage("Por favor, completá los campos obligatorios.");
       return;
     }
-    if (!descripcion) {
-      setErrorMessage("Por favor, completá el campo 'Descripción'.");
-      return;
-    }
-    if (!price) {
-      setErrorMessage("Por favor, completá el campo 'Precio'.");
-      return;
-    }
-    if (!stock) {
-      setErrorMessage("Por favor, completá el campo 'Stock'.");
-      return;
-    }
-    if (images.length === 0) {
-      setErrorMessage("Por favor, agregá al menos una imagen.");
-      return;
-    }
-    if (price <= 0 || stock <= 0) {
+    if (new_price <= 0 || stock <= 0) {
       setErrorMessage("Por favor, revisa los datos ingresados.");
       return;
     }
@@ -110,8 +88,8 @@ const AgregarFiesta = () => {
       for (const file of images) {
         const storageRef = ref(storage, `fiestas/${file.name}`);
         await uploadBytes(storageRef, file);
-        const url = await getDownloadURL(storageRef);
-        imageUrls.push(url);
+        const url = await getDownloadURL(storageRef); // Obtener la URL de descarga
+        imageUrls.push(url); // Guardar la URL
       }
     } catch (error) {
       console.error("Error al subir las imágenes:", error);
@@ -121,18 +99,22 @@ const AgregarFiesta = () => {
 
     const nuevoId = allParties.length > 0 ? allParties[allParties.length - 1].id + 1 : 1;
 
-    const partyData = {
-      id: nuevoId,
-      name,
-      ubicacion,
-      stock,
-      price,
-      images: imageUrls,
-      image: imageUrls[0],
+    const partyData = { 
+      id: nuevoId, 
+      name, 
+      fecha, 
+      hora, 
+      lugar, 
+      ubicacion, 
+      stock, 
+      new_price, 
+      images: imageUrls, 
+      image: imageUrls[0], // Tomar la primera imagen
       descripcion: registro.descripcion,
       category: registro.category,
     };
 
+    // Guardar los datos en Firestore
     try {
       const partyRef = doc(db, "fiestas", nuevoId.toString());
       await setDoc(partyRef, partyData);
@@ -147,22 +129,9 @@ const AgregarFiesta = () => {
     setErrorMessage("");
   };
 
-  const handlePlaceChanged = () => {
-    if (autocompleteRef.current) {
-      const place = autocompleteRef.current.getPlace();
-      setRegistro((prev) => ({
-        ...prev,
-        ubicacion: place.formatted_address || place.name || "",
-      }));
-    }
-  };
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  if (loadError) return <div>Error al cargar Google Maps</div>;
-  if (!isLoaded) return <div>Cargando mapa...</div>;
 
   return (
     <div className="loginsignup" onPaste={handlePaste}>
@@ -197,45 +166,32 @@ const AgregarFiesta = () => {
             placeholder="Nombre del Juego de la pieza (*)"
             value={registro.lugar}
           />
+          <input
+            type="text"
+            name="ubicacion"
+            onChange={onChangeValues}
+            placeholder="Dirección del Lugar"
+            value={registro.ubicacion}
+          />
           { /* <input
             type="number"
             name="stock"
             min="1"
             onChange={onChangeValues}
-            placeholder="Stock disponible (*)"
+            placeholder="Cantidad de Entradas del Evento (*)"
             value={registro.stock}
           /> */ }
-            <textarea
-              name="descripcion"
-              onChange={onChangeValues}
-              placeholder="Descripción de la pieza (*)"
-              value={registro.descripcion}
-              rows="4"
-              style={{ resize: "vertical", width: "100%", marginTop: "10px", padding: "8px" }}
-            ></textarea>
           <div style={{ display: "flex", alignItems: "center" }}>
             <span style={{ fontSize: "1.5rem", marginRight: "10px" }}>$</span>
             <input
               type="number"
-              name="price"
+              name="new_price"
               min="1"
               onChange={onChangeValues}
               placeholder="Precio de la pieza (*)"
               value={registro.new_price}
             />
           </div>
-
-          {/* Campo de entrada con Autocomplete para la ubicación */}
-          <Autocomplete onLoad={(ref) => (autocompleteRef.current = ref)} onPlaceChanged={handlePlaceChanged}>
-            <input
-              type="text"
-              name="ubicacion"
-              onChange={onChangeValues}
-              placeholder="Dirección del Lugar"
-              value={registro.ubicacion}
-              className="location-input"
-            />
-          </Autocomplete>
 
           <input
             type="file"
@@ -245,6 +201,7 @@ const AgregarFiesta = () => {
             id="file-upload"
             multiple
           />
+          
           <label htmlFor="file-upload" style={{ cursor: "pointer", border: "1px solid #ccc", padding: "10px", display: "inline-block", backgroundColor: "#f0f0f0" }}>
             Cargar Imágenes de la pieza
           </label>
