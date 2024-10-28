@@ -80,8 +80,24 @@ const AgregarFiesta = () => {
 
   const handleContinuarClick = async () => {
     const { name, descripcion, price, stock, images, ubicacion } = registro;
-    if (!name || !descripcion || !price || !stock || images.length === 0) {
-      setErrorMessage("Por favor, completá los campos obligatorios.");
+    if (!name) {
+      setErrorMessage("Por favor, completá el campo 'Nombre'.");
+      return;
+    }
+    if (!descripcion) {
+      setErrorMessage("Por favor, completá el campo 'Descripción'.");
+      return;
+    }
+    if (!price) {
+      setErrorMessage("Por favor, completá el campo 'Precio'.");
+      return;
+    }
+    if (!stock) {
+      setErrorMessage("Por favor, completá el campo 'Stock'.");
+      return;
+    }
+    if (images.length === 0) {
+      setErrorMessage("Por favor, agregá al menos una imagen.");
       return;
     }
     if (price <= 0 || stock <= 0) {
@@ -181,13 +197,6 @@ const AgregarFiesta = () => {
             placeholder="Nombre del Juego de la pieza (*)"
             value={registro.lugar}
           />
-          <input
-            type="text"
-            name="ubicacion"
-            onChange={onChangeValues}
-            placeholder="Dirección del Lugar"
-            value={registro.ubicacion}
-          />
           { /* <input
             type="number"
             name="stock"
@@ -196,6 +205,14 @@ const AgregarFiesta = () => {
             placeholder="Stock disponible (*)"
             value={registro.stock}
           /> */ }
+            <textarea
+              name="descripcion"
+              onChange={onChangeValues}
+              placeholder="Descripción de la pieza (*)"
+              value={registro.descripcion}
+              rows="4"
+              style={{ resize: "vertical", width: "100%", marginTop: "10px", padding: "8px" }}
+            ></textarea>
           <div style={{ display: "flex", alignItems: "center" }}>
             <span style={{ fontSize: "1.5rem", marginRight: "10px" }}>$</span>
             <input
