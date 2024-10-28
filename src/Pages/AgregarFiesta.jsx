@@ -19,7 +19,6 @@ const AgregarFiesta = () => {
     price: "",
     category: "recintos",
     ubicacion: "",
-    stock: 1,
     descripcion: "",
   });
 
@@ -150,10 +149,20 @@ const AgregarFiesta = () => {
   const handlePlaceChanged = () => {
     if (autocompleteRef.current) {
       const place = autocompleteRef.current.getPlace();
-      setRegistro((prev) => ({
-        ...prev,
-        ubicacion: place.formatted_address || place.name || "",
-      }));
+
+      if (place && place.formatted_address) {
+        setRegistro((prev) => ({
+          ...prev,
+          ubicacion: place.formatted_address,
+        }));
+        setErrorMessage(""); // Limpia el mensaje de error si se selecciona una dirección valida
+      } else {
+        setErrorMessage("Por favor, selecciona una dirección válida de la lista.");
+        setRegistro((prev) => ({
+          ...prev,
+          ubicacion: "",
+        }));
+      }
     }
   };
 
@@ -224,19 +233,46 @@ const AgregarFiesta = () => {
               value={registro.new_price}
             />
           </div>
-
+          <input
+            type="number"
+            name="stock"
+            min="1"
+            onChange={onChangeValues}
+            placeholder="Stock disponible (*)"
+            value={registro.stock}
+            style={{ width: "100%", marginTop: "10px", padding: "8px" }}
+          />
           {/* Campo de entrada con Autocomplete para la ubicación */}
-          <Autocomplete onLoad={(ref) => (autocompleteRef.current = ref)} onPlaceChanged={handlePlaceChanged}>
+          <Autocomplete
+            onLoad={(ref) => (autocompleteRef.current = ref)}
+            onPlaceChanged={handlePlaceChanged}
+            options={{
+              types: ["address"], // Limita los resultados a direcciones completas
+              componentRestrictions: { country: "AR" }, // Restringe a Argentina
+            }}
+          >
             <input
               type="text"
               name="ubicacion"
-              onChange={onChangeValues}
+              onChange={(e) => {
+                setRegistro((prev) => ({
+                  ...prev,
+                  ubicacion: e.target.value,
+                }));
+                setErrorMessage(""); // Limpia el mensaje de error mientras el usuario escribe
+              }}
               placeholder="Dirección del Lugar"
               value={registro.ubicacion}
               className="location-input"
             />
           </Autocomplete>
 
+          {/* Muestra el mensaje de error si hay un problema */}
+          {errorMessage && (
+            <p className="error-message" style={{ color: "red" }}>
+              {errorMessage}
+            </p>
+          )}
           <input
             type="file"
             accept="image/*"
