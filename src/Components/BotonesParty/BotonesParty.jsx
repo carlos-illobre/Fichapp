@@ -54,7 +54,7 @@ const BotonesParty = (props) => {
 
   return (
     <div>
-      <div className="barraBotones">
+      {/* <div className="barraBotones">
         <div className="boton">
           <select id="fecha" className="estiloBoton">
             <option selected>{party.nombre}</option>
@@ -89,7 +89,7 @@ const BotonesParty = (props) => {
             <option value={4}>4</option>
           </select>
         </div>
-      </div>
+      </div> */}
 
       {/* {esAdmin() ? (
         <div className="ComprarPartyButton">

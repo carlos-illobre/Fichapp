@@ -1,0 +1,55 @@
+.product-page-container {
+    display: flex;
+    justify-content:space-around;
+    padding: 30px;
+  }
+  
+  .image-container {
+    width: 40%;
+    margin-left: 15px;
+  }
+  
+  .product-details-container {
+    width: 40%;
+    padding: 20px;
+    text-align: left;
+    margin-top: 25px;
+  }
+  
+  .product-image {
+    width: 100%;
+    height: auto;
+  }
+  
+  .product-title {
+    font-size: 40px;
+    color:#1b3173;
+    font-weight: 200;
+    margin-bottom: 10px;
+    /* text-align: center; */
+
+  }
+  .product-description{
+    font-size: 20px;
+    color:#a6b5de;
+    margin-bottom: 30px;
+  }
+  
+  .product-stock, .product-price, .product-location {
+    margin-bottom: 15px;
+  }
+  .titleFiestasRelacionadas{
+    text-align: center;
+    color: #a6b5de;
+  }
+  .conteiner-relatedPartys{
+    margin-top: 20px;
+    text-align: center;
+    align-items: center;
+    margin: 35px;
+  }
+  
+  
+  
+
+
