@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./CSS/LoginSignup.css";
 import {useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { updateParty } from "../ReduxToolkit/partySlice";
+import { updatePieza } from "../ReduxToolkit/partySlice";
 
 const ModificarFiesta = () => {
   const location = useLocation();
@@ -33,7 +33,7 @@ const ModificarFiesta = () => {
       setErrorMessage("Por favor, revisa los datos ingresados.");
       return;
     }
-    dispatch(updateParty(party));
+    dispatch(updatePieza(party));
     navigate("/");
   };
 

@@ -9,14 +9,14 @@ import {
   removeAllFromCart,
   selectCartItems
 } from "../../ReduxToolkit/cartSlice";
-import { selectAllParties, descountStockParty } from '../../ReduxToolkit/partySlice';
+import { selectAllPiezas, descountStockParty } from '../../ReduxToolkit/partySlice';
 
 const Checkout = () => {
   const cartItems = useSelector(selectCartItems);
   const discountApplied = useSelector(selectDiscount); // eslint-disable-line no-unused-vars
   const totalAmount = useSelector(selectTotalCartAmount);
   const dispatch = useDispatch();
-  const allParties = useSelector(selectAllParties);
+  const allParties = useSelector(selectAllPiezas);
 
 
   const [fullName, setFullName] = useState("");
@@ -109,9 +109,9 @@ const Checkout = () => {
   return (
     <div className="checkout-container">
       <div className="billing-address">
-        <h3 className="title">Billing Address</h3>
+        <h3 className="title">Datos del cliente</h3>
         <div className="input-box">
-          <span>Full Name:</span>
+          <span>Nombre Completo:</span>
           <input
             type="text"
             name="full-name"
@@ -131,58 +131,19 @@ const Checkout = () => {
           />
           {emailError && <p className="error-message">{emailError}</p>}
         </div>
-        <div className="input-box">
-          <span>Address:</span>
-          <input
-            type="text"
-            name="address"
-            placeholder="Room - Street - Locality"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-          />
-        </div>
-        <div className="input-box">
-          <span>City:</span>
-          <input
-            type="text"
-            name="city"
-            placeholder="Mumbai"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-          />
-        </div>
-        <div className="flex">
-          <div className="input-box">
-            <span>State:</span>
-            <input
-              type="text"
-              name="state"
-              placeholder="India"
-              value={state}
-              onChange={(e) => setState(e.target.value)}
-            />
-          </div>
-          <div className="input-box">
-            <span>Zip Code:</span>
-            <input
-              type="text"
-              name="zip-code"
-              placeholder="123456"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-            />
-          </div>
-        </div>
+        
+        
+       
       </div>
       <div className="payment-details">
-        <h3 className="title">Payment</h3>
+        <h3 className="title">Pago</h3>
 
         <div className="inputBox">
-          <span>cards accepted :</span>
+          <span>Tarjetas aceptadas :</span>
           <img src={paypal} alt="paypal" />
         </div>
         <div className="input-box">
-          <span>Credit Card Number:</span>
+          <span>Numero de la tarjeta:</span>
           <input
             type="text"
             name="card-number"
@@ -192,7 +153,7 @@ const Checkout = () => {
           />
         </div>
         <div className="input-box">
-          <span>Expiration Date:</span>
+          <span>Fecha de expiracion:</span>
           <input
             type="text"
             name="expiration-date"
@@ -213,18 +174,18 @@ const Checkout = () => {
         </div>
       </div>
       <div className="checkout-parties">
-        <h3>Summary:</h3>
+        <h3>Resumen:</h3>
         {cartItems.length > 0 ? (
           cartItems.map((item) => {
             const party = allParties.find((party) => party.id === item.id);
             if (party) {
               return (
                 <div className="checkout-parties-item" key={party.id}>
-                  <p>{party.name}</p>
-                  <p>Quantity: {item.cantidad}</p>
-                  <p>Total: ${party.new_price * item.cantidad}</p>
+                  <p>{party.juego}</p>
+                  <p>Cantidad: {item.cantidad}</p>
+                  <p>Total: ${party.price * item.cantidad}</p>
                   <button onClick={() => handleRemoveFromCart(party.id)}>
-                    Remove
+                    Eliminar
                   </button>
                 </div>
               );
@@ -232,20 +193,19 @@ const Checkout = () => {
             return null;
           })
         ) : (
-          <p>No items in the cart</p>
+          <p>No hay items en el carrito</p>
         )}
       </div>
       <div className="checkout-total">
         <p>Subtotal: ${totalAmount}</p>
-        <p>Shipping: Free</p>
         <p>Total: ${totalAmount}</p>
-        <button onClick={() => handleDescountStock()}>Purchase</button>
+        <button onClick={() => handleDescountStock()}>Comprar</button>
       </div>
 
       {showSuccessMessage && (
         <div className="success-message">
-          <h2>Successful purchase!</h2>
-          <p>You will receive the ticket information via email.</p>
+          <h2>Compra Exitosa!</h2>
+          <p>Va a recibir toda la informacion de su compra por email.</p>
         </div>
       )}
     </div>

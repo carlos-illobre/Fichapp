@@ -42,9 +42,9 @@
 }
 
 .shopCategory-Parties {
-    margin: 20px auto;
+    /* margin: 20px auto; */
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* Adjust column width */
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); 
     gap: 20px;
     justify-items: center; /* Align items in the center horizontally */
 }
@@ -67,3 +67,23 @@
     font-size: 18px;
     font-weight: 500;
 }
+.search-buttons {
+    display: flex;
+    gap: 25px; /* Espacio entre los botones */
+    justify-content: center; /* Centrar los botones en su contenedor */
+    margin: 25px; /* Separación superior para mejor visualización */
+  }
+  
+  .search-buttons button {
+    background-color: #1b3173; 
+    color: white; 
+    border: none; /* Sin borde */
+    padding: 15px 25px; /* Espaciado interno */
+    border-radius: 20px; /* Bordes redondeados */
+    cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
+    font-size: 16px; /* Tamaño del texto */
+    font-weight: bold; /* Texto en negrita */
+    transition: background-color 0.3s ease; /* Animación suave en el cambio de color */
+  }
+  
+  

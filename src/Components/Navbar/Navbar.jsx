@@ -8,26 +8,30 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import lupa from "../Assets/lupa.png";
 import { IconButton } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
-
-import { clearUser  } from "../../ReduxToolkit/userSlice"; // eslint-disable-line no-unused-vars
-import { removeAllFromCart, selectTotalCartItems } from "../../ReduxToolkit/cartSlice"; // eslint-disable-line no-unused-vars
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
-import { setFoundPiezas, setSearch, selectSearch } from "../../ReduxToolkit/partySlice";
+import { setFoundPiezas, setFoundPiezasEmpresa, setFoundPiezasImpresora, setSearch, selectSearch } from "../../ReduxToolkit/partySlice";
+import { clearUser } from "../../ReduxToolkit/userSlice";
+import { removeAllFromCart, selectTotalCartItems } from "../../ReduxToolkit/cartSlice";
+import { getAuth, signOut } from "firebase/auth";
+import { FaChevronDown } from "react-icons/fa";
 
 
 const Navbar = () => {
   const dispatch = useDispatch();
-  const search = useSelector(selectSearch) || ''; // eslint-disable-line no-unused-vars
-  const [menu, setMenu] = useState("Piezas");   // eslint-disable-line no-unused-vars
-  const user = useSelector(state => state.user);
-
+  const search = useSelector(selectSearch) || "";
+  const [menu, setMenu] = useState("recintos");
+  const user = useSelector((state) => state.user);
   const [localSearch, setLocalSearch] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false); // Estado para controlar el menú desplegable
   const navigate = useNavigate();
   const location = useLocation();
   const totalCartItems = useSelector(selectTotalCartItems);
   const auth = getAuth();
+
+  const [showEmpresaButton, setShowEmpresaButton] = useState(false); // Estado del botón de búsqueda de piezas de Empresa
+  const [showImpresoraButton, setShowImpresoraButton] = useState(false); // Estado del botón de búsqueda de piezas de Empresa
+ 
 
   const handleChangeSearch = (event) => {
     const value = event.target.value;
@@ -44,8 +48,8 @@ const Navbar = () => {
     if (localSearch.length >= 3) {
       // Realizamos la búsqueda en Firestore dentro de la colección "piezas"
       const piezasCollection = collection(db, 'piezas');
-      const queryPieza = query(piezasCollection, where('nombre', '==', localSearch));
-      const queryJuego = query(piezasCollection, where('juego', '==', localSearch));
+      const queryPieza = query(piezasCollection, where('nombre', '==', localSearch), where('esEmpresa', '==', false));
+      const queryJuego = query(piezasCollection, where('juego', '==', localSearch), where('esEmpresa', '==', false));
 
       try {
         const querySnapshotPieza = await getDocs(queryPieza);
@@ -62,20 +66,29 @@ const Navbar = () => {
           juegos.push({ id: doc.id, ...doc.data() });
         });
 
+        handleSearchEmpresas();
+      handleSearchImpresoras();
+
         // Si obtienes piezas, podrías redirigir a una página de resultados o mostrar las piezas
-        if (piezas.length > 0) {
-          console.log("Piezas encontradas:", piezas);
+        if (piezas.length > 0) { // Para piezas
+          console.log("Piezas encontradas:", piezas); 
           dispatch(setFoundPiezas(piezas)); // Opcional: Guarda el término de búsqueda en Redux
-          navigate("/Piezas"); // Ajusta la ruta según sea necesario
+          navigate("/"); // Ajusta la ruta según sea necesario
         } else {
           console.log("No se encontraron piezas.");
+          dispatch(setFoundPiezas([]));
+          navigate("/Piezas");
         }
-        if (juegos.length > 0) {
+        if (juegos.length > 0) { // Para juegos
           console.log("Juegos encontrados:", juegos);
           dispatch(setFoundPiezas(juegos)); // Opcional: Guarda el término de búsqueda en Redux
-          navigate("/Piezas"); // Ajusta la ruta según sea necesario
+          navigate("/"); // Ajusta la ruta según sea necesario
+          setShowEmpresaButton(true); //Mostrar boton Piezas de Empresa
+          setShowImpresoraButton(true);
         } else {
-          console.log("No se encontraron juegos.");
+          console.log("No se encontraron juegos.")
+          setShowEmpresaButton(true); //Mostrar boton Piezas de Empresa
+          setShowImpresoraButton(true);
         }
       } catch (error) {
         console.error("Error al realizar la búsqueda:", error);
@@ -96,6 +109,84 @@ const Navbar = () => {
       });
   };
 
+  const handleSearchImpresoras = async () => {
+    if (localSearch.length >= 3) {
+      // Realizamos la búsqueda en Firestore dentro de la colección "piezas"
+      const piezasCollection = collection(db, 'impresoras');
+      const queryImpresora = query(piezasCollection);
+
+      try {
+        const querySnapshotImpresora = await getDocs(queryImpresora);
+
+        const impresoras = [];
+        
+        querySnapshotImpresora.forEach((doc) => {
+          impresoras.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Si obtienes piezas, podrías redirigir a una página de resultados o mostrar las piezas
+        if (impresoras) { // Para piezas
+          console.log("Impresoras 3D encontradas:", impresoras); 
+          dispatch(setFoundPiezasImpresora(impresoras)); // Opcional: Guarda el término de búsqueda en Redux
+          // navigate("/PiezasImpresora"); // Ajusta la ruta según sea necesario
+          setShowEmpresaButton(false);
+          setShowImpresoraButton(false);
+        }
+      } catch (error) {
+        console.error("Error al realizar la búsqueda:", error);
+      }
+    }
+  };
+
+  const handleSearchEmpresas = async () => {
+    if (localSearch.length >= 3) {
+      // Realizamos la búsqueda en Firestore dentro de la colección "piezas"
+      const piezasCollection = collection(db, 'piezas');
+      const queryPiezaEmp = query(piezasCollection, where('nombre', '==', localSearch), where('esEmpresa', '==', true));
+      const queryJuegoEmp = query(piezasCollection, where('juego', '==', localSearch), where('esEmpresa', '==', true));
+
+      try {
+        const querySnapshotPieza = await getDocs(queryPiezaEmp);
+        const querySnapshotJuego= await getDocs(queryJuegoEmp);
+
+        const piezasEmp = [];
+        const juegosEmp = [];
+        
+        querySnapshotPieza.forEach((doc) => {
+          piezasEmp.push({ id: doc.id, ...doc.data() });
+        });
+
+        querySnapshotJuego.forEach((doc) => {
+          juegosEmp.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Si obtienes piezas, podrías redirigir a una página de resultados o mostrar las piezas
+        if (piezasEmp.length > 0) { // Para piezas
+          console.log("Piezas encontradas:", piezasEmp); 
+          dispatch(setFoundPiezasEmpresa(piezasEmp)); // Opcional: Guarda el término de búsqueda en Redux
+          // navigate("/PiezasEmpresa"); // Ajusta la ruta según sea necesario
+        } else {
+          console.log("No se encontraron piezas.");
+          dispatch(setFoundPiezasEmpresa([]));
+          // navigate("/PiezasEmpresa");
+        }
+        if (juegosEmp.length > 0) { // Para juegos
+          console.log("Juegos encontrados:", juegosEmp);
+          dispatch(setFoundPiezasEmpresa(juegosEmp)); // Opcional: Guarda el término de búsqueda en Redux
+          // navigate("/PiezasEmpresa"); // Ajusta la ruta según sea necesario
+          setShowEmpresaButton(false);
+          setShowImpresoraButton(false);
+        } else {
+          console.log("No se encontraron juegos.");
+          setShowEmpresaButton(false);
+          setShowImpresoraButton(false);
+        }
+      } catch (error) {
+        console.error("Error al realizar la búsqueda:", error);
+      }
+    }
+  };
+
   return (
     <div className="navbar">
       <div className="nav-logo">
@@ -106,10 +197,9 @@ const Navbar = () => {
         <div className="menu-icon-lines"></div>
         <div className="menu-icon-lines"></div>
       </button>
-
-      <ul className={`nav-menu ${showMenu ? "show" : ""}`}>
-        <li onClick={() => setMenu("Piezas")}>
-
+      <ul className={'nav-menu ${showMenu ? "show" : ""}'}>
+        <li onClick={() => {setMenu("Piezas"); setShowEmpresaButton(false);
+          setShowImpresoraButton(false);}}>
           <Link to="/">INICIO</Link>
         </li>
 
@@ -170,6 +260,7 @@ const Navbar = () => {
           </IconButton>
         </div>
       ) : null}
+       
       <Link className="nav-login-cart" to="/cart">
         <img src={cart_icon} alt="" className="logocart" />
         <div className="nav-cart-count">{totalCartItems}</div>

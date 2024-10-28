@@ -25,7 +25,7 @@ const cartSlice = createSlice({
         state.cartItems.push({ ...evento });
       }
       state.subtotal = state.cartItems.reduce((total, item) => {
-        return total + item.new_price * item.cantidad;
+        return total + item.price * item.cantidad;
       }, 0);
       state.total=  state.subtotal - state.discount;
     },
@@ -33,7 +33,7 @@ const cartSlice = createSlice({
       const itemId = action.payload;
       state.cartItems = state.cartItems.filter((item) => item.id !== itemId);
       state.subtotal = state.cartItems.reduce((total, item) => {
-        return total + item.new_price * item.cantidad;
+        return total + item.price * item.cantidad;
       }, 0);
       state.total=  state.subtotal - state.discount ;
     },

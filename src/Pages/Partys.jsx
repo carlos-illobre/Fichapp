@@ -5,12 +5,21 @@ import RelatedPartys from "../Components/RelatedPartys/RelatedPartys";
 import "./CSS/Partys.css";
 import HeaderParty from "../Components/HeaderParty/HeaderParty";
 import BotonesParty from "../Components/BotonesParty/BotonesParty";
-import { selectAllParties } from "../ReduxToolkit/partySlice";
+import { selectAllPiezas } from "../ReduxToolkit/partySlice";
+import Slider from 'react-slick'; // Importamos la librería del carrusel
+
 
 const Partys = () => {
-  const allParties = useSelector(selectAllParties);
+  const allParties = useSelector(selectAllPiezas);
   const { partyId } = useParams();
   const party = allParties.find((e) => e.id === Number(partyId));
+  // const settings = {
+  //   dots: true,
+  //   infinite: true,
+  //   speed: 500,
+  //   slidesToShow: 1,
+  //   slidesToScroll: 1
+  // };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -21,31 +30,36 @@ const Partys = () => {
   }
 
   return (
-    <div>
-      <HeaderParty party={party} />
-      <div>
-        <BotonesParty party={party} />
+    
+        
+       
+      <div className = "general-page">
+        <div className="product-page-container">
+          {/* Imagen del producto */}
+          <div className="image-container">
+            <img src={party.image}  className="product-image" />
+          </div>
+      
+          {/* Detalles del producto */}
+          <div className="product-details-container">
+            <h1 className="product-title">{party.juego}</h1>
+            <p className="product-description">{party.nombre}</p>
+            <p className="product-stock">Stock disponible: {party.stock}</p>
+            <p className="product-price">Precio: ${party.price}</p>
+            <p className="product-location">Ubicación: {party.barrio}</p>
+            {/* <button className="buy-button">Comprar</button> */}
+            <BotonesParty party={party} />
+          </div>
       </div>
-
-      <div>
-        <h3>Imágenes de la pieza:</h3>
-        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-          {party.images.map((imageUrl, index) => (
-            <img
-              key={index}
-              src={imageUrl}
-              alt={`Imagen del Evento ${index + 1}`}
-              style={{ maxWidth: "100px", height: "auto", marginRight: "10px", marginBottom: "10px" }}
-            />
-          ))}
+          <div className= "conteiner-relatedPartys">
+        <RelatedPartys />
         </div>
-      </div>
-
-      <div>
-        <RelatedPartys style={{ marginTop: "20px" }} />
-      </div>
     </div>
-  );
-};
+
+
+
+     
+    )};
+    
 
 export default Partys;

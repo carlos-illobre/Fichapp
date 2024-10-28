@@ -1,7 +1,7 @@
 import "./BotonesParty.css";
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { deleteParty } from "../../ReduxToolkit/partySlice";
+import { deletePieza } from "../../ReduxToolkit/partySlice";
 import { useSelector,useDispatch } from "react-redux";
 import { addToCart, selectTotalCartItems } from "../../ReduxToolkit/cartSlice";
 
@@ -48,32 +48,32 @@ const BotonesParty = (props) => {
     // const partyId = location.pathname.split("/").pop();
     const partyId = party.id;
     console.log("ID de la party a eliminar: ", partyId);
-    dispatch(deleteParty(partyId));
+    dispatch(deletePieza(partyId));
     navigate("/");
   };
 
   return (
     <div>
-      <div className="barraBotones">
+      {/* <div className="barraBotones">
         <div className="boton">
           <select id="fecha" className="estiloBoton">
-            <option selected>{party.fecha}</option>
+            <option selected>{party.nombre}</option>
           </select>
         </div>
         <div className="boton">
           <select id="hora" className="estiloBoton">
-            <option selected>{party.hora}</option>
+            <option selected>{party.price}</option>
           </select>
         </div>
         <div className="boton">
           <select id="lugar" className="estiloBoton">
-            <option selected>{party.lugar}</option>
+            <option selected>{party.stock}</option>
             <option>{party.ubicacion}</option>
           </select>
         </div>
         <div className="boton">
           <select id="precio" className="estiloBoton">
-            <option selected>{"$" + party.new_price}</option>
+            <option selected>{"$" + party.price}</option>
           </select>
         </div>
         <div className="boton">
@@ -89,9 +89,9 @@ const BotonesParty = (props) => {
             <option value={4}>4</option>
           </select>
         </div>
-      </div>
+      </div> */}
 
-      {esAdmin() ? (
+      {/* {esAdmin() ? (
         <div className="ComprarPartyButton">
           <button
             className="botonComprar aviable"
@@ -106,7 +106,8 @@ const BotonesParty = (props) => {
             ELIMINAR FIESTA
           </button>
         </div>
-      ) : VerificarStock(cantidadSeleccionada) ? (
+      ) :  */}
+      {VerificarStock(cantidadSeleccionada) ? (
         <div className="ComprarPartyButton">
           <button
             onClick={handleAgregarAlCarrito}

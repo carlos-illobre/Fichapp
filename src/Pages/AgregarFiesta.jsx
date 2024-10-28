@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./CSS/LoginSignup.css";
 import { useSelector, useDispatch } from "react-redux";
-import { addParty } from "../ReduxToolkit/partySlice";
+import { addPieza } from "../ReduxToolkit/partySlice";
 import { useNavigate } from "react-router-dom";
 import { storage, db } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -126,7 +126,7 @@ const AgregarFiesta = () => {
       return;
     }
 
-    dispatch(addParty(partyData));
+    dispatch(addPieza(partyData)); // Agregar la fiesta al estado de Redux
     navigate(`/partys/${nuevoId}`);
     setErrorMessage("");
   };
@@ -151,30 +151,51 @@ const AgregarFiesta = () => {
   return (
     <div className="loginsignup" onPaste={handlePaste}>
       <div className="loginsignup-container">
-        <h1>Agregar Publicación del artículo</h1>
+        <h1>Agregar Pieza</h1>
         <div className="loginsignup-fields">
           <input
             type="text"
             name="name"
             onChange={onChangeValues}
-            placeholder="Título de la Publicación (*)"
+            placeholder="Nombre de la pieza (*)"
             value={registro.name}
           />
+          { /*<input
+            type="date"
+            name="fecha"
+            onChange={onChangeValues}
+            placeholder="Fecha del Evento (DD/MM/AA) (*)"
+            value={registro.fecha}
+          /> 
           <input
             type="text"
-            name="descripcion"
+            name="hora"
             onChange={onChangeValues}
-            placeholder="Nombre de la pieza (*)"
-            value={registro.descripcion}
+            placeholder="Hora del Evento (HH:MM) (*)"
+            value={registro.hora}
+          /> */}
+          <input
+            type="text"
+            name="lugar"
+            onChange={onChangeValues}
+            placeholder="Nombre del Juego de la pieza (*)"
+            value={registro.lugar}
           />
           <input
             type="text"
+            name="ubicacion"
+            onChange={onChangeValues}
+            placeholder="Dirección del Lugar"
+            value={registro.ubicacion}
+          />
+          { /* <input
+            type="number"
             name="stock"
             min="1"
             onChange={onChangeValues}
             placeholder="Stock disponible (*)"
             value={registro.stock}
-          />
+          /> */ }
           <div style={{ display: "flex", alignItems: "center" }}>
             <span style={{ fontSize: "1.5rem", marginRight: "10px" }}>$</span>
             <input
@@ -182,8 +203,8 @@ const AgregarFiesta = () => {
               name="price"
               min="1"
               onChange={onChangeValues}
-              placeholder="Precio del artículo (*)"
-              value={registro.price}
+              placeholder="Precio de la pieza (*)"
+              value={registro.new_price}
             />
           </div>
 
@@ -208,7 +229,7 @@ const AgregarFiesta = () => {
             multiple
           />
           <label htmlFor="file-upload" style={{ cursor: "pointer", border: "1px solid #ccc", padding: "10px", display: "inline-block", backgroundColor: "#f0f0f0" }}>
-            Cargar Imágenes del Evento
+            Cargar Imágenes de la pieza
           </label>
           
           {imagePreviews.length > 0 && (
@@ -216,7 +237,7 @@ const AgregarFiesta = () => {
               <h4>Previsualización de las Imágenes:</h4>
               <div style={{ display: "flex", flexWrap: "wrap" }}>
                 {imagePreviews.map((image, index) => (
-                  <img key={index} src={image} alt={`Imagen de la ficha ${index + 1}`} style={{ maxWidth: "100px", height: "auto", marginRight: "10px", marginBottom: "10px" }} />
+                  <img key={index} src={image} alt={`Imagen de la pieza ${index + 1}`} style={{ maxWidth: "100px", height: "auto", marginRight: "10px", marginBottom: "10px" }} />
                 ))}
               </div>
             </div>
@@ -227,7 +248,7 @@ const AgregarFiesta = () => {
             {errorMessage}
           </p>
         )}
-        <button onClick={handleContinuarClick}>Agregar artículo</button>
+        <button onClick={handleContinuarClick}>Agregar Pieza</button>
       </div>
     </div>
   );
