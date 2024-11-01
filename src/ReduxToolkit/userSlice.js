@@ -34,6 +34,9 @@ const initialState = {
   isLogged: false,
 };
 
+// Selector para obtener el usuario
+export const selectUser = (state) => state.user;
+
 // Slice de usuario
 const userSlice = createSlice({
   name: 'user',
