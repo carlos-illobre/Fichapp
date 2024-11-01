@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { db } from '../firebase';  // Importa la instancia de Firestore
-import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc, getDoc, where, query } from 'firebase/firestore';
+
 
 // Thunks asíncronos para interactuar con Firestore
 
@@ -12,6 +13,14 @@ export const fetchPiezas = createAsyncThunk('party/fetchPiezas', async () => {
   return piezasList;
 });
 
+// Obtener todas las piezas de un usuario desde Firestore
+export const fetchPiezasUser = createAsyncThunk('party/fetchPiezas', async (email) => {
+  const piezasCollection = collection(db, 'piezas');
+  const piezasQuery = query(piezasCollection, where('email', '==', email));
+  const piezasSnapshot = await getDocs(piezasQuery);
+  const piezasListUser = piezasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return piezasListUser;
+});
 // Agregar una nueva pieza a Firestore
 export const addPieza = createAsyncThunk('party/addPieza', async (newPieza) => {
   const docRef = await addDoc(collection(db, 'piezas'), newPieza);
@@ -56,6 +65,7 @@ const initialState = {
   foundPiezas: [],
   foundPiezasEmpresa: [],
   foundPiezasImpresora: [],
+  foundPiezasUser: [],
   loading: false,
   error: null
 };
@@ -78,6 +88,9 @@ const partySlice = createSlice({
     },
     setFoundPiezasImpresora: (state, action) => {  // Nueva acción para almacenar las piezas encontradas
       state.foundPiezasImpresora = action.payload;
+    },
+    setFoundPiezasUser: (state, action) => {  // Nueva acción para almacenar las piezas del usuario encontradas
+      state.foundPiezasUser = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -122,7 +135,7 @@ const partySlice = createSlice({
   }
 });
 // Acciones
-export const { setParties, addParty, updateParty, deleteParty, setSearch, setFoundPiezas, setFoundPiezasEmpresa, setFoundPiezasImpresora } = partySlice.actions;
+export const { setParties, addParty, updateParty, deleteParty, setSearch, setFoundPiezas, setFoundPiezasEmpresa, setFoundPiezasImpresora, setFoundPiezasUser } = partySlice.actions;
 
 // Selectores
 export const selectAllPiezas = (state) => state.party.items;
@@ -131,6 +144,7 @@ export const selectSearch = (state) => state.party.search;
 export const selectFoundPiezas = (state) => state.party.foundPiezas;
 export const selectFoundPiezasEmpresa = (state) => state.party.foundPiezasEmpresa;
 export const selectFoundPiezasImpresora = (state) => state.party.foundPiezasImpresora;
+export const selectFoundPiezasUser = (state) => state.party.foundPiezasUser || [];
 export const selectIsSearching = (state) => state.party.isSearching;
 
 export default partySlice.reducer;
