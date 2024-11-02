@@ -196,14 +196,6 @@ const AgregarFiesta = () => {
             placeholder="Nombre del Juego de la pieza (*)"
             value={registro.juego}
           />
-          { /* <input
-            type="number"
-            name="stock"
-            min="1"
-            onChange={onChangeValues}
-            placeholder="Cantidad de Entradas del Evento (*)"
-            value={registro.stock}
-          /> */ }
           <textarea
             name="descripcion"
             onChange={onChangeValues}
@@ -223,6 +215,15 @@ const AgregarFiesta = () => {
               value={registro.price}
             />
           </div>
+          <input
+            type="number"
+            name="stock"
+            min="1"
+            onChange={onChangeValues}
+            placeholder="Stock disponible (*)"
+            value={registro.stock}
+            style={{ width: "100%", marginTop: "10px", padding: "8px" }}
+          />
           <Autocomplete
             onLoad={(ref) => (autocompleteRef.current = ref)}
             onPlaceChanged={handlePlaceChanged}
