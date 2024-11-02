@@ -46,6 +46,8 @@ const EventsCategory = (props) => {
     if (sortBy === "price") {
       filtered.sort((a, b) => a.price - b.price);
     } else if (sortBy === "nombre") {
+      filtered.sort((a, b) => a.nombre.localeCompare(b.nombre));
+    } else if (sortBy === "date") {
       filtered.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
     }
   
@@ -98,7 +100,8 @@ const EventsCategory = (props) => {
           >
             <option value="">Seleccionar</option>
             <option value="price">Precio</option>
-            <option value="barrio">Ubicación</option>
+            <option value="nombre">Nombre</option>
+            <option value="date">Fecha</option>
           </select>
         </div>
       </div>
