@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux"; 
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import RelatedPartys from "../Components/RelatedPartys/RelatedPartys";
 import "./CSS/Partys.css";
 import HeaderParty from "../Components/HeaderParty/HeaderParty";
@@ -11,11 +11,13 @@ import { selectUser } from "../ReduxToolkit/userSlice"; // Importa el slice de u
 
 
 
+
 const Partys = () => {
   const allParties = useSelector(selectAllPiezas);
   const user = useSelector(selectUser); // Obtiene el usuario activo
   const { partyId } = useParams();
   const party = allParties.find((e) => e.id === Number(partyId));
+  const navigate = useNavigate();
   // const settings = {
   //   dots: true,
   //   infinite: true,
@@ -35,10 +37,8 @@ const Partys = () => {
   // Verifica si el email del usuario activo coincide con el email de la pieza
   const canEdit = user.email === party.email;
 
-  const handleEdit = (id) => {
-    // Lógica para manejar la edición de la pieza
-    console.log("Editando pieza con ID:", id);
-    // Aquí podrías redirigir a una página de edición o abrir un modal
+  const handleEdit = async (id) => {
+    navigate(`/party/edit/${id}`);
   };
   
   const handleDelete = (id) => {

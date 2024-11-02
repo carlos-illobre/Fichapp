@@ -28,10 +28,15 @@ export const addPieza = createAsyncThunk('party/addPieza', async (newPieza) => {
 });
 
 // Actualizar una pieza existente en Firestore
-export const updatePieza = createAsyncThunk('party/updatePieza', async (updatedPieza) => {
-  const piezaRef = doc(db, 'piezas', updatedPieza.id);
-  await updateDoc(piezaRef, updatedPieza);
-  return updatedPieza;
+export const updatePieza = createAsyncThunk('party/updatePieza', async (updatedPieza, { rejectWithValue }) => {
+  try {
+    const piezaRef = doc(db, 'piezas', updatedPieza.id);
+    await updateDoc(piezaRef, updatedPieza);
+    return updatedPieza;
+  } catch (error) {
+    console.error('Error actualizando la pieza:', error);
+    return rejectWithValue(error.message || 'Error desconocido al actualizar la pieza');
+  }
 });
 
 // Borrar una pieza de Firestore
