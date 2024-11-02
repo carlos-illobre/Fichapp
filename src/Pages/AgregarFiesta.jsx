@@ -3,10 +3,10 @@ import "./CSS/LoginSignup.css";
 import { useSelector, useDispatch } from "react-redux";
 import { addPieza } from "../ReduxToolkit/partySlice";
 import { useNavigate } from "react-router-dom";
-import { storage, db } from "../firebase"; 
+import { storage } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { doc, setDoc } from "firebase/firestore";
 import { useLoadScript, Autocomplete } from "@react-google-maps/api";
+import { getAuth } from "firebase/auth";
 
 const AgregarFiesta = () => {
   const dispatch = useDispatch();
@@ -14,7 +14,8 @@ const AgregarFiesta = () => {
   const navigate = useNavigate();
   
   const [registro, setRegistro] = useState({
-    name: "",
+    nombre: "",
+    juego: "",
     images: [],
     price: "",
     category: "recintos",
@@ -79,9 +80,13 @@ const AgregarFiesta = () => {
   };
 
   const handleContinuarClick = async () => {
-    const { name, descripcion, price, stock, images, ubicacion } = registro;
-    if (!name) {
+    const { nombre, juego, descripcion, price, stock, images, ubicacion } = registro;
+    if (!nombre) {
       setErrorMessage("Por favor, completá el campo 'Nombre'.");
+      return;
+    }
+    if (!juego) {
+      setErrorMessage("Por favor, completá el campo 'Juego'.");
       return;
     }
     if (!descripcion) {
@@ -119,11 +124,13 @@ const AgregarFiesta = () => {
       return;
     }
 
-    const nuevoId = allParties.length > 0 ? allParties[allParties.length - 1].id + 1 : 1;
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const userId = user.uid; // Este es el ID único del usuario autenticado en Firebase
 
     const partyData = {
-      id: nuevoId,
-      name,
+      nombre,
+      juego,
       ubicacion,
       stock,
       price,
@@ -131,20 +138,11 @@ const AgregarFiesta = () => {
       image: imageUrls[0],
       descripcion: registro.descripcion,
       category: registro.category,
+      userId, // Agrega el ID del usuario
     };
 
-    // Guardar los datos en Firestore
-    try {
-      const partyRef = doc(db, "fiestas", nuevoId.toString());
-      await setDoc(partyRef, partyData);
-    } catch (error) {
-      console.error("Error al guardar la fiesta en Firestore:", error);
-      setErrorMessage("Error al guardar la fiesta. Intenta nuevamente.");
-      return;
-    }
-
-    dispatch(addPieza(partyData)); // Agregar la fiesta al estado de Redux
-    navigate(`/partys/${nuevoId}`);
+    const pieza = await dispatch(addPieza(partyData)).unwrap();
+    navigate(`/partys/${pieza.id}`);
     setErrorMessage("");
   };
 
@@ -172,10 +170,10 @@ const AgregarFiesta = () => {
         <div className="loginsignup-fields">
           <input
             type="text"
-            name="name"
+            name="nombre"
             onChange={onChangeValues}
             placeholder="Nombre de la pieza (*)"
-            value={registro.name}
+            value={registro.nombre}
           />
           { /*<input
             type="date"
@@ -193,10 +191,10 @@ const AgregarFiesta = () => {
           /> */}
           <input
             type="text"
-            name="lugar"
+            name="juego"
             onChange={onChangeValues}
             placeholder="Nombre del Juego de la pieza (*)"
-            value={registro.lugar}
+            value={registro.juego}
           />
           { /* <input
             type="number"

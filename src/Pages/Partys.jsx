@@ -12,7 +12,7 @@ import Slider from 'react-slick'; // Importamos la librería del carrusel
 const Partys = () => {
   const allParties = useSelector(selectAllPiezas);
   const { partyId } = useParams();
-  const party = allParties.find((e) => e.id === Number(partyId));
+  const party = allParties.find((e) => e.id === partyId);
   // const settings = {
   //   dots: true,
   //   infinite: true,
@@ -46,7 +46,7 @@ const Partys = () => {
             <p className="product-description">{party.nombre}</p>
             <p className="product-stock">Stock disponible: {party.stock}</p>
             <p className="product-price">Precio: ${party.price}</p>
-            <p className="product-location">Ubicación: {party.barrio}</p>
+            <p className="product-location">Ubicación: {party.ubicacion}</p>
             {/* <button className="buy-button">Comprar</button> */}
             <BotonesParty party={party} />
           </div>
