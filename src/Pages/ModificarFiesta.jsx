@@ -8,7 +8,14 @@ const ModificarFiesta = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [party, setParty] = useState(location.state?.party || {});
+  const [party, setParty] = useState(location.state?.party || {
+    nombre: '',
+    descripcion: '',
+    juego: '',
+    barrio: '',
+    stock: '',
+    price: ''
+  });
   const [errorMessage, setErrorMessage] = useState("");
   
   useEffect(() => {
@@ -20,16 +27,18 @@ const ModificarFiesta = () => {
   }, [location.state, navigate]);
 
   const onChangeValues = ({ target }) => {
+    //console.log(`Actualizando ${target.name}:`, target.value);
     setParty({ ...party, [target.name]: target.value });
   };
 
   const handleModificarClick = () => {
-    const { name, fecha, hora, lugar, new_price, stock, image } = party;
-    if (!name || !fecha || !hora || !lugar || !new_price || !stock || !image) {
+    //Falta imagen
+    const { nombre, descripcion, juego, barrio, stock, price } = party;
+    if (!nombre || !descripcion || !juego || !barrio || !price || !stock ) {
       setErrorMessage("Por favor, completá los campos obligatorios.");
       return;
     }
-    if (new_price <= 0 || stock <= 0) {
+    if (price <= 0 || stock <= 0) {
       setErrorMessage("Por favor, revisa los datos ingresados.");
       return;
     }
@@ -42,6 +51,8 @@ const ModificarFiesta = () => {
   }, []);
 
   return (
+    <div>
+    {/*
     <div className="loginsignup">
       <div className="loginsignup-container">
         <h1>Modificar Fiesta</h1>
@@ -115,6 +126,87 @@ const ModificarFiesta = () => {
         )}
         <button onClick={handleModificarClick}>Modificar Fiesta</button>
       </div>
+    </div>*/ }
+<div className="loginsignup">
+      <div className="loginsignup-container">
+        <h1>Editar Artículo</h1>
+        <div className="loginsignup-fields">
+          <input
+            type="text"
+            name="nombre"
+            onChange={onChangeValues}
+            placeholder="Nombre de la pieza (*)"
+            value={party.nombre || ""}
+          />
+          <input
+            type="text"
+            name="descripcion"
+            onChange={onChangeValues}
+            placeholder="Descripción (*)"
+            value={party.descripcion || ""}
+          />
+          <input
+            type="text"
+            name="juego"
+            onChange={onChangeValues}
+            placeholder="Juego (*)"
+            value={party.juego || ""}
+          />
+          <input
+            type="text"
+            name="barrio"
+            onChange={onChangeValues}
+            placeholder="Ubicación (*)"
+            value={party.barrio || ""}
+          />
+          {/*
+          <input
+            type="text"
+            name="ubicacion"
+            onChange={onChangeValues}
+            placeholder="Dirección del Lugar"
+            value={party.ubicacion || ""}
+          />
+          */}
+          <input
+            type="number"
+            name="stock"
+            min="1"
+            onChange={onChangeValues}
+            placeholder="Stock del artículo (*)"
+            value={party.stock || ""}
+          />
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <span style={{ fontSize: "1.5rem", marginRight: "10px" }}>$</span>
+            <input
+              type="number"
+              name="price"
+              min="1"
+              onChange={onChangeValues}
+              placeholder="Precio del artículo (*)"
+              value={party.price || ""}
+            />
+          </div>
+          {/*
+          /<input
+            type="text"
+            name="image"
+            onChange={onChangeValues}
+            placeholder="URL de la Imagen del Evento (*)"
+            value={party.image || ""}
+          />
+          */}
+          
+        </div>
+        {errorMessage && (
+          <p className="error-message" style={{ color: "red" }}>
+            {errorMessage}
+          </p>
+        )}
+        <button onClick={handleModificarClick}>Modificar Artículo</button>
+      </div>
+    </div>
+
     </div>
   );
 };

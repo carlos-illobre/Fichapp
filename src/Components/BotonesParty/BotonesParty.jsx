@@ -52,6 +52,9 @@ const BotonesParty = (props) => {
     navigate("/");
   };
 
+  // Verifica si el email del usuario activo coincide con el email de la pieza
+  const canEdit = user.email === party.email;
+
   return (
     <div>
       {/* <div className="barraBotones">
@@ -91,22 +94,22 @@ const BotonesParty = (props) => {
         </div>
       </div> */}
 
-      {/* {esAdmin() ? (
+      {canEdit && ( 
         <div className="ComprarPartyButton">
           <button
             className="botonComprar aviable"
             onClick={ handlemodificarFiesta}
           >
-            MODIFICAR FIESTA
+            MODIFICAR PUBLICACIÓN
           </button>
           <button
             className="botonComprar aviable"
             onClick={handleEliminarFiesta}
           >
-            ELIMINAR FIESTA
+            ELIMINAR PUBLICACIÓN
           </button>
         </div>
-      ) :  */}
+      ) }
       {VerificarStock(cantidadSeleccionada) ? (
         <div className="ComprarPartyButton">
           <button

@@ -38,13 +38,12 @@ const Partys = () => {
   const canEdit = user.email === party.email;
 
   const handleEdit = async (id) => {
-    navigate(`/party/edit/${id}`);
+    //navigate(`/party/edit/${id}`);
   };
   
   const handleDelete = (id) => {
     // Lógica para manejar la eliminación de la pieza
-    console.log("Eliminando pieza con ID:", id);
-    // Aquí podrías mostrar un modal de confirmación antes de eliminar
+   
   };
 
   return (
@@ -68,13 +67,15 @@ const Partys = () => {
             {/* <button className="buy-button">Comprar</button> */}
             <BotonesParty party={party} />
           </div>
-           {/* Botones de editar y eliminar si el usuario puede editar */}
+           {/* Botones de editar y eliminar si el usuario puede editar 
            {canEdit && (
             <div>
               <button onClick={() => handleEdit(party.id)}>Editar</button>
               <button onClick={() => handleDelete(party.id)}>Eliminar</button>
             </div>
           )}
+           */}
+           
 
       </div>
           <div className= "conteiner-relatedPartys">

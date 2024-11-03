@@ -50,10 +50,22 @@ export const updatePieza = createAsyncThunk('party/updatePieza', async (piezaUpd
 
 // Borrar una pieza de Firestore
 export const deletePieza = createAsyncThunk('party/deletePieza', async (id) => {
-  const piezaRef = doc(db, 'piezas', id);
-  await deleteDoc(piezaRef);
-  return id;
-});
+  const piezasCollection =  collection(db, 'piezas');
+  const piezaId = Number(id);
+  const piezaQuery = query(piezasCollection, where('id', '==', piezaId));
+  const querySnapshot = await getDocs(piezaQuery);
+  if (!querySnapshot.empty) {
+    const docRef = doc(db, 'piezas', querySnapshot.docs[0].id); // Obtiene el ID del primer documento que coincide
+    await deleteDoc(docRef)
+    return
+  } else {
+    throw new Error('No se encontró el documento con el id especificado.');
+  }
+  }
+  //const piezaRef = doc(db, 'piezas', id);
+  //await deleteDoc(piezaRef);
+  //return id;
+);
 
 export const descountStockParty = createAsyncThunk('party/descountStockParty', async ({ id, quantity }) => {
   const partyRef = doc(db, "piezas", id);
