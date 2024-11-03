@@ -28,11 +28,24 @@ const UserProfile = () => {
   });
 
   const [profilePhoto, setProfilePhoto] = useState(user.photoUrl || '');
+  const [actaPhoto, setActaPhoto] = useState(null);
+  const [actaFileName, setActaFileName] = useState('');
+  const [acta3DPhoto, setActa3DPhoto] = useState(null);
+  const [acta3DFileName, setActa3DFileName] = useState('');
   const [newPhoto, setNewPhoto] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
   const [isCompany, setIsCompany] = useState(false);
+  const [is3D, setIs3D] = useState(false);
   const [companyData, setCompanyData] = useState({
+    companyName: '',
+    location: '',
+    cbu: '',
+    actaPhoto: '',
+    serviceFee: '',
+    status: 'pending',
+  });
+  const [company3DData, setCompany3DData] = useState({
     companyName: '',
     location: '',
     cbu: '',
@@ -136,6 +149,22 @@ const UserProfile = () => {
     if (file) {
       setNewPhoto(file);
       setProfilePhoto(URL.createObjectURL(file));
+    }
+  };
+
+  const handleActaPhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setActaPhoto(file);
+      setActaFileName(file.name);
+    }
+  };
+
+  const handleActa3DPhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setActa3DPhoto(file);
+      setActa3DFileName(file.name);
     }
   };
 
@@ -251,27 +280,79 @@ const UserProfile = () => {
     setCompanyData({ ...companyData, [name]: value });
   };
 
-  const handleToggleCompanyForm = () => {
-    setIsCompany(!isCompany);
+  const handleChangeCompany3DData = (e) => {
+    const { name, value } = e.target;
+    setCompany3DData({ ...company3DData, [name]: value });
   };
 
-  const handleSubmitCompanyForm = (e) => {
+  const handleToggleCompanyForm = () => {
+    setIsCompany(!isCompany);
+    setIs3D(false);
+  };
+
+  const handleToggle3DServiceForm = () => {
+    setIs3D(!is3D);
+    setIsCompany(false);
+  };
+
+  const handleSubmitCompanyForm = async (e) => {
     e.preventDefault();
-    const userRef = doc(db, 'users', currentUser.uid);
-    updateDoc(userRef, {
-      isBusiness: false, // Siempre comienza como false
-      companyData: {
-        ...companyData,
-        status: 'pending',
-      },
-    })
-      .then(() => {
+    if (currentUser && actaPhoto) {
+      try {
+        const storageRef = ref(storage, `actasVerification/${currentUser.uid}`);
+        await uploadBytes(storageRef, actaPhoto);
+        const actaPhotoUrl = await getDownloadURL(storageRef);
+
+        // Guardar datos en Firestore junto con la URL de la foto del acta
+        const userRef = doc(db, 'users', currentUser.uid);
+        await updateDoc(userRef, {
+          isBusiness: false, // Comienza como false
+          companyData: {
+            ...companyData,
+            actaPhoto: actaPhotoUrl, // Guardar la URL en Firestore
+            status: 'pending',
+          },
+        });
+
         setMessage('Su petición está en revisión. Pronto se le aprobará.');
         setIsCompany(false); // Ocultar el formulario después de enviar
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Error al enviar la solicitud:', error);
-      });
+        alert('Error al enviar la solicitud');
+      }
+    } else {
+      alert('Por favor, suba la foto del acta de verificación.');
+    }
+  };
+
+  const handleSubmitCompany3DForm = async (e) => {
+    e.preventDefault();
+    if (currentUser && acta3DPhoto) {
+      try {
+        const storageRef = ref(storage, `actasVerification/${currentUser.uid}`);
+        await uploadBytes(storageRef, actaPhoto);
+        const actaPhotoUrl = await getDownloadURL(storageRef);
+
+        // Guardar datos en Firestore junto con la URL de la foto del acta
+        const userRef = doc(db, 'users', currentUser.uid);
+        await updateDoc(userRef, {
+          is3DBusiness: false, // Comienza como false
+          company3DData: {
+            ...company3DData,
+            actaPhoto: actaPhotoUrl, // Guardar la URL en Firestore
+            status: 'pending',
+          },
+        });
+
+        setMessage('Su petición está en revisión. Pronto se le aprobará.');
+        setIs3D(false); // Ocultar el formulario después de enviar
+      } catch (error) {
+        console.error('Error al enviar la solicitud:', error);
+        alert('Error al enviar la solicitud');
+      }
+    } else {
+      alert('Por favor, suba la foto del acta de verificación 3D.');
+    }
   };
 
   const handleSubmitStopBeingCompany = () => {
@@ -475,7 +556,9 @@ const UserProfile = () => {
               </div>
 
               <div className="additional-buttons">
-                <button className="service-button">Ofrecer servicios 3D</button>
+                <button className="service-button" onClick={handleToggle3DServiceForm}>
+                  {is3D ? 'Ocultar formulario servicios 3D' : 'Ofrecer servicios 3D'}
+                </button>
                 {isBusiness ? (
                   <button className="service-button" onClick={handleSubmitStopBeingCompany}>
                     Dejar de ser empresa
@@ -527,7 +610,23 @@ const UserProfile = () => {
 
                   <div>
                     <label>Foto del Acta de Verificación:</label>
-                    <input type="file" name="actaPhoto" onChange={handlePhotoUpload} required />
+                    
+                    {/* Input de archivo oculto */}
+                    <input
+                      type="file"
+                      id="actaPhotoUpload"
+                      style={{ display: 'none' }}
+                      onChange={handleActaPhotoUpload}
+                      required
+                    />
+
+                    {/* Botón estilizado para subir archivo */}
+                    <label htmlFor="actaPhotoUpload" className="edit-button-small">
+                      {actaFileName || 'Seleccionar archivo'}
+                    </label>
+                    
+                    {/* Mostrar el nombre del archivo seleccionado, si existe */}
+                    {actaFileName && <span>Archivo seleccionado: {actaFileName}</span>}
                   </div>
 
                   <div>
@@ -538,6 +637,78 @@ const UserProfile = () => {
                       value={companyData.serviceFee}
                       onChange={handleChangeCompanyData}
                       required
+                    />
+                  </div>
+
+                  <button type="submit" className="submit-button">Enviar Solicitud</button>
+                </form>
+              )}
+              {/* Formulario de servicio de 3D */}
+              {is3D && (
+                <form className="company-form" onSubmit={handleSubmitCompany3DForm}>
+                  <p>Se lo agregará a la lista de empresas 3D como alternativa. El canon será del 5% por suscripción.</p>
+
+                  <div>
+                    <label>Nombre de la Empresa:</label>
+                    <input
+                      type="text"
+                      name="companyName"
+                      value={company3DData.companyName}
+                      onChange={handleChangeCompany3DData}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label>Ubicación de la Empresa:</label>
+                    <input
+                      type="text"
+                      name="location"
+                      value={company3DData.location}
+                      onChange={handleChangeCompany3DData}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label>CBU de la cuenta bancaria:</label>
+                    <input
+                      type="text"
+                      name="cbu"
+                      value={company3DData.cbu}
+                      onChange={handleChangeCompany3DData}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label>Foto del Acta de Verificación:</label>
+                    
+                    {/* Input de archivo oculto */}
+                    <input
+                      type="file"
+                      id="acta3DPhotoUpload"
+                      style={{ display: 'none' }}
+                      onChange={handleActa3DPhotoUpload}
+                      required
+                    />
+
+                    {/* Botón estilizado para subir archivo */}
+                    <label htmlFor="acta3DPhotoUpload" className="edit-button-small">
+                      {acta3DFileName || 'Seleccionar archivo'}
+                    </label>
+                    
+                    {/* Mostrar el nombre del archivo seleccionado, si existe */}
+                    {actaFileName && <span>Archivo seleccionado: {acta3DFileName}</span>}
+                  </div>
+
+                  <div>
+                    <label>Tarifa por sus servicios:</label>
+                    <input
+                      type="text"
+                      name="serviceFee"
+                      value={company3DData.serviceFee}
+                      onChange={handleChangeCompany3DData}
                     />
                   </div>
 
