@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { db } from '../firebase';  // Importa la instancia de Firestore
-import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc, getDoc, where, query } from 'firebase/firestore';
+import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc, getDoc, where, query, setDoc, get} from 'firebase/firestore';
 
 
 // Thunks asíncronos para interactuar con Firestore
@@ -28,16 +28,25 @@ export const addPieza = createAsyncThunk('party/addPieza', async (newPieza) => {
 });
 
 // Actualizar una pieza existente en Firestore
-export const updatePieza = createAsyncThunk('party/updatePieza', async (updatedPieza, { rejectWithValue }) => {
-  try {
-    const piezaRef = doc(db, 'piezas', updatedPieza.id);
-    await updateDoc(piezaRef, updatedPieza);
-    return updatedPieza;
-  } catch (error) {
-    console.error('Error actualizando la pieza:', error);
-    return rejectWithValue(error.message || 'Error desconocido al actualizar la pieza');
+export const updatePieza = createAsyncThunk('party/updatePieza', async (piezaUpdate) => {
+  const piezasCollection =  collection(db, 'piezas');
+  //console.log(piezaUpdate);
+  const piezaId = Number(piezaUpdate.id);
+  //console.log("PiezaID "+piezaId)
+  const piezaQuery = query(piezasCollection, where('id', '==', piezaId));
+  //console.log('Consulta Firestore:', piezaQuery);
+  const querySnapshot = await getDocs(piezaQuery);
+  //console.log("Número de documentos encontrados:", querySnapshot.docs.length);
+  //const piezaRef =  await query(piezasCollection, where('id', '==', piezaUpdate.id));
+  //await setDoc(piezaRef, piezaUpdate, { merge: true });
+  if (!querySnapshot.empty) {
+    const docRef = doc(db, 'piezas', querySnapshot.docs[0].id); // Obtiene el ID del primer documento que coincide
+    await setDoc(docRef, piezaUpdate, { merge: true }); // Actualiza el documento usando merge
+    return { id: querySnapshot.docs[0].id, ...piezaUpdate };
+  } else {
+    throw new Error('No se encontró el documento con el id especificado.');
   }
-});
+  });
 
 // Borrar una pieza de Firestore
 export const deletePieza = createAsyncThunk('party/deletePieza', async (id) => {

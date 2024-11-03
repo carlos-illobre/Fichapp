@@ -10,6 +10,8 @@ const PartysEdit = () => {
   const allParties = useSelector(selectAllPiezas);
   const { partyId } = useParams();
   const party = allParties.find((e) => e.id === Number(partyId));
+  const [cambioMessage, setCambioMessage] = useState("");
+
 
   const [formData, setFormData] = useState({
     juego: "",
@@ -40,10 +42,10 @@ const PartysEdit = () => {
   };
 
   const handleUpdate = () => {
-    dispatch(updatePieza({ id: party.id, ...formData }));
-    console.log("Se quiso actualizar")
-    console.log({ id: party.id, ...formData })
-    //navigate(`/partys/${partyId}`);
+    dispatch(updatePieza({ id: Number(partyId), ...formData }));
+  //console.log("Se intentó actualizar:", { id: partyId, ...formData }); // partyId debería ser un string aquí
+    setCambioMessage("Se han guardado exitosamente los cambios.");
+    //navigate(`/partys/${partyId}`); Se rompe
   };
 
   if (!party) {
@@ -107,6 +109,11 @@ const PartysEdit = () => {
           </label>
 
           <button onClick={handleUpdate}>Guardar Cambios</button>
+          {cambioMessage && (
+          <p className="cambio-message" style={{ color: "green" }}>
+            {cambioMessage}
+          </p>
+        )}
         </div>
       </div>
     </div>
