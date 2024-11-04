@@ -31,6 +31,8 @@ const UserProfile = () => {
   const [newPhoto, setNewPhoto] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
+
+  // Estado para "Ser Empresa"
   const [isCompany, setIsCompany] = useState(false);
   const [companyData, setCompanyData] = useState({
     companyName: '',
@@ -41,11 +43,22 @@ const UserProfile = () => {
     status: 'pending',
   });
 
+  // Estado para "Ofrecer servicios 3D"
+  const [is3DService, setIs3DService] = useState(user.is3DService || false);
+  const [show3DForm, setShow3DForm] = useState(false);
+  const [printerData, setPrinterData] = useState({
+    location: '',
+    cbu: '',
+    printerPhoto: null,
+    serviceFee: '',
+    status: 'pending',
+  });
+
   const [pendingRequests, setPendingRequests] = useState([]);
-  const [approvedRequests, setApprovedRequests] = useState([]); // Para solicitudes aprobadas
+  const [approvedRequests, setApprovedRequests] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isBusiness, setIsBusiness] = useState(user.isBusiness || false);
-  const [loading, setLoading] = useState(true); // Manejar estado de carga
+  const [loading, setLoading] = useState(true);
 
   const auth = getAuth();
   const currentUser = auth.currentUser;
@@ -57,18 +70,23 @@ const UserProfile = () => {
         if (doc.exists()) {
           setProfilePhoto(doc.data().photoUrl || '');
           setIsBusiness(doc.data().isBusiness || false);
+          setIs3DService(doc.data().is3DService || false);
 
           if (!doc.data().hasOwnProperty('isBusiness')) {
             updateDoc(userRef, { isBusiness: false });
           }
 
+          if (!doc.data().hasOwnProperty('is3DService')) {
+            updateDoc(userRef, { is3DService: false });
+          }
+
           if (doc.data().role === 'ADMIN') {
             setIsAdmin(true);
             loadPendingRequests();
-            loadApprovedRequests(); // Cargar también las solicitudes aprobadas
+            loadApprovedRequests();
           }
 
-          setLoading(false); // Cambiar a false cuando la información esté lista
+          setLoading(false);
         }
       });
     }
@@ -99,19 +117,136 @@ const UserProfile = () => {
     setEditableUser({ ...editableUser, [name]: value });
   };
 
-  const handleNameChange = () => {
-    if (currentUser) {
+  const handleChangeCompanyData = (e) => {
+    const { name, value } = e.target;
+    setCompanyData({ ...companyData, [name]: value });
+  };
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewPhoto(file);
+      setProfilePhoto(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmitStopBeingCompany = () => {
+    const confirm = window.confirm('¿Estás seguro de que quieres dejar de ser una empresa?');
+    if (confirm && currentUser) {
       const userRef = doc(db, 'users', currentUser.uid);
-      updateDoc(userRef, { name: editableUser.name })
+      updateDoc(userRef, {
+        'companyData.status': 'pending removal',
+      })
         .then(() => {
-          setMessage('Nombre actualizado exitosamente');
-          dispatch(updateUser({ name: editableUser.name }));
-          setIsEditing({ ...isEditing, name: false });
-          setTimeout(() => setMessage(''), 3000);
+          setMessage('Su solicitud para dejar de ser empresa está en revisión.');
         })
         .catch((error) => {
-          console.error('Error al actualizar el nombre:', error);
-          alert('Error al actualizar el nombre');
+          console.error('Error al procesar la solicitud de dejar de ser empresa:', error);
+        });
+    }
+  };
+
+  const handleToggleCompanyForm = () => {
+    setIsCompany(!isCompany);
+  };
+
+  const toggle3DForm = () => {
+    setShow3DForm(!show3DForm);
+  };
+
+  const handleChange3DData = (e) => {
+    const { name, value } = e.target;
+    setPrinterData({ ...printerData, [name]: value });
+  };
+
+  const handle3DPhotoUpload = (e) => {
+    const file = e.target.files[0];
+    setPrinterData({ ...printerData, printerPhoto: file });
+  };
+
+  const handleSubmit3DForm = async (e) => {
+    e.preventDefault();
+
+    if (!currentUser) {
+      setMessage('Error: Usuario no autenticado. Intente de nuevo.');
+      return;
+    }
+
+    try {
+      if (!printerData.printerPhoto) {
+        setMessage('Por favor, suba una foto de la impresora.');
+        return;
+      }
+
+      const storageRef = ref(storage, `printerPhotos/${currentUser.uid}`);
+      await uploadBytes(storageRef, printerData.printerPhoto);
+      const photoUrl = await getDownloadURL(storageRef);
+
+      const userRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userRef, {
+        printerData: {
+          ...printerData,
+          printerPhoto: photoUrl,
+          status: 'pending',
+        },
+        is3DService: false,
+      });
+
+      setMessage('Su solicitud para ofrecer servicios 3D está en revisión.');
+      setShow3DForm(false);
+    } catch (error) {
+      console.error('Error al enviar la solicitud:', error);
+      setMessage('Hubo un error al enviar la solicitud. Verifique los permisos y vuelva a intentar.');
+    }
+  };
+
+  const handleSubmitCompanyForm = async (e) => {
+    e.preventDefault();
+
+    if (!currentUser) {
+      setMessage('Error: Usuario no autenticado. Intente de nuevo.');
+      return;
+    }
+
+    try {
+      if (!newPhoto) {
+        setMessage('Por favor, suba el archivo del acta de empresa.');
+        return;
+      }
+
+      const storageRef = ref(storage, `actasEmpresa/${currentUser.uid}/${newPhoto.name}`);
+      await uploadBytes(storageRef, newPhoto);
+      const actaPhotoUrl = await getDownloadURL(storageRef);
+
+      const userRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userRef, {
+        isBusiness: false,
+        companyData: {
+          ...companyData,
+          actaPhoto: actaPhotoUrl,
+          status: 'pending',
+        },
+      });
+
+      setMessage('Su petición está en revisión. Pronto se le aprobará.');
+      setIsCompany(false);
+    } catch (error) {
+      console.error('Error al enviar la solicitud:', error);
+      setMessage('Hubo un error al enviar la solicitud. Verifique los permisos y vuelva a intentar.');
+    }
+  };
+
+  const handleDeleteAccount = () => {
+    const confirmDelete = window.confirm('¿Estás seguro de que deseas eliminar tu cuenta?');
+    if (confirmDelete) {
+      deleteUser(currentUser)
+        .then(() => {
+          alert('Cuenta eliminada exitosamente');
+          window.location.href = '/';
+        })
+        .catch((error) => {
+          console.error('Error al eliminar la cuenta:', error);
+          alert('Error al eliminar la cuenta');
         });
     }
   };
@@ -131,12 +266,8 @@ const UserProfile = () => {
     }
   };
 
-  const handlePhotoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setNewPhoto(file);
-      setProfilePhoto(URL.createObjectURL(file));
-    }
+  const toggleEditing = (field) => {
+    setIsEditing({ ...isEditing, [field]: !isEditing[field] });
   };
 
   const handlePhotoSave = () => {
@@ -189,30 +320,27 @@ const UserProfile = () => {
     }
   };
 
-  const handleDeleteAccount = () => {
-    const confirmDelete = window.confirm('¿Estás seguro de que deseas eliminar tu cuenta?');
-    if (confirmDelete) {
-      deleteUser(currentUser)
+  const handleNameChange = () => {
+    if (currentUser) {
+      const userRef = doc(db, 'users', currentUser.uid);
+      updateDoc(userRef, { name: editableUser.name })
         .then(() => {
-          alert('Cuenta eliminada exitosamente');
-          window.location.href = '/';
+          setMessage('Nombre actualizado exitosamente');
+          dispatch(updateUser({ name: editableUser.name }));
+          setIsEditing({ ...isEditing, name: false });
+          setTimeout(() => setMessage(''), 3000);
         })
         .catch((error) => {
-          console.error('Error al eliminar la cuenta:', error);
-          alert('Error al eliminar la cuenta');
+          console.error('Error al actualizar el nombre:', error);
+          alert('Error al actualizar el nombre');
         });
     }
-  };
-
-  const toggleEditing = (field) => {
-    setIsEditing({ ...isEditing, [field]: !isEditing[field] });
   };
 
   const handleApprove = async (id) => {
     const userRef = doc(db, 'users', id);
     const userDoc = await getDoc(userRef);
 
-    // Revisar si es una aprobación para ser empresa o para dejar de ser empresa
     if (userDoc.exists() && userDoc.data().companyData.status === 'pending removal') {
       await updateDoc(userRef, {
         isBusiness: false,
@@ -227,13 +355,13 @@ const UserProfile = () => {
       await updateDoc(userRef, {
         isBusiness: true,
         'companyData.status': 'approved',
-        'companyData.approvedAt': new Date().toISOString(), // Fecha de aprobación
-        'companyData.approvedBy': currentUser.email, // Admin que aprobó
+        'companyData.approvedAt': new Date().toISOString(),
+        'companyData.approvedBy': currentUser.email,
       });
     }
 
-    loadPendingRequests(); // Actualizar solicitudes pendientes
-    loadApprovedRequests(); // Actualizar solicitudes aprobadas
+    loadPendingRequests();
+    loadApprovedRequests();
     setMessage('La solicitud ha sido aprobada.');
   };
 
@@ -243,51 +371,7 @@ const UserProfile = () => {
       isBusiness: false,
       'companyData.status': 'rejected',
     });
-    loadPendingRequests(); // Actualizar solicitudes pendientes
-  };
-
-  const handleChangeCompanyData = (e) => {
-    const { name, value } = e.target;
-    setCompanyData({ ...companyData, [name]: value });
-  };
-
-  const handleToggleCompanyForm = () => {
-    setIsCompany(!isCompany);
-  };
-
-  const handleSubmitCompanyForm = (e) => {
-    e.preventDefault();
-    const userRef = doc(db, 'users', currentUser.uid);
-    updateDoc(userRef, {
-      isBusiness: false, // Siempre comienza como false
-      companyData: {
-        ...companyData,
-        status: 'pending',
-      },
-    })
-      .then(() => {
-        setMessage('Su petición está en revisión. Pronto se le aprobará.');
-        setIsCompany(false); // Ocultar el formulario después de enviar
-      })
-      .catch((error) => {
-        console.error('Error al enviar la solicitud:', error);
-      });
-  };
-
-  const handleSubmitStopBeingCompany = () => {
-    const confirm = window.confirm('¿Estás seguro de que quieres dejar de ser una empresa?');
-    if (confirm && currentUser) {
-      const userRef = doc(db, 'users', currentUser.uid);
-      updateDoc(userRef, {
-        'companyData.status': 'pending removal',
-      })
-        .then(() => {
-          setMessage('Su solicitud para dejar de ser empresa está en revisión.');
-        })
-        .catch((error) => {
-          console.error('Error al procesar la solicitud de dejar de ser empresa:', error);
-        });
-    }
+    loadPendingRequests();
   };
 
   const AdminView = () => (
@@ -328,7 +412,6 @@ const UserProfile = () => {
 
   return (
     <div className="user-profile">
-      {/* Mostrar pantalla de carga hasta que la info esté lista */}
       {loading ? (
         <div>Cargando...</div>
       ) : (
@@ -341,20 +424,15 @@ const UserProfile = () => {
                 <div className="header-left">
                   <img
                     src={profilePhoto || 'https://via.placeholder.com/100'}
-                    alt={`${editableUser.name}`}
+                    alt={editableUser.name}
                     className="photo-header-small rounded-photo"
                   />
                   <div className="header-info">
                     <h2>{editableUser.name}</h2>
                     <p>{editableUser.email}</p>
-                    {/* Mostrar estado de la empresa */}
                     {user.companyData?.status === 'pending' && <p>Status: Pendiente</p>}
-                    {isBusiness && (
-                      <p style={{ color: 'green' }}>Cuenta de empresa: Aprobada</p>
-                    )}
-                    {user.companyData?.status === 'rejected' && (
-                      <p style={{ color: 'red' }}>Cuenta de empresa: Rechazada</p>
-                    )}
+                    {isBusiness && <p style={{ color: 'green' }}>Cuenta de empresa: Aprobada</p>}
+                    {user.companyData?.status === 'rejected' && <p style={{ color: 'red' }}>Cuenta de empresa: Rechazada</p>}
                   </div>
                 </div>
                 <button className="delete-account-button" onClick={handleDeleteAccount}>
@@ -364,7 +442,6 @@ const UserProfile = () => {
 
               <div className="spacer"></div>
 
-              {/* User Credentials Section */}
               <div className="user-credentials">
                 <h3>Contraseña</h3>
                 <div className="detail-item-column">
@@ -399,7 +476,7 @@ const UserProfile = () => {
                 <div className="profile-photo-large">
                   <img
                     src={profilePhoto || 'https://via.placeholder.com/200'}
-                    alt={`${editableUser.name}`}
+                    alt={editableUser.name}
                     className="photo-large rounded-photo centered-photo"
                   />
                   <div className="photo-buttons">
@@ -412,7 +489,13 @@ const UserProfile = () => {
                     <button className="delete-button-small" onClick={handlePhotoDelete}>
                       Eliminar
                     </button>
-                    <input id="file-upload" type="file" accept="image/*" onChange={handlePhotoUpload} className="upload-button-hidden" />
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="upload-button-hidden"
+                    />
                   </div>
                 </div>
 
@@ -467,7 +550,6 @@ const UserProfile = () => {
 
               {message && <p className="message">{message}</p>}
 
-              {/* Additional Service Buttons */}
               <div className="create-publication-container">
                 <button className="create-publication-button" onClick={() => navigate('/agregarFiesta')}>
                   Crear Publicación
@@ -475,22 +557,53 @@ const UserProfile = () => {
               </div>
 
               <div className="additional-buttons">
-                <button className="service-button">Ofrecer servicios 3D</button>
+                <button className="service-button" onClick={toggle3DForm}>
+                  {show3DForm ? 'Ocultar formulario' : 'Ofrecer servicios 3D'}
+                </button>
                 {isBusiness ? (
                   <button className="service-button" onClick={handleSubmitStopBeingCompany}>
                     Dejar de ser empresa
                   </button>
                 ) : (
                   <button className="service-button" onClick={handleToggleCompanyForm}>
-                    {isCompany ? 'Ocultar formulario de empresa' : 'Quiero ofrecer servicios como empresa'}
+                    {isCompany ? 'Ocultar formulario' : 'Ser empresa'}
                   </button>
                 )}
               </div>
 
-              {/* Formulario de empresa */}
+              {show3DForm && (
+                <form className="company-form" onSubmit={handleSubmit3DForm}>
+                  <p>Se lo agregará a la lista de impresoras 3D como alternativa. El canon será del 12% por suscripción.</p>
+
+                  <div>
+                    <label>Ubicación:</label>
+                    <input type="text" name="location" value={printerData.location} onChange={handleChange3DData} required />
+                  </div>
+
+                  <div>
+                    <label>CBU de la cuenta bancaria:</label>
+                    <input type="text" name="cbu" value={printerData.cbu} onChange={handleChange3DData} required />
+                  </div>
+
+                  <div>
+                    <label>Foto de la impresora:</label>
+                    <input type="file" name="printerPhoto" onChange={handle3DPhotoUpload} required />
+                  </div>
+
+                  <div>
+                    <label>Tarifa por sus servicios:</label>
+                    <input type="text" name="serviceFee" value={printerData.serviceFee} onChange={handleChange3DData} required />
+                  </div>
+
+                  <button type="submit" className="submit-button">
+                    Enviar Solicitud
+                  </button>
+                </form>
+              )}
+
               {isCompany && !isBusiness && (
                 <form className="company-form" onSubmit={handleSubmitCompanyForm}>
-                  <p>Se lo agregará a la lista de empresas como alternativa. El canon será del 5% por suscripción.</p>
+                  <p>Se lo agregará a la lista de empresas como alternativa. El canon será del 12% por suscripción.</p>
 
                   <div>
                     <label>Nombre de la Empresa:</label>
@@ -541,7 +654,9 @@ const UserProfile = () => {
                     />
                   </div>
 
-                  <button type="submit" className="submit-button">Enviar Solicitud</button>
+                  <button type="submit" className="submit-button">
+                    Enviar Solicitud
+                  </button>
                 </form>
               )}
             </>

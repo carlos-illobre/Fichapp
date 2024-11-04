@@ -1,24 +1,34 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Permitir acceso completo (lectura, escritura y eliminación) para la carpeta 'profilePhotos' a usuarios autenticados
-    match /profilePhotos/{userId} {
-      allow read, write, delete: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Permitir acceso a la carpeta 'fiestas' para usuarios autenticados
-    match /fiestas/{allImages=**} {
-      allow read, write: if request.auth != null; // Permitir acceso solo a usuarios autenticados
-    }
-
-    // Permitir acceso a la carpeta 'fiestas' para usuarios autenticados
-    match /fiestas/{allImages=**} {
-      allow read, write: if request.auth != null; // Permitir acceso solo a usuarios autenticados
-    }
-
-    // Denegar acceso a cualquier otra parte fuera de las carpetas definidas
+    // Permitir acceso completo para los administradores en todas las rutas
     match /{allPaths=**} {
-      allow read, write: if false; // Denegar acceso por defecto
+      allow read, write: if request.auth != null && request.auth.token.role == 'ADMIN';
+    }
+
+    // Permitir acceso a la carpeta 'profilePhotos' solo a usuarios autenticados
+    match /profilePhotos/{userId} {
+      allow read, write: if request.auth != null && (request.auth.uid == userId || request.auth.token.role == 'ADMIN');
+    }
+
+    // Permitir acceso a la carpeta 'fiestas' solo a usuarios autenticados
+    match /fiestas/{allImages=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Permitir acceso a 'actasEmpresa' solo a los propietarios y administradores
+    match /actasEmpresa/{userId}/{file=**} {
+      allow read, write: if request.auth != null && (request.auth.uid == userId || request.auth.token.role == 'ADMIN');
+    }
+
+    // Permitir acceso a 'printerPhotos' solo a los propietarios y administradores
+    match /printerPhotos/{userId}/{file=**} {
+      allow read, write: if request.auth != null && (request.auth.uid == userId || request.auth.token.role == 'ADMIN');
+    }
+
+    // Denegar acceso por defecto a cualquier otra parte
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }
