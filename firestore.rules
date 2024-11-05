@@ -3,16 +3,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Permitir acceso completo para la carpeta 'profilePhotos' a usuarios autenticados y administradores
-    match /profilePhotos/{userId} {
-      allow read, write: if request.auth != null && (request.auth.uid == userId || request.auth.token.role == 'ADMIN');
-    }
-
-    // Reglas para 'actasEmpresa'
-    match /actasEmpresa/{userId}/{file=**} {
-      allow read, write: if request.auth != null && (request.auth.uid == userId || request.auth.token.role == 'ADMIN');
-    }
-
     // Bloquear el acceso a todos los documentos por defecto
     match /{document=**} {
       allow read, write: if false;
@@ -20,27 +10,44 @@ service cloud.firestore {
 
     // Permitir acceso a la colección "users" solo para el usuario autenticado
     match /users/{userId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Permitir acceso completo (lectura, escritura y eliminación) solo para usuarios autenticados para sus fotos de perfil
+    match /profilePhotos/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Permitir acceso a "fiestas" solo para usuarios autenticados
+    // Permitir acceso a la colección "fiestas" solo para usuarios autenticados
     match /fiestas/{fiestaId} {
       allow read, write: if request.auth != null;
     }
 
-    // Permitir acceso a "piezas" solo para usuarios autenticados
+    // Permitir acceso a la colección "piezas" solo para usuarios autenticados
     match /piezas/{piezaId} {
       allow read, write: if request.auth != null;
     }
 
-    // Permitir acceso a "impresoras" solo para usuarios autenticados
+    // Permitir acceso a la colección "impresoras" solo para usuarios autenticados
     match /impresoras/{impresoraId} {
       allow read, write: if request.auth != null;
     }
 
-    // Permitir acceso a "admin-panel" solo a administradores
+    // Permitir acceso a la colección "admin-panel" solo a administradores (usuarios con el campo 'role' como 'ADMIN')
     match /admin-panel/{document=**} {
       allow read, write: if request.auth != null && request.auth.token.role == 'ADMIN';
     }
+
+    // Permite leer y escribir en la colección "piezas" para usuarios autenticados
+    match /piezas/{piezaId} {
+      allow read, write: if request.auth != null;
+    }
+
+    //Regla piezas
+
+    match /piezas/{docId} {
+      allow read, write: if true;
+    }
+
   }
 }

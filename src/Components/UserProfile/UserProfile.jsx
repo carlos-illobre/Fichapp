@@ -55,6 +55,7 @@ const UserProfile = () => {
   });
 
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [pending3DRequests, setPending3DRequests] = useState([]);
   const [approvedRequests, setApprovedRequests] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isBusiness, setIsBusiness] = useState(user.isBusiness || false);
@@ -84,6 +85,7 @@ const UserProfile = () => {
             setIsAdmin(true);
             loadPendingRequests();
             loadApprovedRequests();
+            loadPending3DRequests();
           }
 
           setLoading(false);
@@ -100,6 +102,16 @@ const UserProfile = () => {
       pendingRequestsArray.push({ id: doc.id, ...doc.data() });
     });
     setPendingRequests(pendingRequestsArray);
+  };
+
+  const loadPending3DRequests = async () => {
+    const q = query(collection(db, 'users'), where('printerData.status', '==', 'pending'));
+    const querySnapshot = await getDocs(q);
+    const pending3DRequestsArray = [];
+    querySnapshot.forEach((doc) => {
+      pending3DRequestsArray.push({ id: doc.id, ...doc.data() });
+    });
+    setPending3DRequests(pending3DRequestsArray);
   };
 
   const loadApprovedRequests = async () => {
@@ -197,6 +209,25 @@ const UserProfile = () => {
     } catch (error) {
       console.error('Error al enviar la solicitud:', error);
       setMessage('Hubo un error al enviar la solicitud. Verifique los permisos y vuelva a intentar.');
+    }
+  };
+
+  const handleSubmitStopBeing3DService = () => {
+    const confirm = window.confirm('¿Estás seguro de que quieres dejar de ofrecer servicios 3D?');
+    if (confirm && currentUser) {
+      const userRef = doc(db, 'users', currentUser.uid);
+      updateDoc(userRef, {
+        is3DService: false,
+        'printerData.status': 'removed',
+      })
+        .then(() => {
+          setIs3DService(false);
+          setMessage('Has dejado de ofrecer servicios 3D.');
+        })
+        .catch((error) => {
+          console.error('Error al dejar de ofrecer servicios 3D:', error);
+          setMessage('Hubo un error. Intenta de nuevo.');
+        });
     }
   };
 
@@ -340,7 +371,6 @@ const UserProfile = () => {
   const handleApprove = async (id) => {
     const userRef = doc(db, 'users', id);
     const userDoc = await getDoc(userRef);
-
     if (userDoc.exists() && userDoc.data().companyData.status === 'pending removal') {
       await updateDoc(userRef, {
         isBusiness: false,
@@ -359,7 +389,6 @@ const UserProfile = () => {
         'companyData.approvedBy': currentUser.email,
       });
     }
-
     loadPendingRequests();
     loadApprovedRequests();
     setMessage('La solicitud ha sido aprobada.');
@@ -374,9 +403,30 @@ const UserProfile = () => {
     loadPendingRequests();
   };
 
+  const handleApprove3D = async (id) => {
+    const userRef = doc(db, 'users', id);
+    await updateDoc(userRef, {
+      is3DService: true,
+      'printerData.status': 'approved',
+      'printerData.approvedAt': new Date().toISOString(),
+      'printerData.approvedBy': currentUser.email,
+    });
+    loadPending3DRequests();
+    setMessage('La solicitud de servicios 3D ha sido aprobada.');
+  };
+
+  const handleReject3D = async (id) => {
+    const userRef = doc(db, 'users', id);
+    await updateDoc(userRef, {
+      is3DService: false,
+      'printerData.status': 'rejected',
+    });
+    loadPending3DRequests();
+  };
+
   const AdminView = () => (
     <div className="admin-requests">
-      <h3>Solicitudes Pendientes</h3>
+      <h3>Solicitudes de Empresas Pendientes</h3>
       {pendingRequests.length === 0 ? (
         <p>No hay solicitudes pendientes.</p>
       ) : (
@@ -393,7 +443,22 @@ const UserProfile = () => {
         </ul>
       )}
 
-      <h3>Solicitudes Aprobadas</h3>
+      <h3>Solicitudes de Servicios 3D Pendientes</h3>
+      {pending3DRequests.length === 0 ? (
+        <p>No hay solicitudes de servicios 3D pendientes.</p>
+      ) : (
+        <ul>
+          {pending3DRequests.map((request) => (
+            <li key={request.id}>
+              <p>Impresora en: {request.printerData.location} - Estado: {request.printerData.status}</p>
+              <button onClick={() => handleApprove3D(request.id)}>Aprobar</button>
+              <button onClick={() => handleReject3D(request.id)}>Rechazar</button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <h3>Solicitudes de Empresas Aprobadas</h3>
       {approvedRequests.length === 0 ? (
         <p>No hay solicitudes aprobadas.</p>
       ) : (
@@ -557,9 +622,15 @@ const UserProfile = () => {
               </div>
 
               <div className="additional-buttons">
-                <button className="service-button" onClick={toggle3DForm}>
-                  {show3DForm ? 'Ocultar formulario' : 'Ofrecer servicios 3D'}
-                </button>
+                {is3DService ? (
+                  <button className="service-button" onClick={handleSubmitStopBeing3DService}>
+                    Dejar de ofrecer servicios 3D
+                  </button>
+                ) : (
+                  <button className="service-button" onClick={toggle3DForm}>
+                    {show3DForm ? 'Ocultar formulario' : 'Ofrecer servicios 3D'}
+                  </button>
+                )}
                 {isBusiness ? (
                   <button className="service-button" onClick={handleSubmitStopBeingCompany}>
                     Dejar de ser empresa
