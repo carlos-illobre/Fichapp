@@ -52,6 +52,9 @@ const BotonesParty = (props) => {
     navigate("/");
   };
 
+  // Verifica si el email del usuario activo coincide con el email de la pieza
+  const canEdit = user.email === party.email;
+
   return (
     <div>
       {/* <div className="barraBotones">
@@ -91,36 +94,33 @@ const BotonesParty = (props) => {
         </div>
       </div> */}
 
-      {/* {esAdmin() ? (
-        <div className="ComprarPartyButton">
-          <button
-            className="botonComprar aviable"
-            onClick={ handlemodificarFiesta}
-          >
-            MODIFICAR FIESTA
-          </button>
-          <button
-            className="botonComprar aviable"
-            onClick={handleEliminarFiesta}
-          >
-            ELIMINAR FIESTA
-          </button>
-        </div>
-      ) :  */}
-      {VerificarStock(cantidadSeleccionada) ? (
-        <div className="ComprarPartyButton">
-          <button
-            onClick={handleAgregarAlCarrito}
-            className="botonComprar aviable"
-          >
-            AGREGAR AL CARRITO
-          </button>
-        </div>
-      ) : (
-        <div className="ComprarPartyButton">
-          <button className="botonComprar disable"> AGREGAR AL CARRITO</button>
-        </div>
-      )}
+<div className="ComprarPartyButton">
+  {canEdit ? (
+    <>
+      <button
+        className="botonComprar aviable"
+        onClick={handlemodificarFiesta}
+      >
+        MODIFICAR PUBLICACIÓN
+      </button>
+      <button
+        className="botonComprar aviable"
+        onClick={handleEliminarFiesta}
+      >
+        ELIMINAR PUBLICACIÓN
+      </button>
+    </>
+  ) : VerificarStock(cantidadSeleccionada) ? (
+    <button
+      onClick={handleAgregarAlCarrito}
+      className="botonComprar aviable"
+    >
+      AGREGAR AL CARRITO
+    </button>
+  ) : (
+    <button className="botonComprar disable">AGREGAR AL CARRITO</button>
+  )}
+</div>
     </div>
   );
 };

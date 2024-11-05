@@ -3,6 +3,7 @@ import Nabvar from './Components/Navbar/Navbar';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import EventsCategory from './Pages/EventsCategory';
 import Partys from './Pages/Partys';
+import PartysEdit from './Pages/PartysEdit';
 import Cart from './Pages/Cart';
 import LoginSignup from './Pages/LoginSignup';
 import Footer from './Components/Footer/Footer';
@@ -44,6 +45,7 @@ function App() {
           <Route path="/PiezasEmpresa" element={<PiezasEmpresaPage />} />
           <Route path="/PiezasImpresora" element={<PiezasImpresoraPage />} />
           <Route path="/user-profile" element={<UserProfile />} /> {/* Nueva ruta para el perfil */}
+          <Route path='/party/edit/:partyId' element={<PartysEdit />} />
         </Routes>
         <Footer />
         </BrowserRouter>
