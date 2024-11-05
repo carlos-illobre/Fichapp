@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { db } from '../firebase';  // Importa la instancia de Firestore
-import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc, getDoc, where, query, setDoc, get} from 'firebase/firestore';
+
 
 // Thunks asíncronos para interactuar con Firestore
 
@@ -12,6 +13,14 @@ export const fetchPiezas = createAsyncThunk('party/fetchPiezas', async () => {
   return piezasList;
 });
 
+// Obtener todas las piezas de un usuario desde Firestore
+export const fetchPiezasUser = createAsyncThunk('party/fetchPiezas', async (email) => {
+  const piezasCollection = collection(db, 'piezas');
+  const piezasQuery = query(piezasCollection, where('email', '==', email));
+  const piezasSnapshot = await getDocs(piezasQuery);
+  const piezasListUser = piezasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return piezasListUser;
+});
 // Agregar una nueva pieza a Firestore
 export const addPieza = createAsyncThunk('party/addPieza', async (newPieza) => {
   const docRef = await addDoc(collection(db, 'piezas'), newPieza);
@@ -19,18 +28,44 @@ export const addPieza = createAsyncThunk('party/addPieza', async (newPieza) => {
 });
 
 // Actualizar una pieza existente en Firestore
-export const updatePieza = createAsyncThunk('party/updatePieza', async (updatedPieza) => {
-  const piezaRef = doc(db, 'piezas', updatedPieza.id);
-  await updateDoc(piezaRef, updatedPieza);
-  return updatedPieza;
-});
+export const updatePieza = createAsyncThunk('party/updatePieza', async (piezaUpdate) => {
+  const piezasCollection =  collection(db, 'piezas');
+  //console.log(piezaUpdate);
+  const piezaId = Number(piezaUpdate.id);
+  //console.log("PiezaID "+piezaId)
+  const piezaQuery = query(piezasCollection, where('id', '==', piezaId));
+  //console.log('Consulta Firestore:', piezaQuery);
+  const querySnapshot = await getDocs(piezaQuery);
+  //console.log("Número de documentos encontrados:", querySnapshot.docs.length);
+  //const piezaRef =  await query(piezasCollection, where('id', '==', piezaUpdate.id));
+  //await setDoc(piezaRef, piezaUpdate, { merge: true });
+  if (!querySnapshot.empty) {
+    const docRef = doc(db, 'piezas', querySnapshot.docs[0].id); // Obtiene el ID del primer documento que coincide
+    await setDoc(docRef, piezaUpdate, { merge: true }); // Actualiza el documento usando merge
+    return { id: querySnapshot.docs[0].id, ...piezaUpdate };
+  } else {
+    throw new Error('No se encontró el documento con el id especificado.');
+  }
+  });
 
 // Borrar una pieza de Firestore
 export const deletePieza = createAsyncThunk('party/deletePieza', async (id) => {
-  const piezaRef = doc(db, 'piezas', id);
-  await deleteDoc(piezaRef);
-  return id;
-});
+  const piezasCollection =  collection(db, 'piezas');
+  const piezaId = Number(id);
+  const piezaQuery = query(piezasCollection, where('id', '==', piezaId));
+  const querySnapshot = await getDocs(piezaQuery);
+  if (!querySnapshot.empty) {
+    const docRef = doc(db, 'piezas', querySnapshot.docs[0].id); // Obtiene el ID del primer documento que coincide
+    await deleteDoc(docRef)
+    return
+  } else {
+    throw new Error('No se encontró el documento con el id especificado.');
+  }
+  }
+  //const piezaRef = doc(db, 'piezas', id);
+  //await deleteDoc(piezaRef);
+  //return id;
+);
 
 export const descountStockParty = createAsyncThunk('party/descountStockParty', async ({ id, quantity }) => {
   const partyRef = doc(db, "piezas", id);
@@ -56,6 +91,7 @@ const initialState = {
   foundPiezas: [],
   foundPiezasEmpresa: [],
   foundPiezasImpresora: [],
+  foundPiezasUser: [],
   loading: false,
   error: null
 };
@@ -78,6 +114,9 @@ const partySlice = createSlice({
     },
     setFoundPiezasImpresora: (state, action) => {  // Nueva acción para almacenar las piezas encontradas
       state.foundPiezasImpresora = action.payload;
+    },
+    setFoundPiezasUser: (state, action) => {  // Nueva acción para almacenar las piezas del usuario encontradas
+      state.foundPiezasUser = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -122,7 +161,7 @@ const partySlice = createSlice({
   }
 });
 // Acciones
-export const { setParties, addParty, updateParty, deleteParty, setSearch, setFoundPiezas, setFoundPiezasEmpresa, setFoundPiezasImpresora } = partySlice.actions;
+export const { setParties, addParty, updateParty, deleteParty, setSearch, setFoundPiezas, setFoundPiezasEmpresa, setFoundPiezasImpresora, setFoundPiezasUser } = partySlice.actions;
 
 // Selectores
 export const selectAllPiezas = (state) => state.party.items;
@@ -131,6 +170,7 @@ export const selectSearch = (state) => state.party.search;
 export const selectFoundPiezas = (state) => state.party.foundPiezas;
 export const selectFoundPiezasEmpresa = (state) => state.party.foundPiezasEmpresa;
 export const selectFoundPiezasImpresora = (state) => state.party.foundPiezasImpresora;
+export const selectFoundPiezasUser = (state) => state.party.foundPiezasUser || [];
 export const selectIsSearching = (state) => state.party.isSearching;
 
 export default partySlice.reducer;
