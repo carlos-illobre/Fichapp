@@ -7,6 +7,8 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
 import { db, storage } from '../../firebase';
 import { updateUser } from '../../ReduxToolkit/userSlice';
 import { useNavigate } from 'react-router-dom';
+import { setFoundPiezasUser, selectFoundPiezasUser } from "../../ReduxToolkit/partySlice";
+import Item from '../Items/Item';
 
 const UserProfile = () => {
   const dispatch = useDispatch();
@@ -32,7 +34,7 @@ const UserProfile = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
 
-  // Estado para "Ser Empresa"
+  // Estados de empresa
   const [isCompany, setIsCompany] = useState(false);
   const [companyData, setCompanyData] = useState({
     companyName: '',
@@ -43,7 +45,7 @@ const UserProfile = () => {
     status: 'pending',
   });
 
-  // Estado para "Ofrecer servicios 3D"
+  // Estados de servicio 3D
   const [is3DService, setIs3DService] = useState(user.is3DService || false);
   const [show3DForm, setShow3DForm] = useState(false);
   const [printerData, setPrinterData] = useState({
@@ -424,6 +426,32 @@ const UserProfile = () => {
     loadPending3DRequests();
   };
 
+  const handleSearchPiezasUser = async () => {
+    if (user.email.length >= 3) {
+      const piezasCollection = collection(db, 'piezas');
+      const queryPiezaUser = query(piezasCollection, where('email', '==', user.email));
+
+      try {
+        const querySnapshotPiezaUser = await getDocs(queryPiezaUser);
+        const piezasUser = [];
+
+        querySnapshotPiezaUser.forEach((doc) => {
+          piezasUser.push({ id: doc.id, ...doc.data() });
+        });
+
+        if (piezasUser.length > 0) {
+          dispatch(setFoundPiezasUser(piezasUser));
+        } else {
+          dispatch(setFoundPiezasUser([]));
+        }
+      } catch (error) {
+        console.error('Error al realizar la búsqueda:', error);
+      }
+    }
+  };
+
+  const piezasUser = useSelector(selectFoundPiezasUser);
+
   const AdminView = () => (
     <div className="admin-requests">
       <h3>Solicitudes de Empresas Pendientes</h3>
@@ -433,9 +461,7 @@ const UserProfile = () => {
         <ul>
           {pendingRequests.map((request) => (
             <li key={request.id}>
-              <p>
-                Empresa: {request.companyData.companyName} - Estado: {request.companyData.status}
-              </p>
+              <p>Empresa: {request.companyData.companyName} - Estado: {request.companyData.status}</p>
               <button onClick={() => handleApprove(request.id)}>Aprobar</button>
               <button onClick={() => handleReject(request.id)}>Rechazar</button>
             </li>
@@ -730,6 +756,25 @@ const UserProfile = () => {
                   </button>
                 </form>
               )}
+
+              <button onClick={handleSearchPiezasUser}>Buscar Piezas</button>
+              <div className="shopCategory-Parties">
+                {piezasUser && piezasUser.length > 0 ? (
+                  piezasUser.map((pieza) => (
+                    <div key={pieza.id}>
+                      <Item
+                        id={pieza.id}
+                        name={pieza.nombre}
+                        image={pieza.image}
+                        newPrice={pieza.price}
+                        desc={pieza.barrio}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <p>No se encontraron piezas.</p>
+                )}
+              </div>
             </>
           )}
         </>
