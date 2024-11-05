@@ -94,36 +94,33 @@ const BotonesParty = (props) => {
         </div>
       </div> */}
 
-      {canEdit && ( 
-        <div className="ComprarPartyButton">
-          <button
-            className="botonComprar aviable"
-            onClick={ handlemodificarFiesta}
-          >
-            MODIFICAR PUBLICACIÓN
-          </button>
-          <button
-            className="botonComprar aviable"
-            onClick={handleEliminarFiesta}
-          >
-            ELIMINAR PUBLICACIÓN
-          </button>
-        </div>
-      ) }
-      {VerificarStock(cantidadSeleccionada) ? (
-        <div className="ComprarPartyButton">
-          <button
-            onClick={handleAgregarAlCarrito}
-            className="botonComprar aviable"
-          >
-            AGREGAR AL CARRITO
-          </button>
-        </div>
-      ) : (
-        <div className="ComprarPartyButton">
-          <button className="botonComprar disable"> AGREGAR AL CARRITO</button>
-        </div>
-      )}
+<div className="ComprarPartyButton">
+  {canEdit ? (
+    <>
+      <button
+        className="botonComprar aviable"
+        onClick={handlemodificarFiesta}
+      >
+        MODIFICAR PUBLICACIÓN
+      </button>
+      <button
+        className="botonComprar aviable"
+        onClick={handleEliminarFiesta}
+      >
+        ELIMINAR PUBLICACIÓN
+      </button>
+    </>
+  ) : VerificarStock(cantidadSeleccionada) ? (
+    <button
+      onClick={handleAgregarAlCarrito}
+      className="botonComprar aviable"
+    >
+      AGREGAR AL CARRITO
+    </button>
+  ) : (
+    <button className="botonComprar disable">AGREGAR AL CARRITO</button>
+  )}
+</div>
     </div>
   );
 };
