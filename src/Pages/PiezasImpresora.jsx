@@ -1,33 +1,50 @@
-import React from 'react';
-import { useSelector } from 'react-redux';  // Importamos el selector para obtener las piezas
-import { selectFoundPiezasImpresora } from '../ReduxToolkit/partySlice';  // Importamos el selector para obtener las piezas encontradas
-import Item from "../Components/Items/Item";
-import "./CSS/EventsCategory.css";
+import { useEffect, useState } from "react";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "../firebase";
+import "./CSS/PiezasImpresora.css";
 
-const PiezasImpresoraPage = () => {
-const piezasImpresora = useSelector(selectFoundPiezasImpresora);  // Obtenemos las piezas desde Redux
+const PiezasImpresora = () => {
+  const [impresorasData, setImpresorasData] = useState([]);
 
-return (
-  <div className="shopCategory-Parties">
-    {piezasImpresora && piezasImpresora.length > 0 ? (
-        piezasImpresora.map((pieza) => (
-            <div >
-              <Item
-              key={pieza.id}
-              id={pieza.id}
-              name={ pieza.impresora}
-              image={pieza.image}
-              newPrice={pieza.precio}
-              desc={pieza.ubicacion}
-            />
-            </div>
-          ))
-      
-    ) : (
-      <p>No se encontraron piezas.</p>
-    )}
-  </div>
-);
+  useEffect(() => {
+    const fetchImpresorasData = async () => {
+      try {
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("is3DService", "==", true));
+        const querySnapshot = await getDocs(q);
+        const impresoras = [];
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          impresoras.push({
+            name: data.name || "Usuario sin nombre", // Obtener el nombre directamente de data
+            location: data.printerData?.location || "Sin ubicación",
+            serviceFee: data.printerData?.serviceFee || "Sin tarifa",
+            printerPhoto: data.printerData?.printerPhoto || "https://via.placeholder.com/250", // Placeholder si no hay imagen
+          });
+        });
+
+        setImpresorasData(impresoras.sort((a, b) => a.name.localeCompare(b.name)));
+      } catch (error) {
+        console.error("Error al buscar impresoras en Firebase:", error);
+      }
+    };
+
+    fetchImpresorasData();
+  }, []);
+
+  return (
+    <div className="impresoras-results">
+      {impresorasData.map((impresora, index) => (
+        <div key={index} className="impresora-card">
+          <img className="impresora-image" src={impresora.printerPhoto} alt={impresora.name} />
+          <h4 className="user-name">{impresora.name}</h4> {/* Nombre en negrita */}
+          <p className="location">{impresora.location}</p>
+          <p className="price">Tarifa: ${impresora.serviceFee}</p>
+        </div>
+      ))}
+    </div>
+  );
 };
 
-export default PiezasImpresoraPage;
+export default PiezasImpresora;

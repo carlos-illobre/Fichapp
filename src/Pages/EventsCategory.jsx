@@ -1,86 +1,79 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPiezas, selectAllPiezas, selectSearch, setFoundPiezasEmpresa, setFoundPiezasImpresora, setFoundPiezas, setSearch, selectIsSearching} from "../ReduxToolkit/partySlice";  // Importamos las acciones y selectores desde el slice
-import Item from "../Components/Items/Item";  // Asegúrate de la ruta correcta
-import Carousel from "../Components/Carousel/carousel";  // Asegúrate de la ruta correcta
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "../firebase";
+import { fetchPiezas, selectAllPiezas, selectSearch, selectIsSearching } from "../ReduxToolkit/partySlice";
+import Item from "../Components/Items/Item";
+import Carousel from "../Components/Carousel/carousel";
 import pub1 from "../Components/Assets/FotosCarousel/pub1.webp";
 import pub2 from "../Components/Assets/FotosCarousel/pub2.jpg";
 import pub3 from "../Components/Assets/FotosCarousel/pub3.jpg";
 import "./CSS/EventsCategory.css";
-
-
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const EventsCategory = (props) => {
   const dispatch = useDispatch();
-  const piezas = useSelector(selectAllPiezas);  // Obtenemos las piezas desde Redux
+  const piezas = useSelector(selectAllPiezas);
   const search = useSelector(selectSearch);
   const [sortBy, setSortBy] = useState('');
-  const [showEmpresaButton, setShowEmpresaButton] = useState(false); // Estado del botón de búsqueda de piezas de Empresa
-  const [showImpresoraButton, setShowImpresoraButton] = useState(false); // Estado del botón de búsqueda de piezas de Empresa
+  const [impresorasData, setImpresorasData] = useState([]);
   const navigate = useNavigate();
   const isSearching = useSelector(selectIsSearching);
- 
 
-  // Despachamos la acción para obtener las piezas cuando el componente se monta
   useEffect(() => {
     dispatch(fetchPiezas());
   }, [dispatch]);
 
-  // Lógica para filtrar y ordenar los elementos según la opción seleccionada
   const filteredAndSortedPiezas = useMemo(() => {
     let filtered = piezas
-      .filter(item => item.nombre && item.juego)  // Filtrar solo los elementos que tengan nombre
+      .filter(item => item.nombre && item.juego)
       .filter(item => {
         const searchTerm = search.toLowerCase();
         return (
           !searchTerm || 
           item.nombre.toLowerCase().includes(searchTerm) || 
-          item.juego.toLowerCase().includes(searchTerm)  // Filtrar por nombre o por juego
+          item.juego.toLowerCase().includes(searchTerm)
         );
       });
-    console.log('search:', search)
-    console.log('filtered:', filtered)
-  
-    // Lógica de ordenamiento
+
     if (sortBy === "price") {
       filtered.sort((a, b) => a.price - b.price);
     } else if (sortBy === "nombre") {
       filtered.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
     }
-  
+
     return filtered;
   }, [piezas, search, sortBy]);
-  
+
   const handleChangeSortBy = (option) => {
     setSortBy(option);
   };
-  
+
   const handleSearchImpresoras = async () => {
-  
-          navigate("/PiezasImpresora"); // Ajusta la ruta según sea necesario
-          setShowEmpresaButton(false);
-          setShowImpresoraButton(false);
-   
+    try {
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("is3DService", "==", true));
+      const querySnapshot = await getDocs(q);
+      const impresoras = [];
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        impresoras.push({
+          userName: data.name || "Usuario sin nombre", // Asegurarse de que haya un nombre
+          location: data.printerData?.location || "Sin ubicación",
+          serviceFee: data.printerData?.serviceFee || "Sin tarifa",
+          printerPhoto: data.printerData?.printerPhoto || "https://via.placeholder.com/250", // Placeholder si no hay imagen
+        });
+      });
+
+      setImpresorasData(impresoras.sort((a, b) => a.userName.localeCompare(b.userName)));
+      navigate("/PiezasImpresora"); // Navega a la página de resultados
+    } catch (error) {
+      console.error("Error al buscar impresoras en Firebase:", error);
+    }
   };
 
-  const handleSearchEmpresas = async () => {
-    
-          navigate("/PiezasEmpresa"); // Ajusta la ruta según sea necesario
-          setShowEmpresaButton(false);
-          setShowImpresoraButton(false);
-     
-  };
-
-
-  
-  const carouselImages = [
-    pub1,
-    pub2,
-    pub3
-  ];
-
-  console.log("carousel images: ", carouselImages)
+  const carouselImages = [pub1, pub2, pub3];
 
   return (
     <div className="shop-category">
@@ -88,7 +81,6 @@ const EventsCategory = (props) => {
       <img className="shopcategory-banner" src={props.banner} alt="" />
       <div className="shopcategory-indexSort">
         <p>{/* <span>Mostrando 1-12</span> de 20 resultados */}</p>
-        {/* Botón desplegable para ordenar */}
         <div className="shopCategory-sort">
           Filtrar por{" "}
           <select
@@ -103,37 +95,38 @@ const EventsCategory = (props) => {
         </div>
       </div>
       <div className="shopCategory-Parties">
-        {filteredAndSortedPiezas.map((item, index) => {
-          // if (item.category === props.category) {
-            return (
-              <Item
-                key={index}
-                id={item.id}
-                name={item.juego}
-                desc={item.nombre}
-                image={item.image}
-                // barrio={item.barrio}
-                newPrice={item.price}
-              />
-            );
-          
-        })}
+        {filteredAndSortedPiezas.map((item, index) => (
+          <Item
+            key={index}
+            id={item.id}
+            name={item.juego}
+            desc={item.nombre}
+            image={item.image}
+            newPrice={item.price}
+          />
+        ))}
       </div>
       {isSearching && (
         <div className="search-buttons">
-            <button onClick={handleSearchEmpresas}>
-            Buscar Repuestos de Empresa
-          </button>
-          <button onClick={handleSearchImpresoras}>
+          <button className="empresa-button">Buscar Repuestos de Empresa</button>
+          <button className="impresora-button" onClick={handleSearchImpresoras}>
             Buscar Servicios de Impresoras 3D
           </button>
-      </div>
-
+        </div>
       )}
-      
-     
+      {impresorasData.length > 0 && (
+        <div className="impresoras-results">
+          {impresorasData.map((impresora, index) => (
+            <div key={index} className="impresora-card">
+              <img className="impresora-image" src={impresora.printerPhoto} alt={impresora.userName} />
+              <h4 className="user-name">{impresora.userName}</h4> {/* Nombre de usuario en negrita */}
+              <p className="location">{impresora.location}</p>
+              <p className="price">Tarifa: ${impresora.serviceFee}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
-    
   );
 };
 
