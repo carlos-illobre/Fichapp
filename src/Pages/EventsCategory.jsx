@@ -9,6 +9,7 @@ import pub3 from "../Components/Assets/FotosCarousel/pub3.jpg";
 import "./CSS/EventsCategory.css";
 
 
+
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const EventsCategory = (props) => {
@@ -20,6 +21,7 @@ const EventsCategory = (props) => {
   const [showImpresoraButton, setShowImpresoraButton] = useState(false); // Estado del botón de búsqueda de piezas de Empresa
   const navigate = useNavigate();
   const isSearching = useSelector(selectIsSearching);
+
  
 
   // Despachamos la acción para obtener las piezas cuando el componente se monta
@@ -39,8 +41,7 @@ const EventsCategory = (props) => {
           item.juego.toLowerCase().includes(searchTerm)  // Filtrar por nombre o por juego
         );
       });
-    console.log('search:', search)
-    console.log('filtered:', filtered)
+   
   
     // Lógica de ordenamiento
     if (sortBy === "price") {
@@ -56,8 +57,8 @@ const EventsCategory = (props) => {
     setSortBy(option);
   };
   
-  const handleSearchImpresoras = async () => {
   
+  const handleSearchImpresoras = async () => {
           navigate("/PiezasImpresora"); // Ajusta la ruta según sea necesario
           setShowEmpresaButton(false);
           setShowImpresoraButton(false);
@@ -80,7 +81,7 @@ const EventsCategory = (props) => {
     pub3
   ];
 
-  console.log("carousel images: ", carouselImages)
+  // console.log("carousel images: ", carouselImages)
 
   return (
     <div className="shop-category">

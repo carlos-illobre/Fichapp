@@ -449,6 +449,30 @@ const UserProfile = () => {
       }
     }
   };
+  const handleSearchJuegosEmpresas = async () => {
+    if (user.email.length >= 3) {
+      const piezasCollection = collection(db, 'pubEmpresas');
+      const queryPiezaUser = query(piezasCollection, where('email', '==', user.email));
+
+      try {
+        const querySnapshotPiezaUser = await getDocs(queryPiezaUser);
+        const piezasUser = [];
+
+        querySnapshotPiezaUser.forEach((doc) => {
+          piezasUser.push({ id: doc.id, ...doc.data() });
+        });
+
+        if (piezasUser.length > 0) {
+          dispatch(setFoundPiezasUser(piezasUser));
+        } else {
+          dispatch(setFoundPiezasUser([]));
+        }
+      } catch (error) {
+        console.error('Error al realizar la búsqueda:', error);
+      }
+    }
+  };
+  
 
   const piezasUser = useSelector(selectFoundPiezasUser);
 
@@ -641,12 +665,21 @@ const UserProfile = () => {
 
               {message && <p className="message">{message}</p>}
 
+              {isBusiness? (
+                <div className="create-publication-container">
+                <button className="service-button" onClick={() => navigate('/agregarJuegoEmpresa')}>
+                    Publicar Juego
+                </button>
+                <button className="service-button" onClick={handleSearchJuegosEmpresas}>Mis publicaciones</button>
+              </div>
+              ) : (
               <div className="create-publication-container">
                 <button className="service-button" onClick={() => navigate('/agregarFiesta')}>
                   Crear Publicación
                 </button>
                 <button className="service-button" onClick={handleSearchPiezasUser}>Mis publicaciones</button>
               </div>
+              )}
 
               <div className="additional-buttons">
                 {is3DService ? (

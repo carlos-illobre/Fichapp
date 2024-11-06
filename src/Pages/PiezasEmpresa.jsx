@@ -1,33 +1,56 @@
-import React from 'react';
-import { useSelector } from 'react-redux';  // Importamos el selector para obtener las piezas
-import { selectFoundPiezasEmpresa } from '../ReduxToolkit/partySlice';  // Importamos el selector para obtener las piezas encontradas
-import Item from "../Components/Items/Item";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import "./CSS/EventsCategory.css";
+import "./CSS/PiezasImpresora.css";
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
+import { setFoundPiezasUser, selectFoundPiezasUser, selectFoundPiezasEmpresa } from "../ReduxToolkit/partySlice";
 
 const PiezasEmpresaPage = () => {
-const piezasEmp = useSelector(selectFoundPiezasEmpresa);  // Obtenemos las piezas desde Redux
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
+  const piezasEmp = useSelector(selectFoundPiezasEmpresa);
 
-return (
-  <div className="shopCategory-Parties">
-    {piezasEmp && piezasEmp.length > 0 ? (
-        piezasEmp.map((pieza) => (
-            <div>
-              <Item
-              key={pieza.id}
-              id={pieza.id}
-              name={pieza.empresa}
-              image={pieza.image}
-              newPrice={pieza.price}
-              desc={pieza.barrio}
-            />
-            </div>
-          ))
+  const handleSearchJuegosEmpresas = async () => {
+    if (user.email && user.email.length >= 3) {
+      const piezasCollection = collection(db, 'pubEmpresas');
+      const queryPiezaUser = query(piezasCollection, where('email', '==', user.email));
 
-    ) : (
-      <p>No se encontraron piezas.</p>
-    )}
-  </div>
-);
+      try {
+        const querySnapshotPiezaUser = await getDocs(queryPiezaUser);
+        const piezasUser = [];
+
+        querySnapshotPiezaUser.forEach((doc) => {
+          piezasUser.push({ id: doc.id, ...doc.data() });
+        });
+
+        dispatch(setFoundPiezasUser(piezasUser));
+      } catch (error) {
+        console.error('Error al realizar la búsqueda:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    handleSearchJuegosEmpresas();
+  }, []); // Empty dependency array ensures it runs only once on mount
+
+  return (
+    <div className="impresoras-results">
+      {piezasEmp && piezasEmp.length > 0 ? (
+        piezasEmp.map((pieza, index) => (
+          <div key={index} className="impresora-card">
+            <img className="impresora-image" src={pieza.image} alt={pieza.juego} />
+            <h4 className="user-name">{pieza.nombre}</h4>
+            <p className="location">{pieza.barrio}</p>
+            <p className="price">Tarifa: ${pieza.price}</p>
+          </div>
+        ))
+      ) : (
+        <p>No se encontraron piezas.</p>
+      )}
+    </div>
+  );
 };
 
 export default PiezasEmpresaPage;

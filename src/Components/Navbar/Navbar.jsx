@@ -42,6 +42,7 @@ const Navbar = () => {
     if (value.length >= 3) {
       dispatch(setSearch(value));
     }
+    handleSearchEmpresas();
   };
 
   const handleClickSearch = async () => {
@@ -140,10 +141,11 @@ const Navbar = () => {
 
   const handleSearchEmpresas = async () => {
     if (localSearch.length >= 3) {
-      // Realizamos la búsqueda en Firestore dentro de la colección "piezas"
-      const piezasCollection = collection(db, 'piezas');
-      const queryPiezaEmp = query(piezasCollection, where('nombre', '==', localSearch), where('esEmpresa', '==', true));
-      const queryJuegoEmp = query(piezasCollection, where('juego', '==', localSearch), where('esEmpresa', '==', true));
+      // Realizamos la búsqueda en Firestore dentro de la colección "pubEmpresas"
+      const piezasCollection = collection(db, 'pubEmpresas');
+      const queryPiezaEmp = query(piezasCollection)
+      const queryJuegoEmp = query(piezasCollection)
+      
 
       try {
         const querySnapshotPieza = await getDocs(queryPiezaEmp);
@@ -152,6 +154,8 @@ const Navbar = () => {
         const piezasEmp = [];
         const juegosEmp = [];
         
+        console.log('elisheba' + piezasEmp);
+
         querySnapshotPieza.forEach((doc) => {
           piezasEmp.push({ id: doc.id, ...doc.data() });
         });
