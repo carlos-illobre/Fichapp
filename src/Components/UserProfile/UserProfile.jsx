@@ -642,9 +642,10 @@ const UserProfile = () => {
               {message && <p className="message">{message}</p>}
 
               <div className="create-publication-container">
-                <button className="create-publication-button" onClick={() => navigate('/agregarFiesta')}>
+                <button className="service-button" onClick={() => navigate('/agregarFiesta')}>
                   Crear Publicación
                 </button>
+                <button className="service-button" onClick={handleSearchPiezasUser}>Mis publicaciones</button>
               </div>
 
               <div className="additional-buttons">
@@ -757,17 +758,17 @@ const UserProfile = () => {
                 </form>
               )}
 
-              <button onClick={handleSearchPiezasUser}>Buscar Piezas</button>
+              
               <div className="shopCategory-Parties">
                 {piezasUser && piezasUser.length > 0 ? (
                   piezasUser.map((pieza) => (
                     <div key={pieza.id}>
                       <Item
                         id={pieza.id}
-                        name={pieza.nombre}
+                        name={pieza.juego}
                         image={pieza.image}
                         newPrice={pieza.price}
-                        desc={pieza.barrio}
+                        desc={pieza.nombre}
                       />
                     </div>
                   ))
