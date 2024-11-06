@@ -61,6 +61,7 @@ const Partys = () => {
           <div className="product-details-container">
             <h1 className="product-title">{party.juego}</h1>
             <p className="product-description">{party.nombre}</p>
+            <p className="product-desc">{party.descripcion}</p>
             <p className="product-stock">Stock disponible: {party.stock}</p>
             <p className="product-price">Precio: ${party.price}</p>
             <p className="product-location">Ubicación: {party.barrio}</p>
