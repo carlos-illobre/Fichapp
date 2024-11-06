@@ -19,6 +19,7 @@ import PiezasPage from './Pages/Piezas';
 import PiezasEmpresaPage from './Pages/PiezasEmpresa';
 import UserProfile from './Components/UserProfile/UserProfile'; // Ajusta la ruta si es necesario
 import PiezasImpresoraPage from './Pages/PiezasImpresora';
+import PiezasImpresora from './Pages/PiezasImpresora';
 
 function App() {
   
