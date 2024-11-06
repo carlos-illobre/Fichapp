@@ -95,3 +95,38 @@
     font-weight: bold; /* Negrita para el nombre */
     color: #1b3173;
   }
+
+  .shop-category {
+    text-align: center;
+}
+
+.shopcategory-banner {
+    display: block;
+    margin: 30px auto;
+    max-width: 100%; /* Set a maximum width for the banner */
+}
+
+.shopcategory-indexSort {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0px 170px;
+    color: #a6b5de;
+}
+
+.shopcategory-sort {
+    padding: 10px 20px;
+    border: 1px solid #a6b5de;
+    border-radius: 40px;
+    
+    
+}
+.buttonSort{
+    color: #a6b5de;
+    border: #a6b5de;
+}
+
+.shopcategory-indexSort p span {
+    font-weight: 600;
+   
+}
