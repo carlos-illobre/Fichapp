@@ -56,13 +56,26 @@ const UserProfile = () => {
     status: 'pending',
   });
 
+  // Estados de vendedor
+  const [isVendedor, setIsVendedor] = useState(user.isVendedor || false);
+  const [isVendedorForm, setIsVendedorForm] = useState(false);
+  const [vendedorData, setVendedorData] = useState({
+    dni: '',
+    location: '',
+    cbu: '',
+    identidadPhoto: '',
+    status: 'pending',
+  });
+
   const [pendingRequests, setPendingRequests] = useState([]);
   const [pending3DRequests, setPending3DRequests] = useState([]);
+  const [pendingVendedorRequests, setPendingVendedorRequests] = useState([]);
   const [approvedRequests, setApprovedRequests] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isBusiness, setIsBusiness] = useState(user.isBusiness || false);
   const [loading, setLoading] = useState(true);
 
+ 
   const auth = getAuth();
   const currentUser = auth.currentUser;
 
@@ -74,6 +87,7 @@ const UserProfile = () => {
           setProfilePhoto(doc.data().photoUrl || '');
           setIsBusiness(doc.data().isBusiness || false);
           setIs3DService(doc.data().is3DService || false);
+          setIsVendedor(doc.data().isVendedor || false);
 
           if (!doc.data().hasOwnProperty('isBusiness')) {
             updateDoc(userRef, { isBusiness: false });
@@ -82,12 +96,17 @@ const UserProfile = () => {
           if (!doc.data().hasOwnProperty('is3DService')) {
             updateDoc(userRef, { is3DService: false });
           }
+          if (!doc.data().hasOwnProperty('isVendedor')) {
+            updateDoc(userRef, { isVendedor: false });
+          }
+
 
           if (doc.data().role === 'ADMIN') {
             setIsAdmin(true);
             loadPendingRequests();
             loadApprovedRequests();
             loadPending3DRequests();
+            loadPendingVendedorRequests();
           }
 
           setLoading(false);
@@ -114,6 +133,16 @@ const UserProfile = () => {
       pending3DRequestsArray.push({ id: doc.id, ...doc.data() });
     });
     setPending3DRequests(pending3DRequestsArray);
+  };
+
+  const loadPendingVendedorRequests = async () => {
+    const q = query(collection(db, 'users'), where('vendedorData.status', '==', 'pending'));
+    const querySnapshot = await getDocs(q);
+    const pendingVendedorRequestsArray = [];
+    querySnapshot.forEach((doc) => {
+      pendingVendedorRequestsArray.push({ id: doc.id, ...doc.data() });
+    });
+    setPendingVendedorRequests(pendingVendedorRequestsArray);
   };
 
   const loadApprovedRequests = async () => {
@@ -159,6 +188,37 @@ const UserProfile = () => {
         });
     }
   };
+  
+  const handleSubmitStopBeingVendedor = async () => {
+
+    const confirm = window.confirm('¿Estás seguro de que quieres dejar de ser vendedor?');
+    if (confirm && currentUser) {
+      //hago una consulta para ver si el vendedor tiene publicaciones
+      const piezasCollection = collection(db, 'piezas');
+      const queryPiezaUser = query(piezasCollection, where('email', '==', currentUser.email));
+
+      try {
+        const querySnapshotPiezaUser = await getDocs(queryPiezaUser);
+        if (!querySnapshotPiezaUser.empty) {
+          setMessage('No puedes dejar de ser vendedor si tienes publicaciones activas.');
+          return;
+        }
+
+        const userRef = doc(db, 'users', currentUser.uid);
+        await updateDoc(userRef, {
+          isVendedor: false,
+          'vendedorData.status': 'removed',
+        });
+  
+        setIsVendedor(false);
+        setMessage('Has dejado de ser Vendedor.');
+      } catch (error) {
+        console.error('Error al dejar de ser vendedor:', error);
+        setMessage('Hubo un error. Intenta de nuevo.');
+      }
+    }
+  };
+
 
   const handleToggleCompanyForm = () => {
     setIsCompany(!isCompany);
@@ -168,6 +228,11 @@ const UserProfile = () => {
     setShow3DForm(!show3DForm);
   };
 
+  const handleToggleVendedorForm = () => {
+    setIsVendedorForm(!isVendedorForm);
+  };
+
+
   const handleChange3DData = (e) => {
     const { name, value } = e.target;
     setPrinterData({ ...printerData, [name]: value });
@@ -176,6 +241,16 @@ const UserProfile = () => {
   const handle3DPhotoUpload = (e) => {
     const file = e.target.files[0];
     setPrinterData({ ...printerData, printerPhoto: file });
+  };
+
+  const handleChangeVendedorData = (e) => {
+    const { name, value } = e.target;
+    setVendedorData({ ...vendedorData, [name]: value });
+  };
+
+  const handleVendedorPhotoUpload = (e) => {
+    const file = e.target.files[0];
+    setVendedorData({ ...vendedorData, identidadPhoto: file });
   };
 
   const handleSubmit3DForm = async (e) => {
@@ -263,6 +338,42 @@ const UserProfile = () => {
 
       setMessage('Su petición está en revisión. Pronto se le aprobará.');
       setIsCompany(false);
+    } catch (error) {
+      console.error('Error al enviar la solicitud:', error);
+      setMessage('Hubo un error al enviar la solicitud. Verifique los permisos y vuelva a intentar.');
+    }
+  };
+
+  const handleSubmitVendedorForm = async (e) => {
+    e.preventDefault();
+
+    if (!currentUser) {
+      setMessage('Error: Usuario no autenticado. Intente de nuevo.');
+      return;
+    }
+
+    try {
+      if (!vendedorData.identidadPhoto) {
+        setMessage('Por favor, suba el archivo de un documento de identidad.');
+        return;
+      }
+
+      const storageRef = ref(storage, `documentoIdentidad/${currentUser.uid}`);
+      await uploadBytes(storageRef, vendedorData.identidadPhoto);
+      const idPhotoUrl = await getDownloadURL(storageRef);
+
+      const userRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userRef, {
+        isVendedor: false,
+        vendedorData: {
+          ...vendedorData,
+          identidadPhoto: idPhotoUrl,
+          status: 'pending',
+        },
+      });
+
+      setMessage('Su petición está en revisión. Pronto se le aprobará.');
+      setIsVendedorForm(false);
     } catch (error) {
       console.error('Error al enviar la solicitud:', error);
       setMessage('Hubo un error al enviar la solicitud. Verifique los permisos y vuelva a intentar.');
@@ -426,6 +537,27 @@ const UserProfile = () => {
     loadPending3DRequests();
   };
 
+  const handleApproveVendedor = async (id) => {
+    const userRef = doc(db, 'users', id);
+    await updateDoc(userRef, {
+      isVendedor: true,
+      'vendedorData.status': 'approved',
+      'vendedorData.approvedAt': new Date().toISOString(),
+      'vendedorData.approvedBy': currentUser.email,
+    });
+    loadPendingVendedorRequests();
+    setMessage('La solicitud del vendedor ha sido aprobada.');
+  };
+
+  const handleRejectVendedor = async (id) => {
+    const userRef = doc(db, 'users', id);
+    await updateDoc(userRef, {
+      isVendedor: false,
+      'vendedorData.status': 'rejected',
+    });
+    loadPendingVendedorRequests();
+  };
+
   const handleSearchPiezasUser = async () => {
     if (user.email.length >= 3) {
       const piezasCollection = collection(db, 'piezas');
@@ -488,6 +620,21 @@ const UserProfile = () => {
               <p>Empresa: {request.companyData.companyName} - Estado: {request.companyData.status}</p>
               <button onClick={() => handleApprove(request.id)}>Aprobar</button>
               <button onClick={() => handleReject(request.id)}>Rechazar</button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <h3>Solicitudes de Vendedores Pendientes</h3>
+      {pendingVendedorRequests.length === 0 ? (
+        <p>No hay solicitudes de vendedores pendientes.</p>
+      ) : (
+        <ul>
+          {pendingVendedorRequests.map((request) => (
+            <li key={request.id}>
+              <p>Vendedor en: {request.vendedorData.location} - Estado: {request.vendedorData.status}</p>
+              <button onClick={() => handleApproveVendedor(request.id)}>Aprobar</button>
+              <button onClick={() => handleRejectVendedor(request.id)}>Rechazar</button>
             </li>
           ))}
         </ul>
@@ -674,11 +821,27 @@ const UserProfile = () => {
               </div>
               ) : (
               <div className="create-publication-container">
+              {isVendedor ? (
                 <button className="service-button" onClick={() => navigate('/agregarFiesta')}>
                   Crear Publicación
                 </button>
+                
+              ) : (
+                <button className="service-button" onClick={handleToggleVendedorForm}>
+                    {isVendedorForm ? 'Ocultar formulario' : 'Ser Vendedor'}
+                  </button>
+              )
+              }
+              {isVendedor && (
+                <button className="service-button" onClick={handleSubmitStopBeingVendedor}>Dejar de ser Vendedor</button>
+              )}
+              {isVendedor && (
                 <button className="service-button" onClick={handleSearchPiezasUser}>Mis publicaciones</button>
+                
+              )}
+
               </div>
+
               )}
 
               <div className="additional-buttons">
@@ -701,6 +864,36 @@ const UserProfile = () => {
                   </button>
                 )}
               </div>
+              {isVendedorForm && (
+                <form className="company-form" onSubmit={handleSubmitVendedorForm}>
+                  <p>Se lo agregará a la lista de vendedores. El canon será del 12% por suscripción.</p>
+
+                  <div>
+                    <label>DNI:</label>
+                    <input type="text" name="dni" value={vendedorData.dni} onChange={handleChangeVendedorData} required />
+                  </div>
+
+                  <div>
+                    <label>Ubicación:</label>
+                    <input type="text" name="location" value={vendedorData.location} onChange={handleChangeVendedorData} required />
+                  </div>
+
+                  <div>
+                    <label>CBU de la cuenta bancaria:</label>
+                    <input type="text" name="cbu" value={vendedorData.cbu} onChange={handleChangeVendedorData} required />
+                  </div>
+
+                  <div>
+                    <label>Foto un documento de identidad:</label>
+                    <input type="file" name="printerPhoto" onChange={handleVendedorPhotoUpload} required />
+                  </div>
+
+
+                  <button type="submit" className="submit-button">
+                    Enviar Solicitud
+                  </button>
+                </form>
+              )}
 
               {show3DForm && (
                 <form className="company-form" onSubmit={handleSubmit3DForm}>
