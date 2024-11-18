@@ -32,6 +32,7 @@ service cloud.firestore {
     match /impresoras/{impresoraId} {
       allow read, write: if request.auth != null;
     }
+   
 
     // Permitir acceso a la colección "admin-panel" solo a administradores (usuarios con el campo 'role' como 'ADMIN')
     match /admin-panel/{document=**} {
@@ -46,6 +47,10 @@ service cloud.firestore {
     //Regla piezas
 
     match /piezas/{docId} {
+      allow read, write: if true;
+    }
+
+    match /pubEmpresas/{document=**} {
       allow read, write: if true;
     }
 

@@ -20,6 +20,7 @@ import PiezasEmpresaPage from './Pages/PiezasEmpresa';
 import UserProfile from './Components/UserProfile/UserProfile'; // Ajusta la ruta si es necesario
 import PiezasImpresoraPage from './Pages/PiezasImpresora';
 import PiezasImpresora from './Pages/PiezasImpresora';
+import AgregarJuegoEmpresa from './Pages/AgregarJuegoEmpresa';
 
 function App() {
   
@@ -37,6 +38,7 @@ function App() {
           <Route path='/loginSignUp' element={<LoginSignup />} />
           <Route path='/loginUser' element={<LoginUser />} />
           <Route path="/agregarFiesta" element={<AgregarFiesta />} />
+          <Route path="/agregarJuegoEmpresa" element={<AgregarJuegoEmpresa />} />
           <Route path="/modificarFiesta" element={<ModificarFiesta />} />
           <Route path="/EventsCategory" element={<EventsCategory />} />
           <Route path="/comprar" element={<BotonesParty />} />
