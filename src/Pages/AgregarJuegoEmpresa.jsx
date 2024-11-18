@@ -7,9 +7,6 @@ import { storage } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useLoadScript, Autocomplete } from "@react-google-maps/api";
 import { getAuth } from "firebase/auth";
-import { collection, addDoc } from "firebase/firestore";
-import { db } from "../firebase";
-
 const AgregarJuegoEmpresa = () => {
   const dispatch = useDispatch();
   const allParties = useSelector((state) => state.party.items);
@@ -183,15 +180,7 @@ const AgregarJuegoEmpresa = () => {
               value={registro.price}
             />
           </div>
-          {/* <input
-            type="number"
-            name="stock"
-            min="1"
-            onChange={onChangeValues}
-            placeholder="Stock disponible (*)"
-            value={registro.stock}
-            style={{ width: "100%", marginTop: "10px", padding: "8px" }}
-          /> */}
+
           <Autocomplete
             onLoad={(ref) => (autocompleteRef.current = ref)}
             onPlaceChanged={handlePlaceChanged}

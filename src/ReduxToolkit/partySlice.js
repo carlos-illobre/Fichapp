@@ -336,6 +336,7 @@ const partySlice = createSlice({
     builder.addCase(addPiezaEmpresa.fulfilled, (state, action) => {
       state.loading = false;
       state.foundPiezasEmpresa.push(action.payload);
+      state.foundPiezasUser.push(action.payload);
     });
     builder.addCase(addPiezaEmpresa.rejected, (state, action) => {
       state.loading = false;
