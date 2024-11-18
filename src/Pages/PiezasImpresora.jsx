@@ -32,7 +32,9 @@ const PiezasImpresora = () => {
           }
         });
 
-        setImpresorasData(impresoras.sort((a, b) => a.name.localeCompare(b.name)));
+        setImpresorasData(
+          impresoras.sort((a, b) => a.name.localeCompare(b.name))
+        );
       } catch (error) {
         console.error("Error al buscar impresoras en Firebase:", error);
       }
@@ -49,11 +51,18 @@ const PiezasImpresora = () => {
     <div className="impresoras-results">
       {impresorasData.map((impresora) => (
         <div key={impresora.id} className="impresora-card">
-          <img className="impresora-image" src={impresora.profilePhoto} alt={impresora.name} />
+          <img
+            className="impresora-image"
+            src={impresora.profilePhoto}
+            alt={impresora.name}
+          />
           <h4 className="user-name">{impresora.name}</h4>
           <p className="location">{impresora.location}</p>
           <p className="price">Tarifa: ${impresora.serviceFee}</p>
-          <button className="toggle-form-button" onClick={() => toggleForm(impresora.id)}>
+          <button
+            className="toggle-form-button"
+            onClick={() => toggleForm(impresora.id)}
+          >
             Solicitar Servicio
           </button>
           {selectedPrinter === impresora.id && (

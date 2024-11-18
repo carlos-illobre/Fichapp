@@ -1,24 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import './UserProfile.css';
-import { getAuth, updatePassword, deleteUser } from 'firebase/auth';
-import { doc, updateDoc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { db, storage } from '../../firebase';
-import { updateUser } from '../../ReduxToolkit/userSlice';
-import { useNavigate } from 'react-router-dom';
-import { setFoundPiezasUser, selectFoundPiezasUser } from "../../ReduxToolkit/partySlice";
-import Item from '../Items/Item';
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import "./UserProfile.css";
+import { getAuth, updatePassword, deleteUser } from "firebase/auth";
+import {
+  doc,
+  updateDoc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
+import { db, storage } from "../../firebase";
+import { updateUser } from "../../ReduxToolkit/userSlice";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  setFoundPiezasUser,
+  selectFoundPiezasUser,
+  fetchPiezasEmp,
+  deletePiezaEmpresa,
+} from "../../ReduxToolkit/partySlice";
+import Item from "../Items/Item";
+import "../../Pages/CSS/PiezasImpresora.css";
 
 const UserProfile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const user = useSelector((state) => state.user);
   const [editableUser, setEditableUser] = useState({
-    name: user.name || '',
-    email: user.email || '',
-    password: '********',
-    phone: user.phone || '',
+    name: user.name || "",
+    email: user.email || "",
+    password: "********",
+    phone: user.phone || "",
   });
 
   const [isEditing, setIsEditing] = useState({
@@ -29,42 +49,42 @@ const UserProfile = () => {
     photo: false,
   });
 
-  const [profilePhoto, setProfilePhoto] = useState(user.photoUrl || '');
+  const [profilePhoto, setProfilePhoto] = useState(user.photoUrl || "");
   const [newPhoto, setNewPhoto] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   // Estados de empresa
   const [isCompany, setIsCompany] = useState(false);
   const [companyData, setCompanyData] = useState({
-    companyName: '',
-    location: '',
-    cbu: '',
-    actaPhoto: '',
-    serviceFee: '',
-    status: 'pending',
+    companyName: "",
+    location: "",
+    cbu: "",
+    actaPhoto: "",
+    serviceFee: "",
+    status: "pending",
   });
 
   // Estados de servicio 3D
   const [is3DService, setIs3DService] = useState(user.is3DService || false);
   const [show3DForm, setShow3DForm] = useState(false);
   const [printerData, setPrinterData] = useState({
-    location: '',
-    cbu: '',
+    location: "",
+    cbu: "",
     printerPhoto: null,
-    serviceFee: '',
-    status: 'pending',
+    serviceFee: "",
+    status: "pending",
   });
 
   // Estados de vendedor
   const [isVendedor, setIsVendedor] = useState(user.isVendedor || false);
   const [isVendedorForm, setIsVendedorForm] = useState(false);
   const [vendedorData, setVendedorData] = useState({
-    dni: '',
-    location: '',
-    cbu: '',
-    identidadPhoto: '',
-    status: 'pending',
+    dni: "",
+    location: "",
+    cbu: "",
+    identidadPhoto: "",
+    status: "pending",
   });
 
   const [pendingRequests, setPendingRequests] = useState([]);
@@ -75,33 +95,31 @@ const UserProfile = () => {
   const [isBusiness, setIsBusiness] = useState(user.isBusiness || false);
   const [loading, setLoading] = useState(true);
 
- 
   const auth = getAuth();
   const currentUser = auth.currentUser;
 
   useEffect(() => {
     if (currentUser) {
-      const userRef = doc(db, 'users', currentUser.uid);
+      const userRef = doc(db, "users", currentUser.uid);
       getDoc(userRef).then((doc) => {
         if (doc.exists()) {
-          setProfilePhoto(doc.data().photoUrl || '');
+          setProfilePhoto(doc.data().photoUrl || "");
           setIsBusiness(doc.data().isBusiness || false);
           setIs3DService(doc.data().is3DService || false);
           setIsVendedor(doc.data().isVendedor || false);
 
-          if (!doc.data().hasOwnProperty('isBusiness')) {
+          if (!doc.data().hasOwnProperty("isBusiness")) {
             updateDoc(userRef, { isBusiness: false });
           }
 
-          if (!doc.data().hasOwnProperty('is3DService')) {
+          if (!doc.data().hasOwnProperty("is3DService")) {
             updateDoc(userRef, { is3DService: false });
           }
-          if (!doc.data().hasOwnProperty('isVendedor')) {
+          if (!doc.data().hasOwnProperty("isVendedor")) {
             updateDoc(userRef, { isVendedor: false });
           }
 
-
-          if (doc.data().role === 'ADMIN') {
+          if (doc.data().role === "ADMIN") {
             setIsAdmin(true);
             loadPendingRequests();
             loadApprovedRequests();
@@ -116,7 +134,10 @@ const UserProfile = () => {
   }, [currentUser]);
 
   const loadPendingRequests = async () => {
-    const q = query(collection(db, 'users'), where('companyData.status', 'in', ['pending', 'pending removal']));
+    const q = query(
+      collection(db, "users"),
+      where("companyData.status", "in", ["pending", "pending removal"])
+    );
     const querySnapshot = await getDocs(q);
     const pendingRequestsArray = [];
     querySnapshot.forEach((doc) => {
@@ -126,7 +147,10 @@ const UserProfile = () => {
   };
 
   const loadPending3DRequests = async () => {
-    const q = query(collection(db, 'users'), where('printerData.status', '==', 'pending'));
+    const q = query(
+      collection(db, "users"),
+      where("printerData.status", "==", "pending")
+    );
     const querySnapshot = await getDocs(q);
     const pending3DRequestsArray = [];
     querySnapshot.forEach((doc) => {
@@ -136,7 +160,10 @@ const UserProfile = () => {
   };
 
   const loadPendingVendedorRequests = async () => {
-    const q = query(collection(db, 'users'), where('vendedorData.status', '==', 'pending'));
+    const q = query(
+      collection(db, "users"),
+      where("vendedorData.status", "==", "pending")
+    );
     const querySnapshot = await getDocs(q);
     const pendingVendedorRequestsArray = [];
     querySnapshot.forEach((doc) => {
@@ -146,7 +173,10 @@ const UserProfile = () => {
   };
 
   const loadApprovedRequests = async () => {
-    const q = query(collection(db, 'users'), where('companyData.status', '==', 'approved'));
+    const q = query(
+      collection(db, "users"),
+      where("companyData.status", "==", "approved")
+    );
     const querySnapshot = await getDocs(q);
     const approvedRequestsArray = [];
     querySnapshot.forEach((doc) => {
@@ -174,51 +204,63 @@ const UserProfile = () => {
   };
 
   const handleSubmitStopBeingCompany = () => {
-    const confirm = window.confirm('¿Estás seguro de que quieres dejar de ser una empresa?');
+    const confirm = window.confirm(
+      "¿Estás seguro de que quieres dejar de ser una empresa?"
+    );
     if (confirm && currentUser) {
-      const userRef = doc(db, 'users', currentUser.uid);
+      const userRef = doc(db, "users", currentUser.uid);
       updateDoc(userRef, {
-        'companyData.status': 'pending removal',
+        "companyData.status": "pending removal",
       })
         .then(() => {
-          setMessage('Su solicitud para dejar de ser empresa está en revisión.');
+          setMessage(
+            "Su solicitud para dejar de ser empresa está en revisión."
+          );
         })
         .catch((error) => {
-          console.error('Error al procesar la solicitud de dejar de ser empresa:', error);
+          console.error(
+            "Error al procesar la solicitud de dejar de ser empresa:",
+            error
+          );
         });
     }
   };
-  
-  const handleSubmitStopBeingVendedor = async () => {
 
-    const confirm = window.confirm('¿Estás seguro de que quieres dejar de ser vendedor?');
+  const handleSubmitStopBeingVendedor = async () => {
+    const confirm = window.confirm(
+      "¿Estás seguro de que quieres dejar de ser vendedor?"
+    );
     if (confirm && currentUser) {
       //hago una consulta para ver si el vendedor tiene publicaciones
-      const piezasCollection = collection(db, 'piezas');
-      const queryPiezaUser = query(piezasCollection, where('email', '==', currentUser.email));
+      const piezasCollection = collection(db, "piezas");
+      const queryPiezaUser = query(
+        piezasCollection,
+        where("email", "==", currentUser.email)
+      );
 
       try {
         const querySnapshotPiezaUser = await getDocs(queryPiezaUser);
         if (!querySnapshotPiezaUser.empty) {
-          setMessage('No puedes dejar de ser vendedor si tienes publicaciones activas.');
+          setMessage(
+            "No puedes dejar de ser vendedor si tienes publicaciones activas."
+          );
           return;
         }
 
-        const userRef = doc(db, 'users', currentUser.uid);
+        const userRef = doc(db, "users", currentUser.uid);
         await updateDoc(userRef, {
           isVendedor: false,
-          'vendedorData.status': 'removed',
+          "vendedorData.status": "removed",
         });
-  
+
         setIsVendedor(false);
-        setMessage('Has dejado de ser Vendedor.');
+        setMessage("Has dejado de ser Vendedor.");
       } catch (error) {
-        console.error('Error al dejar de ser vendedor:', error);
-        setMessage('Hubo un error. Intenta de nuevo.');
+        console.error("Error al dejar de ser vendedor:", error);
+        setMessage("Hubo un error. Intenta de nuevo.");
       }
     }
   };
-
 
   const handleToggleCompanyForm = () => {
     setIsCompany(!isCompany);
@@ -231,7 +273,6 @@ const UserProfile = () => {
   const handleToggleVendedorForm = () => {
     setIsVendedorForm(!isVendedorForm);
   };
-
 
   const handleChange3DData = (e) => {
     const { name, value } = e.target;
@@ -257,13 +298,13 @@ const UserProfile = () => {
     e.preventDefault();
 
     if (!currentUser) {
-      setMessage('Error: Usuario no autenticado. Intente de nuevo.');
+      setMessage("Error: Usuario no autenticado. Intente de nuevo.");
       return;
     }
 
     try {
       if (!printerData.printerPhoto) {
-        setMessage('Por favor, suba una foto de la impresora.');
+        setMessage("Por favor, suba una foto de la impresora.");
         return;
       }
 
@@ -271,39 +312,43 @@ const UserProfile = () => {
       await uploadBytes(storageRef, printerData.printerPhoto);
       const photoUrl = await getDownloadURL(storageRef);
 
-      const userRef = doc(db, 'users', currentUser.uid);
+      const userRef = doc(db, "users", currentUser.uid);
       await updateDoc(userRef, {
         printerData: {
           ...printerData,
           printerPhoto: photoUrl,
-          status: 'pending',
+          status: "pending",
         },
         is3DService: false,
       });
 
-      setMessage('Su solicitud para ofrecer servicios 3D está en revisión.');
+      setMessage("Su solicitud para ofrecer servicios 3D está en revisión.");
       setShow3DForm(false);
     } catch (error) {
-      console.error('Error al enviar la solicitud:', error);
-      setMessage('Hubo un error al enviar la solicitud. Verifique los permisos y vuelva a intentar.');
+      console.error("Error al enviar la solicitud:", error);
+      setMessage(
+        "Hubo un error al enviar la solicitud. Verifique los permisos y vuelva a intentar."
+      );
     }
   };
 
   const handleSubmitStopBeing3DService = () => {
-    const confirm = window.confirm('¿Estás seguro de que quieres dejar de ofrecer servicios 3D?');
+    const confirm = window.confirm(
+      "¿Estás seguro de que quieres dejar de ofrecer servicios 3D?"
+    );
     if (confirm && currentUser) {
-      const userRef = doc(db, 'users', currentUser.uid);
+      const userRef = doc(db, "users", currentUser.uid);
       updateDoc(userRef, {
         is3DService: false,
-        'printerData.status': 'removed',
+        "printerData.status": "removed",
       })
         .then(() => {
           setIs3DService(false);
-          setMessage('Has dejado de ofrecer servicios 3D.');
+          setMessage("Has dejado de ofrecer servicios 3D.");
         })
         .catch((error) => {
-          console.error('Error al dejar de ofrecer servicios 3D:', error);
-          setMessage('Hubo un error. Intenta de nuevo.');
+          console.error("Error al dejar de ofrecer servicios 3D:", error);
+          setMessage("Hubo un error. Intenta de nuevo.");
         });
     }
   };
@@ -312,35 +357,40 @@ const UserProfile = () => {
     e.preventDefault();
 
     if (!currentUser) {
-      setMessage('Error: Usuario no autenticado. Intente de nuevo.');
+      setMessage("Error: Usuario no autenticado. Intente de nuevo.");
       return;
     }
 
     try {
       if (!newPhoto) {
-        setMessage('Por favor, suba el archivo del acta de empresa.');
+        setMessage("Por favor, suba el archivo del acta de empresa.");
         return;
       }
 
-      const storageRef = ref(storage, `actasEmpresa/${currentUser.uid}/${newPhoto.name}`);
+      const storageRef = ref(
+        storage,
+        `actasEmpresa/${currentUser.uid}/${newPhoto.name}`
+      );
       await uploadBytes(storageRef, newPhoto);
       const actaPhotoUrl = await getDownloadURL(storageRef);
 
-      const userRef = doc(db, 'users', currentUser.uid);
+      const userRef = doc(db, "users", currentUser.uid);
       await updateDoc(userRef, {
         isBusiness: false,
         companyData: {
           ...companyData,
           actaPhoto: actaPhotoUrl,
-          status: 'pending',
+          status: "pending",
         },
       });
 
-      setMessage('Su petición está en revisión. Pronto se le aprobará.');
+      setMessage("Su petición está en revisión. Pronto se le aprobará.");
       setIsCompany(false);
     } catch (error) {
-      console.error('Error al enviar la solicitud:', error);
-      setMessage('Hubo un error al enviar la solicitud. Verifique los permisos y vuelva a intentar.');
+      console.error("Error al enviar la solicitud:", error);
+      setMessage(
+        "Hubo un error al enviar la solicitud. Verifique los permisos y vuelva a intentar."
+      );
     }
   };
 
@@ -348,13 +398,13 @@ const UserProfile = () => {
     e.preventDefault();
 
     if (!currentUser) {
-      setMessage('Error: Usuario no autenticado. Intente de nuevo.');
+      setMessage("Error: Usuario no autenticado. Intente de nuevo.");
       return;
     }
 
     try {
       if (!vendedorData.identidadPhoto) {
-        setMessage('Por favor, suba el archivo de un documento de identidad.');
+        setMessage("Por favor, suba el archivo de un documento de identidad.");
         return;
       }
 
@@ -362,35 +412,39 @@ const UserProfile = () => {
       await uploadBytes(storageRef, vendedorData.identidadPhoto);
       const idPhotoUrl = await getDownloadURL(storageRef);
 
-      const userRef = doc(db, 'users', currentUser.uid);
+      const userRef = doc(db, "users", currentUser.uid);
       await updateDoc(userRef, {
         isVendedor: false,
         vendedorData: {
           ...vendedorData,
           identidadPhoto: idPhotoUrl,
-          status: 'pending',
+          status: "pending",
         },
       });
 
-      setMessage('Su petición está en revisión. Pronto se le aprobará.');
+      setMessage("Su petición está en revisión. Pronto se le aprobará.");
       setIsVendedorForm(false);
     } catch (error) {
-      console.error('Error al enviar la solicitud:', error);
-      setMessage('Hubo un error al enviar la solicitud. Verifique los permisos y vuelva a intentar.');
+      console.error("Error al enviar la solicitud:", error);
+      setMessage(
+        "Hubo un error al enviar la solicitud. Verifique los permisos y vuelva a intentar."
+      );
     }
   };
 
   const handleDeleteAccount = () => {
-    const confirmDelete = window.confirm('¿Estás seguro de que deseas eliminar tu cuenta?');
+    const confirmDelete = window.confirm(
+      "¿Estás seguro de que deseas eliminar tu cuenta?"
+    );
     if (confirmDelete) {
       deleteUser(currentUser)
         .then(() => {
-          alert('Cuenta eliminada exitosamente');
-          window.location.href = '/';
+          alert("Cuenta eliminada exitosamente");
+          window.location.href = "/";
         })
         .catch((error) => {
-          console.error('Error al eliminar la cuenta:', error);
-          alert('Error al eliminar la cuenta');
+          console.error("Error al eliminar la cuenta:", error);
+          alert("Error al eliminar la cuenta");
         });
     }
   };
@@ -399,12 +453,12 @@ const UserProfile = () => {
     if (currentUser) {
       updatePassword(currentUser, editableUser.password)
         .then(() => {
-          setMessage('Contraseña modificada exitosamente');
+          setMessage("Contraseña modificada exitosamente");
           setIsEditing({ ...isEditing, password: false });
-          setTimeout(() => setMessage(''), 3000);
+          setTimeout(() => setMessage(""), 3000);
         })
         .catch((error) => {
-          console.error('Error al modificar la contraseña:', error);
+          console.error("Error al modificar la contraseña:", error);
           alert(`Error al modificar la contraseña: ${error.message}`);
         });
     }
@@ -420,22 +474,25 @@ const UserProfile = () => {
       uploadBytes(storageRef, newPhoto)
         .then(() => {
           getDownloadURL(storageRef).then((url) => {
-            const userRef = doc(db, 'users', currentUser.uid);
+            const userRef = doc(db, "users", currentUser.uid);
             updateDoc(userRef, { photoUrl: url })
               .then(() => {
                 setProfilePhoto(url);
-                setMessage('Imagen cargada exitosamente');
-                setTimeout(() => setMessage(''), 3000);
+                setMessage("Imagen cargada exitosamente");
+                setTimeout(() => setMessage(""), 3000);
               })
               .catch((error) => {
-                console.error('Error al guardar la foto en la base de datos:', error);
-                alert('Error al guardar la foto en la base de datos');
+                console.error(
+                  "Error al guardar la foto en la base de datos:",
+                  error
+                );
+                alert("Error al guardar la foto en la base de datos");
               });
           });
         })
         .catch((error) => {
-          console.error('Error al cargar la foto en Firebase Storage:', error);
-          alert('Error al cargar la foto');
+          console.error("Error al cargar la foto en Firebase Storage:", error);
+          alert("Error al cargar la foto");
         });
     }
   };
@@ -445,123 +502,135 @@ const UserProfile = () => {
       const storageRef = ref(storage, `profilePhotos/${currentUser.uid}`);
       deleteObject(storageRef)
         .then(() => {
-          const userRef = doc(db, 'users', currentUser.uid);
-          updateDoc(userRef, { photoUrl: '' })
+          const userRef = doc(db, "users", currentUser.uid);
+          updateDoc(userRef, { photoUrl: "" })
             .then(() => {
-              setProfilePhoto('');
-              setMessage('Foto eliminada exitosamente');
-              setTimeout(() => setMessage(''), 3000);
+              setProfilePhoto("");
+              setMessage("Foto eliminada exitosamente");
+              setTimeout(() => setMessage(""), 3000);
             })
             .catch((error) => {
-              console.error('Error al eliminar la foto de la base de datos:', error);
-              alert('Error al eliminar la foto de la base de datos');
+              console.error(
+                "Error al eliminar la foto de la base de datos:",
+                error
+              );
+              alert("Error al eliminar la foto de la base de datos");
             });
         })
         .catch((error) => {
-          console.error('Error al eliminar la foto en Firebase Storage:', error);
-          alert('Error al eliminar la foto en Firebase Storage');
+          console.error(
+            "Error al eliminar la foto en Firebase Storage:",
+            error
+          );
+          alert("Error al eliminar la foto en Firebase Storage");
         });
     }
   };
 
   const handleNameChange = () => {
     if (currentUser) {
-      const userRef = doc(db, 'users', currentUser.uid);
+      const userRef = doc(db, "users", currentUser.uid);
       updateDoc(userRef, { name: editableUser.name })
         .then(() => {
-          setMessage('Nombre actualizado exitosamente');
+          setMessage("Nombre actualizado exitosamente");
           dispatch(updateUser({ name: editableUser.name }));
           setIsEditing({ ...isEditing, name: false });
-          setTimeout(() => setMessage(''), 3000);
+          setTimeout(() => setMessage(""), 3000);
         })
         .catch((error) => {
-          console.error('Error al actualizar el nombre:', error);
-          alert('Error al actualizar el nombre');
+          console.error("Error al actualizar el nombre:", error);
+          alert("Error al actualizar el nombre");
         });
     }
   };
 
   const handleApprove = async (id) => {
-    const userRef = doc(db, 'users', id);
+    const userRef = doc(db, "users", id);
     const userDoc = await getDoc(userRef);
-    if (userDoc.exists() && userDoc.data().companyData.status === 'pending removal') {
+    if (
+      userDoc.exists() &&
+      userDoc.data().companyData.status === "pending removal"
+    ) {
       await updateDoc(userRef, {
         isBusiness: false,
-        'companyData.status': '',
-        'companyData.companyName': '',
-        'companyData.location': '',
-        'companyData.cbu': '',
-        'companyData.actaPhoto': '',
-        'companyData.serviceFee': '',
+        "companyData.status": "",
+        "companyData.companyName": "",
+        "companyData.location": "",
+        "companyData.cbu": "",
+        "companyData.actaPhoto": "",
+        "companyData.serviceFee": "",
       });
     } else {
       await updateDoc(userRef, {
         isBusiness: true,
-        'companyData.status': 'approved',
-        'companyData.approvedAt': new Date().toISOString(),
-        'companyData.approvedBy': currentUser.email,
+        "companyData.status": "approved",
+        "companyData.approvedAt": new Date().toISOString(),
+        "companyData.approvedBy": currentUser.email,
       });
     }
     loadPendingRequests();
     loadApprovedRequests();
-    setMessage('La solicitud ha sido aprobada.');
+    setMessage("La solicitud ha sido aprobada.");
   };
 
   const handleReject = async (id) => {
-    const userRef = doc(db, 'users', id);
+    const userRef = doc(db, "users", id);
     await updateDoc(userRef, {
       isBusiness: false,
-      'companyData.status': 'rejected',
+      "companyData.status": "rejected",
     });
     loadPendingRequests();
   };
 
   const handleApprove3D = async (id) => {
-    const userRef = doc(db, 'users', id);
+    const userRef = doc(db, "users", id);
     await updateDoc(userRef, {
       is3DService: true,
-      'printerData.status': 'approved',
-      'printerData.approvedAt': new Date().toISOString(),
-      'printerData.approvedBy': currentUser.email,
+      "printerData.status": "approved",
+      "printerData.approvedAt": new Date().toISOString(),
+      "printerData.approvedBy": currentUser.email,
     });
     loadPending3DRequests();
-    setMessage('La solicitud de servicios 3D ha sido aprobada.');
+    setMessage("La solicitud de servicios 3D ha sido aprobada.");
   };
 
   const handleReject3D = async (id) => {
-    const userRef = doc(db, 'users', id);
+    const userRef = doc(db, "users", id);
     await updateDoc(userRef, {
       is3DService: false,
-      'printerData.status': 'rejected',
+      "printerData.status": "rejected",
     });
     loadPending3DRequests();
   };
 
   const handleApproveVendedor = async (id) => {
-    const userRef = doc(db, 'users', id);
+    const userRef = doc(db, "users", id);
     await updateDoc(userRef, {
       isVendedor: true,
-      'vendedorData.status': 'approved',
-      'vendedorData.approvedAt': new Date().toISOString(),
-      'vendedorData.approvedBy': currentUser.email,
+      "vendedorData.status": "approved",
+      "vendedorData.approvedAt": new Date().toISOString(),
+      "vendedorData.approvedBy": currentUser.email,
     });
     loadPendingVendedorRequests();
-    setMessage('La solicitud del vendedor ha sido aprobada.');
+    setMessage("La solicitud del vendedor ha sido aprobada.");
   };
 
   const handleRejectVendedor = async (id) => {
-    const userRef = doc(db, 'users', id);
+    const userRef = doc(db, "users", id);
     await updateDoc(userRef, {
       isVendedor: false,
-      'vendedorData.status': 'rejected',
+      "vendedorData.status": "rejected",
     });
     loadPendingVendedorRequests();
   };
 
   const handleSearchPiezasUser = async () => {
     if (user.email.length >= 3) {
-      const piezasCollection = collection(db, 'piezas');
-      const queryPiezaUser = query(piezasCollection, where('email', '==', user.email));
+      const piezasCollection = collection(db, "piezas");
+      const queryPiezaUser = query(
+        piezasCollection,
+        where("email", "==", user.email)
+      );
 
       try {
         const querySnapshotPiezaUser = await getDocs(queryPiezaUser);
@@ -577,14 +646,17 @@ const UserProfile = () => {
           dispatch(setFoundPiezasUser([]));
         }
       } catch (error) {
-        console.error('Error al realizar la búsqueda:', error);
+        console.error("Error al realizar la búsqueda:", error);
       }
     }
   };
   const handleSearchJuegosEmpresas = async () => {
     if (user.email.length >= 3) {
-      const piezasCollection = collection(db, 'pubEmpresas');
-      const queryPiezaUser = query(piezasCollection, where('email', '==', user.email));
+      const piezasCollection = collection(db, "pubEmpresas");
+      const queryPiezaUser = query(
+        piezasCollection,
+        where("email", "==", user.email)
+      );
 
       try {
         const querySnapshotPiezaUser = await getDocs(queryPiezaUser);
@@ -595,16 +667,16 @@ const UserProfile = () => {
         });
 
         if (piezasUser.length > 0) {
-          dispatch(setFoundPiezasUser(piezasUser));
+          // dispatch(setFoundPiezasUser(piezasUser));
+          dispatch(fetchPiezasEmp(user.email));
         } else {
           dispatch(setFoundPiezasUser([]));
         }
       } catch (error) {
-        console.error('Error al realizar la búsqueda:', error);
+        console.error("Error al realizar la búsqueda:", error);
       }
     }
   };
-  
 
   const piezasUser = useSelector(selectFoundPiezasUser);
 
@@ -617,7 +689,10 @@ const UserProfile = () => {
         <ul>
           {pendingRequests.map((request) => (
             <li key={request.id}>
-              <p>Empresa: {request.companyData.companyName} - Estado: {request.companyData.status}</p>
+              <p>
+                Empresa: {request.companyData.companyName} - Estado:{" "}
+                {request.companyData.status}
+              </p>
               <button onClick={() => handleApprove(request.id)}>Aprobar</button>
               <button onClick={() => handleReject(request.id)}>Rechazar</button>
             </li>
@@ -632,9 +707,16 @@ const UserProfile = () => {
         <ul>
           {pendingVendedorRequests.map((request) => (
             <li key={request.id}>
-              <p>Vendedor en: {request.vendedorData.location} - Estado: {request.vendedorData.status}</p>
-              <button onClick={() => handleApproveVendedor(request.id)}>Aprobar</button>
-              <button onClick={() => handleRejectVendedor(request.id)}>Rechazar</button>
+              <p>
+                Vendedor en: {request.vendedorData.location} - Estado:{" "}
+                {request.vendedorData.status}
+              </p>
+              <button onClick={() => handleApproveVendedor(request.id)}>
+                Aprobar
+              </button>
+              <button onClick={() => handleRejectVendedor(request.id)}>
+                Rechazar
+              </button>
             </li>
           ))}
         </ul>
@@ -647,9 +729,16 @@ const UserProfile = () => {
         <ul>
           {pending3DRequests.map((request) => (
             <li key={request.id}>
-              <p>Impresora en: {request.printerData.location} - Estado: {request.printerData.status}</p>
-              <button onClick={() => handleApprove3D(request.id)}>Aprobar</button>
-              <button onClick={() => handleReject3D(request.id)}>Rechazar</button>
+              <p>
+                Impresora en: {request.printerData.location} - Estado:{" "}
+                {request.printerData.status}
+              </p>
+              <button onClick={() => handleApprove3D(request.id)}>
+                Aprobar
+              </button>
+              <button onClick={() => handleReject3D(request.id)}>
+                Rechazar
+              </button>
             </li>
           ))}
         </ul>
@@ -663,7 +752,10 @@ const UserProfile = () => {
           {approvedRequests.map((request) => (
             <li key={request.id}>
               <p>Empresa: {request.companyData.companyName}</p>
-              <p>Fecha de aprobación: {new Date(request.companyData.approvedAt).toLocaleString()}</p>
+              <p>
+                Fecha de aprobación:{" "}
+                {new Date(request.companyData.approvedAt).toLocaleString()}
+              </p>
               <p>Aprobado por: {request.companyData.approvedBy}</p>
             </li>
           ))}
@@ -685,19 +777,32 @@ const UserProfile = () => {
               <div className="header-section">
                 <div className="header-left">
                   <img
-                    src={profilePhoto || 'https://via.placeholder.com/100'}
+                    src={profilePhoto || "https://via.placeholder.com/100"}
                     alt={editableUser.name}
                     className="photo-header-small rounded-photo"
                   />
                   <div className="header-info">
                     <h2>{editableUser.name}</h2>
                     <p>{editableUser.email}</p>
-                    {user.companyData?.status === 'pending' && <p>Status: Pendiente</p>}
-                    {isBusiness && <p style={{ color: 'green' }}>Cuenta de empresa: Aprobada</p>}
-                    {user.companyData?.status === 'rejected' && <p style={{ color: 'red' }}>Cuenta de empresa: Rechazada</p>}
+                    {user.companyData?.status === "pending" && (
+                      <p>Status: Pendiente</p>
+                    )}
+                    {isBusiness && (
+                      <p style={{ color: "green" }}>
+                        Cuenta de empresa: Aprobada
+                      </p>
+                    )}
+                    {user.companyData?.status === "rejected" && (
+                      <p style={{ color: "red" }}>
+                        Cuenta de empresa: Rechazada
+                      </p>
+                    )}
                   </div>
                 </div>
-                <button className="delete-account-button" onClick={handleDeleteAccount}>
+                <button
+                  className="delete-account-button"
+                  onClick={handleDeleteAccount}
+                >
                   Eliminar Cuenta
                 </button>
               </div>
@@ -709,7 +814,7 @@ const UserProfile = () => {
                 <div className="detail-item-column">
                   <div className="input-container">
                     <input
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       id="password"
                       name="password"
                       value={editableUser.password}
@@ -717,15 +822,24 @@ const UserProfile = () => {
                       disabled={!isEditing.password}
                       placeholder="••••••••"
                     />
-                    <button className="toggle-button" onClick={() => setShowPassword(!showPassword)}>
-                      {showPassword ? 'Ocultar' : 'Mostrar'}
+                    <button
+                      className="toggle-button"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? "Ocultar" : "Mostrar"}
                     </button>
                     {isEditing.password ? (
-                      <button className="modify-button" onClick={handlePasswordChange}>
+                      <button
+                        className="modify-button"
+                        onClick={handlePasswordChange}
+                      >
                         Guardar
                       </button>
                     ) : (
-                      <button className="modify-button" onClick={() => toggleEditing('password')}>
+                      <button
+                        className="modify-button"
+                        onClick={() => toggleEditing("password")}
+                      >
                         Modificar
                       </button>
                     )}
@@ -737,18 +851,29 @@ const UserProfile = () => {
                 <h3>Datos Personales</h3>
                 <div className="profile-photo-large">
                   <img
-                    src={profilePhoto || 'https://via.placeholder.com/200'}
+                    src={profilePhoto || "https://via.placeholder.com/200"}
                     alt={editableUser.name}
                     className="photo-large rounded-photo centered-photo"
                   />
                   <div className="photo-buttons">
-                    <button className="edit-button-small" onClick={() => document.getElementById('file-upload').click()}>
+                    <button
+                      className="edit-button-small"
+                      onClick={() =>
+                        document.getElementById("file-upload").click()
+                      }
+                    >
                       Cargar
                     </button>
-                    <button className="save-button-small" onClick={handlePhotoSave}>
+                    <button
+                      className="save-button-small"
+                      onClick={handlePhotoSave}
+                    >
                       Guardar
                     </button>
-                    <button className="delete-button-small" onClick={handlePhotoDelete}>
+                    <button
+                      className="delete-button-small"
+                      onClick={handlePhotoDelete}
+                    >
                       Eliminar
                     </button>
                     <input
@@ -774,11 +899,17 @@ const UserProfile = () => {
                         disabled={!isEditing.name}
                       />
                       {isEditing.name ? (
-                        <button className="modify-button" onClick={handleNameChange}>
+                        <button
+                          className="modify-button"
+                          onClick={handleNameChange}
+                        >
                           Guardar
                         </button>
                       ) : (
-                        <button className="modify-button" onClick={() => toggleEditing('name')}>
+                        <button
+                          className="modify-button"
+                          onClick={() => toggleEditing("name")}
+                        >
                           Modificar
                         </button>
                       )}
@@ -797,11 +928,17 @@ const UserProfile = () => {
                         disabled={!isEditing.phone}
                       />
                       {isEditing.phone ? (
-                        <button className="modify-button" onClick={() => toggleEditing('phone')}>
+                        <button
+                          className="modify-button"
+                          onClick={() => toggleEditing("phone")}
+                        >
                           Guardar
                         </button>
                       ) : (
-                        <button className="modify-button" onClick={() => toggleEditing('phone')}>
+                        <button
+                          className="modify-button"
+                          onClick={() => toggleEditing("phone")}
+                        >
                           Modificar
                         </button>
                       )}
@@ -812,82 +949,138 @@ const UserProfile = () => {
 
               {message && <p className="message">{message}</p>}
 
-              {isBusiness? (
+              {isBusiness ? (
                 <div className="create-publication-container">
-                <button className="service-button" onClick={() => navigate('/agregarJuegoEmpresa')}>
+                  <button
+                    className="service-button"
+                    onClick={() => navigate("/agregarJuegoEmpresa")}
+                  >
                     Publicar Juego
-                </button>
-                <button className="service-button" onClick={handleSearchJuegosEmpresas}>Mis publicaciones</button>
-              </div>
-              ) : (
-              <div className="create-publication-container">
-              {isVendedor ? (
-                <button className="service-button" onClick={() => navigate('/agregarFiesta')}>
-                  Crear Publicación
-                </button>
-                
-              ) : (
-                <button className="service-button" onClick={handleToggleVendedorForm}>
-                    {isVendedorForm ? 'Ocultar formulario' : 'Ser Vendedor'}
                   </button>
-              )
-              }
-              {isVendedor && (
-                <button className="service-button" onClick={handleSubmitStopBeingVendedor}>Dejar de ser Vendedor</button>
-              )}
-              {isVendedor && (
-                <button className="service-button" onClick={handleSearchPiezasUser}>Mis publicaciones</button>
-                
-              )}
-
-              </div>
-
+                  <button
+                    className="service-button"
+                    onClick={handleSearchJuegosEmpresas}
+                  >
+                    Mis publicaciones
+                  </button>
+                </div>
+              ) : (
+                <div className="create-publication-container">
+                  {isVendedor ? (
+                    <button
+                      className="service-button"
+                      onClick={() => navigate("/agregarFiesta")}
+                    >
+                      Crear Publicación
+                    </button>
+                  ) : (
+                    <button
+                      className="service-button"
+                      onClick={handleToggleVendedorForm}
+                    >
+                      {isVendedorForm ? "Ocultar formulario" : "Ser Vendedor"}
+                    </button>
+                  )}
+                  {isVendedor && (
+                    <button
+                      className="service-button"
+                      onClick={handleSubmitStopBeingVendedor}
+                    >
+                      Dejar de ser Vendedor
+                    </button>
+                  )}
+                  {isVendedor && (
+                    <button
+                      className="service-button"
+                      onClick={handleSearchPiezasUser}
+                    >
+                      Mis publicaciones
+                    </button>
+                  )}
+                </div>
               )}
 
               <div className="additional-buttons">
                 {is3DService ? (
-                  <button className="service-button" onClick={handleSubmitStopBeing3DService}>
+                  <button
+                    className="service-button"
+                    onClick={handleSubmitStopBeing3DService}
+                  >
                     Dejar de ofrecer servicios 3D
                   </button>
                 ) : (
                   <button className="service-button" onClick={toggle3DForm}>
-                    {show3DForm ? 'Ocultar formulario' : 'Ofrecer servicios 3D'}
+                    {show3DForm ? "Ocultar formulario" : "Ofrecer servicios 3D"}
                   </button>
                 )}
                 {isBusiness ? (
-                  <button className="service-button" onClick={handleSubmitStopBeingCompany}>
+                  <button
+                    className="service-button"
+                    onClick={handleSubmitStopBeingCompany}
+                  >
                     Dejar de ser empresa
                   </button>
                 ) : (
-                  <button className="service-button" onClick={handleToggleCompanyForm}>
-                    {isCompany ? 'Ocultar formulario' : 'Ser empresa'}
+                  <button
+                    className="service-button"
+                    onClick={handleToggleCompanyForm}
+                  >
+                    {isCompany ? "Ocultar formulario" : "Ser empresa"}
                   </button>
                 )}
               </div>
               {isVendedorForm && (
-                <form className="company-form" onSubmit={handleSubmitVendedorForm}>
-                  <p>Se lo agregará a la lista de vendedores. El canon será del 12% por suscripción.</p>
+                <form
+                  className="company-form"
+                  onSubmit={handleSubmitVendedorForm}
+                >
+                  <p>
+                    Se lo agregará a la lista de vendedores. El canon será del
+                    12% por suscripción.
+                  </p>
 
                   <div>
                     <label>DNI:</label>
-                    <input type="text" name="dni" value={vendedorData.dni} onChange={handleChangeVendedorData} required />
+                    <input
+                      type="text"
+                      name="dni"
+                      value={vendedorData.dni}
+                      onChange={handleChangeVendedorData}
+                      required
+                    />
                   </div>
 
                   <div>
                     <label>Ubicación:</label>
-                    <input type="text" name="location" value={vendedorData.location} onChange={handleChangeVendedorData} required />
+                    <input
+                      type="text"
+                      name="location"
+                      value={vendedorData.location}
+                      onChange={handleChangeVendedorData}
+                      required
+                    />
                   </div>
 
                   <div>
                     <label>CBU de la cuenta bancaria:</label>
-                    <input type="text" name="cbu" value={vendedorData.cbu} onChange={handleChangeVendedorData} required />
+                    <input
+                      type="text"
+                      name="cbu"
+                      value={vendedorData.cbu}
+                      onChange={handleChangeVendedorData}
+                      required
+                    />
                   </div>
 
                   <div>
                     <label>Foto un documento de identidad:</label>
-                    <input type="file" name="printerPhoto" onChange={handleVendedorPhotoUpload} required />
+                    <input
+                      type="file"
+                      name="printerPhoto"
+                      onChange={handleVendedorPhotoUpload}
+                      required
+                    />
                   </div>
-
 
                   <button type="submit" className="submit-button">
                     Enviar Solicitud
@@ -897,26 +1090,52 @@ const UserProfile = () => {
 
               {show3DForm && (
                 <form className="company-form" onSubmit={handleSubmit3DForm}>
-                  <p>Se lo agregará a la lista de impresoras 3D como alternativa. El canon será del 12% por suscripción.</p>
+                  <p>
+                    Se lo agregará a la lista de impresoras 3D como alternativa.
+                    El canon será del 12% por suscripción.
+                  </p>
 
                   <div>
                     <label>Ubicación:</label>
-                    <input type="text" name="location" value={printerData.location} onChange={handleChange3DData} required />
+                    <input
+                      type="text"
+                      name="location"
+                      value={printerData.location}
+                      onChange={handleChange3DData}
+                      required
+                    />
                   </div>
 
                   <div>
                     <label>CBU de la cuenta bancaria:</label>
-                    <input type="text" name="cbu" value={printerData.cbu} onChange={handleChange3DData} required />
+                    <input
+                      type="text"
+                      name="cbu"
+                      value={printerData.cbu}
+                      onChange={handleChange3DData}
+                      required
+                    />
                   </div>
 
                   <div>
                     <label>Foto de la impresora:</label>
-                    <input type="file" name="printerPhoto" onChange={handle3DPhotoUpload} required />
+                    <input
+                      type="file"
+                      name="printerPhoto"
+                      onChange={handle3DPhotoUpload}
+                      required
+                    />
                   </div>
 
                   <div>
                     <label>Tarifa por sus servicios:</label>
-                    <input type="text" name="serviceFee" value={printerData.serviceFee} onChange={handleChange3DData} required />
+                    <input
+                      type="text"
+                      name="serviceFee"
+                      value={printerData.serviceFee}
+                      onChange={handleChange3DData}
+                      required
+                    />
                   </div>
 
                   <button type="submit" className="submit-button">
@@ -926,8 +1145,14 @@ const UserProfile = () => {
               )}
 
               {isCompany && !isBusiness && (
-                <form className="company-form" onSubmit={handleSubmitCompanyForm}>
-                  <p>Se lo agregará a la lista de empresas como alternativa. El canon será del 12% por suscripción.</p>
+                <form
+                  className="company-form"
+                  onSubmit={handleSubmitCompanyForm}
+                >
+                  <p>
+                    Se lo agregará a la lista de empresas como alternativa. El
+                    canon será del 12% por suscripción.
+                  </p>
 
                   <div>
                     <label>Nombre de la Empresa:</label>
@@ -964,7 +1189,12 @@ const UserProfile = () => {
 
                   <div>
                     <label>Foto del Acta de Verificación:</label>
-                    <input type="file" name="actaPhoto" onChange={handlePhotoUpload} required />
+                    <input
+                      type="file"
+                      name="actaPhoto"
+                      onChange={handlePhotoUpload}
+                      required
+                    />
                   </div>
 
                   <div>
@@ -984,24 +1214,63 @@ const UserProfile = () => {
                 </form>
               )}
 
-              
-              <div className="shopCategory-Parties">
-                {piezasUser && piezasUser.length > 0 ? (
-                  piezasUser.map((pieza) => (
-                    <div key={pieza.id}>
-                      <Item
-                        id={pieza.id}
-                        name={pieza.juego}
-                        image={pieza.image}
-                        newPrice={pieza.price}
-                        desc={pieza.nombre}
-                      />
-                    </div>
-                  ))
-                ) : (
-                  <p>No se encontraron piezas.</p>
-                )}
-              </div>
+              {/* lista publicaciones vendedor */}
+              {isVendedor && !isBusiness ? (
+                <div className="shopCategory-Parties">
+                  {piezasUser && piezasUser.length > 0 ? (
+                    piezasUser.map((pieza) => (
+                      <div key={pieza.id}>
+                        <Item
+                          id={pieza.id}
+                          name={pieza.juego}
+                          image={pieza.image}
+                          newPrice={pieza.price}
+                          desc={pieza.nombre}
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <p>No se encontraron piezas.</p>
+                  )}
+                </div>
+              ) : (
+                <div className="shopCategory-Parties">
+                  {piezasUser && piezasUser.length > 0 ? (
+                    piezasUser.map((pieza, index) => (
+                      <div key={index} className="impresora-card">
+                        <img
+                          className="impresora-image"
+                          src={pieza.image}
+                          alt={pieza.juego}
+                        />
+                        <h4 className="user-name">{pieza.juego}</h4>
+                        <p className="location">{pieza.barrio}</p>
+                        <p className="price">Tarifa: ${pieza.price}</p>
+                        <button
+                          className="toggle-form-button"
+                          onClick={() => dispatch(deletePiezaEmpresa(pieza.id))}
+                          style={{ margin: "10px" }}
+                        >
+                          Eliminar
+                        </button>
+                        <button
+                          className="toggle-form-button"
+                          onClick={() =>
+                            navigate("/modificarPubEmpresa", {
+                              state: { pieza },
+                            })
+                          }
+                          style={{ margin: "10px" }}
+                        >
+                          Modificar
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No se encontraron piezas.</p>
+                  )}
+                </div>
+              )}
             </>
           )}
         </>
