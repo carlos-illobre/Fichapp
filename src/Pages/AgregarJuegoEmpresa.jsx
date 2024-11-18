@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./CSS/LoginSignup.css";
 import { useSelector, useDispatch } from "react-redux";
-import { addPieza } from "../ReduxToolkit/partySlice";
+import { addPieza, addPiezaEmpresa } from "../ReduxToolkit/partySlice";
 import { useNavigate } from "react-router-dom";
 import { storage } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -9,9 +9,6 @@ import { useLoadScript, Autocomplete } from "@react-google-maps/api";
 import { getAuth } from "firebase/auth";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
-
-
-
 
 const AgregarJuegoEmpresa = () => {
   const dispatch = useDispatch();
@@ -25,7 +22,7 @@ const AgregarJuegoEmpresa = () => {
     price: "",
     ubicacion: "",
   });
-  
+
   const [errorMessage, setErrorMessage] = useState("");
   const [imagePreviews, setImagePreviews] = useState([]);
   const [randomNumber, setRandomNumber] = useState(generateRandomNumber());
@@ -83,12 +80,12 @@ const AgregarJuegoEmpresa = () => {
   };
 
   const handleContinuarClick = async () => {
-    const {  juego,  price, images, ubicacion } = registro;
+    const { juego, price, images, ubicacion } = registro;
     if (!juego) {
       setErrorMessage("Por favor, completá el campo 'Juego'.");
       return;
     }
-    
+
     if (!price) {
       setErrorMessage("Por favor, completá el campo 'Precio'.");
       return;
@@ -101,7 +98,7 @@ const AgregarJuegoEmpresa = () => {
       setErrorMessage("Por favor, agregá al menos una imagen.");
       return;
     }
-    if (price <= 0 ) {
+    if (price <= 0) {
       setErrorMessage("Por favor, revisa los datos ingresados.");
       return;
     }
@@ -125,7 +122,6 @@ const AgregarJuegoEmpresa = () => {
     const email = user.email;
     const name = userName.name;
 
-
     const partyData = {
       juego,
       barrio: ubicacion,
@@ -134,10 +130,10 @@ const AgregarJuegoEmpresa = () => {
       email,
       nombre: name,
       id: generateRandomNumber(),
-
     };
 
-    const pieza = await addDoc(collection(db, "pubEmpresas"), partyData);
+    // const pieza = await addDoc(collection(db, "pubEmpresas"), partyData);
+    dispatch(addPiezaEmpresa(partyData));
     navigate(`/PiezasEmpresa`);
     setErrorMessage("");
   };
@@ -168,7 +164,6 @@ const AgregarJuegoEmpresa = () => {
       <div className="loginsignup-container">
         <h1>Publicar Juego</h1>
         <div className="loginsignup-fields">
-          
           <input
             type="text"
             name="juego"
@@ -176,7 +171,7 @@ const AgregarJuegoEmpresa = () => {
             placeholder="Nombre del Juego (*)"
             value={registro.juego}
           />
-          
+
           <div style={{ display: "flex", alignItems: "center" }}>
             <span style={{ fontSize: "1.5rem", marginRight: "10px" }}>$</span>
             <input
@@ -223,17 +218,36 @@ const AgregarJuegoEmpresa = () => {
             id="file-upload"
             multiple
           />
-          
-          <label htmlFor="file-upload" style={{ cursor: "pointer", border: "1px solid #ccc", padding: "10px", display: "inline-block", backgroundColor: "#f0f0f0" }}>
+
+          <label
+            htmlFor="file-upload"
+            style={{
+              cursor: "pointer",
+              border: "1px solid #ccc",
+              padding: "10px",
+              display: "inline-block",
+              backgroundColor: "#f0f0f0",
+            }}
+          >
             Cargar Imágenes de la pieza
           </label>
-          
+
           {imagePreviews.length > 0 && (
             <div style={{ marginTop: "10px" }}>
               <h4>Previsualización de las Imágenes:</h4>
               <div style={{ display: "flex", flexWrap: "wrap" }}>
                 {imagePreviews.map((image, index) => (
-                  <img key={index} src={image} alt={`Imagen de la pieza ${index + 1}`} style={{ maxWidth: "100px", height: "auto", marginRight: "10px", marginBottom: "10px" }} />
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`Imagen de la pieza ${index + 1}`}
+                    style={{
+                      maxWidth: "100px",
+                      height: "auto",
+                      marginRight: "10px",
+                      marginBottom: "10px",
+                    }}
+                  />
                 ))}
               </div>
             </div>
