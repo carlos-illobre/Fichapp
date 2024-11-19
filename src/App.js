@@ -22,6 +22,7 @@ import PiezasImpresoraPage from "./Pages/PiezasImpresora";
 import PiezasImpresora from "./Pages/PiezasImpresora";
 import AgregarJuegoEmpresa from "./Pages/AgregarJuegoEmpresa";
 import ModificarPubEmpresa from "./Pages/ModificarPubEmpresa";
+import ThankYou from "./Pages/thankYou";
 
 function App() {
   return (
@@ -59,6 +60,7 @@ function App() {
           <Route path="/user-profile" element={<UserProfile />} />{" "}
           {/* Nueva ruta para el perfil */}
           <Route path="/party/edit/:partyId" element={<PartysEdit />} />
+          <Route path="/thank-you" element={<ThankYou />} />
         </Routes>
         <Footer />
       </BrowserRouter>

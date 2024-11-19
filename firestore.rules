@@ -53,6 +53,9 @@ service cloud.firestore {
     match /pubEmpresas/{document=**} {
       allow read, write: if true;
     }
+    match /compras/{document=**} {
+      allow read, write: if true;
+    }
 
     
     match /piezas/{document=**} {

@@ -1,0 +1,48 @@
+.thank-you {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #a6b5de; /* Color de fondo celeste */
+}
+
+.thank-you-container {
+  width: 580px;
+  background: white; /* Fondo blanco del contenedor */
+  margin: auto;
+  padding: 40px 60px;
+  border: 2px solid #1b3173; /* Borde azul */
+  border-radius: 10px; /* Esquinas redondeadas */
+  text-align: center; /* Centrar contenido */
+}
+
+.thank-you-container h1 {
+  margin-bottom: 20px;
+  color: #1b3173; /* Color azul del título */
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.thank-you-container p {
+  margin-bottom: 30px;
+  color: #5c5c5c; /* Color gris del texto */
+  font-size: 18px;
+}
+
+.thank-you-button {
+  display: inline-block;
+  padding: 15px 30px;
+  background: #1b3173; /* Color de fondo azul */
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.thank-you-button:hover {
+  background: #163063; /* Color más oscuro al pasar el cursor */
+}
