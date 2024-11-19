@@ -792,6 +792,16 @@ const UserProfile = () => {
                         Cuenta de empresa: Aprobada
                       </p>
                     )}
+                    {isVendedor && (
+                      <p style={{ color: "green" }}>
+                        Cuenta de vendedor: Aprobada
+                      </p>
+                    )}
+                    {is3DService && (
+                      <p style={{ color: "green" }}>
+                        Cuenta de impresor 3D: Aprobada
+                      </p>
+                    )}
                     {user.companyData?.status === "rejected" && (
                       <p style={{ color: "red" }}>
                         Cuenta de empresa: Rechazada
