@@ -4,11 +4,15 @@ import { db } from "../firebase";
 import { useSelector } from "react-redux";
 import SolicitudForm from "./SolicitudForm"; // Asegúrate de que la ruta sea correcta
 import "./CSS/PiezasImpresora.css";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const PiezasImpresora = () => {
   const [impresorasData, setImpresorasData] = useState([]);
   const [selectedPrinter, setSelectedPrinter] = useState(null); // Estado para la tarjeta seleccionada
-  const user = useSelector((state) => state.user); // Obtener información del usuario loggeado
+  const user = useSelector((state) => state.user);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [previousPath, setPreviousPath] = useState(null);
 
   useEffect(() => {
     const fetchImpresorasData = async () => {
@@ -28,6 +32,7 @@ const PiezasImpresora = () => {
               location: data.printerData?.location || "Sin ubicación",
               serviceFee: data.printerData?.serviceFee || "Sin tarifa",
               profilePhoto: data.photoUrl || "https://via.placeholder.com/250", // Foto de perfil del usuario
+              email: data.email,
             });
           }
         });
@@ -44,7 +49,12 @@ const PiezasImpresora = () => {
   }, [user.email]);
 
   const toggleForm = (printerId) => {
-    setSelectedPrinter(selectedPrinter === printerId ? null : printerId);
+    if (user.isLogged) {
+      setSelectedPrinter(selectedPrinter === printerId ? null : printerId);
+    } else {
+      setPreviousPath(window.location.pathname);
+      navigate("/loginSignUp");
+    }
   };
 
   return (
@@ -68,7 +78,10 @@ const PiezasImpresora = () => {
           {selectedPrinter === impresora.id && (
             <SolicitudForm
               impresorName={impresora.name}
-              impresorId={impresora.id}
+              is3d={true}
+              mailOwner={impresora.email}
+              juego={""}
+              precio={impresora.serviceFee}
               onClose={() => setSelectedPrinter(null)}
             />
           )}
