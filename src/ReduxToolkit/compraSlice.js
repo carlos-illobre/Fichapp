@@ -31,6 +31,15 @@ const sendEmailVendedor = async (templateParams) => {
   }
 };
 
+function convertToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(",")[1]); // Obtén solo la parte Base64
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(file); // Convierte el archivo
+  });
+}
+
 export const compraCarrito = createAsyncThunk(
   "compra/compraCarrito",
   async (
@@ -78,7 +87,7 @@ export const compraCarrito = createAsyncThunk(
       // Llama a la función de envío de correo
       sendEmailComprador(emailParams);
 
-      const discount = 0.1; // El 10% en formato decimal
+      const discount = 0.06; // El 6% en formato decimal
       const totalAfterDiscount = totalAmount - totalAmount * discount;
       const emailParamsVendedor = {
         to_email: items[0].owner,
@@ -155,8 +164,9 @@ export const compra3D = createAsyncThunk(
       // Llama a la función de envío de correo
       sendEmailComprador(emailParams);
 
-      const discount = 0.15; // El 15% en formato decimal
+      const discount = 0.1; // El 10% en formato decimal
       const totalAfterDiscount = totalAmount - totalAmount * discount;
+      const archivoBase64 = await convertToBase64(items[0].archivo);
       const emailParamsVendedor = {
         to_email: owner,
         tipo_venta: "por servicio impresión 3D",
@@ -171,6 +181,12 @@ export const compra3D = createAsyncThunk(
             y la imagen del producto que se mando es la siguiente ${archivoUrl}`;
           })
           .join("\n")}\n\n¡Gracias por confiar en nosotros!`,
+        attachments: [
+          {
+            name: "archivo.jpg", // Nombre del archivo
+            data: archivoBase64, // Contenido del archivo en Base64
+          },
+        ],
       };
 
       // Llama a la función de envío de correo
@@ -240,7 +256,7 @@ export const compraEmpresa = createAsyncThunk(
       // Llama a la función de envío de correo
       sendEmailComprador(emailParams);
 
-      const discount = 0.15; // El 15% en formato decimal
+      const discount = 0.1; // El 10% en formato decimal
       const totalAfterDiscount = totalAmount - totalAmount * discount;
       const emailParamsVendedor = {
         to_email: owner,
